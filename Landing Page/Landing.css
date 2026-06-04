@@ -75,6 +75,7 @@ header:after{
 }
 
 
+/* ad */
 #ad{
     background-color: #76C2C0;
     height: 90px;
@@ -93,6 +94,7 @@ header:after{
     text-shadow: 2px 2px #D9D9D9;
 }
 
+/* featured pet */
 .polkadots {
     background-color: #D9D9D9;
     background-image: radial-gradient(#EE3A78 6%, transparent 10%),
@@ -114,7 +116,7 @@ header:after{
 }
 
 #featured-pet {
-    height: 70vh;
+    height: 65vh;
     background-color: #D9D9D9;
     
     display: flex;
@@ -134,9 +136,14 @@ header:after{
     width: 50%;
     object-fit: cover;
     border-radius: 50px;
+
+    transition: transform .2s ease;
+}
+#featured-pet img:hover {
+    transform: scale(1.05);
 }
 .featpet-info {
-    margin-left: 2%;
+    margin-left: 3.4%;
     margin-top: 2%;
     padding: 2.5%;
     width: 45%;
@@ -168,6 +175,70 @@ header:after{
     font-size: 1.8rem;
     font-family: "Stack Sans Headline", sans-serif;
 }
+
+/* store videos */
+#store-videos {
+    background-color: #28B9B2;
+    height: 90vh;
+
+    display: flex;
+    flex-direction: row;
+    gap: 5rem;
+    justify-content: center;
+    padding-top: 2rem;
+}
+.video-container{
+    width: 24%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.paw-svg{
+    width: 5rem;
+    filter: invert(100%);
+    padding-bottom: 2rem;
+
+    transition: filte .5s ease;
+}
+.paw-svg:hover {
+    filter: invert(32%) sepia(85%) saturate(1500%) hue-rotate(310deg) brightness(100%);
+}
+.showcase-video {
+    width: 90%;
+    border-radius: 47% 47% 0 0;
+
+
+    -webkit-box-shadow:0px 0px 91px 8px rgba(255,255,255,0.43);
+    -moz-box-shadow: 0px 0px 91px 8px rgba(255,255,255,0.43);
+    box-shadow: 0px 0px 91px 8px rgba(255,255,255,0.43);
+
+}
+.video-container p {
+    background-color: #E1567D;
+    border-radius: 10px;
+    width: 100%;
+    height: 5rem;
+    padding-top: .7rem;
+    font-weight: 700;
+
+    text-align: center;
+    color: white;
+    font-size: 2.5rem;
+    font-family: "Stack Sans Headline", sans-serif;
+
+    border-style: solid;
+    border-width: 5px;
+    border-color: white;
+
+    transition: transform .2s ease;
+}
+.video-container p:hover {
+    transform: scale(1.05);
+}
+
+
+
 /*
 .scalloped-edge {
   height: 50px;
