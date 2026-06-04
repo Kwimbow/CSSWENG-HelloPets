@@ -86,7 +86,7 @@ header:after{
     text-align: center;
     padding-top: 20px;
     color: white;
-    text-shadow: 2px 2px #7D7D7D;
+    text-shadow: 2px 2px #5E5E5E;
 }
 #ad span {
     color: #EE3A78;
@@ -108,15 +108,52 @@ header:after{
     justify-content: center;
     align-items: center;
 }
-#featured-pet div {
-    background-color: #D9D9D9;
+.featpet-container {
+    display: flex;
+    flex-direction: row;
+
     height: 80%;
     width: 90%;
+    border-radius: 50px;
 }
 #featured-pet img {
     height: 95%;
     width: 50%;
     object-fit: cover;
+    border-radius: 50px;
+}
+.featpet-info {
+    margin-left: 2%;
+    margin-top: 2%;
+    padding: 2.5%;
+    width: 45%;
+    height: 80%;
+    background-color: #D9D9D9;
+    border-radius: 50px;
+
+    -webkit-box-shadow:0px 0px 44px 9px rgba(136,136,136,0.9);
+    -moz-box-shadow: 0px 0px 44px 9px rgba(136,136,136,0.9);
+    box-shadow: 0px 0px 44px 9px rgba(136,136,136,0.9);
+}
+.featpet-info h2 {
+    text-align: center;
+    font-size: 5rem;
+    font-family: "Stack Sans Headline", sans-serif;
+    font-weight: 700;
+    margin-bottom: -9px;
+}
+.featpet-info h4 {
+    text-align: center;
+    color: #EE3A78;
+    font-size: 3rem;
+    font-family: "Stack Sans Headline", sans-serif;
+    font-weight: 400;
+    margin-bottom: 10px;
+}
+.featpet-info p {
+    text-align: center;
+    font-size: 1.8rem;
+    font-family: "Stack Sans Headline", sans-serif;
 }
 /*
 .scalloped-edge {
