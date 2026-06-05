@@ -1,5 +1,5 @@
 body{
-    background-color: white;
+    background-color: #76C2C0;
     overflow-x: hidden;
 }
 
@@ -20,6 +20,10 @@ header{
     padding: 1rem 0;
     background-color: #28B9B2;
     box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+    top:0;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
 }
 
 header:after{
@@ -42,6 +46,11 @@ header:after{
 
 #nav-icon{
     height: 50px;
+    transition: transform .2s ease;
+}
+
+#nav-icon:hover {
+    transform: scale(1.05);
 }
 
 .nav-bar{
@@ -74,6 +83,10 @@ header:after{
     text-shadow: 0 0 5px #ffc9dc;
 }
 
+#nav-space{
+    height: 87px;
+    background-color: #76C2C0;
+}
 
 /* ad */
 #ad{
