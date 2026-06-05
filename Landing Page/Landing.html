@@ -104,5 +104,39 @@
             </div>
             
         </div>
+ 
+        <!-- book -->
+        <div class="book">
+            <div class="book-cta">
+                <a href="#" class="book-now-btn">Book Now!</a>
+                <p class="no-account">No Account Needed!</p>
+            </div>
+            
+            <div class="book-slideshow">
+                <div class="slides">
+                    <div class="slide active"><img src="Logos/dog.jpg" alt="Pet 1"></div>
+                    <div class="slide"><img src="Pics/dog 2.jpg" alt="Pet 2"></div>
+                </div>
+                <div class="slide-dots">
+                    <span class="dot active" onclick="goToSlide(0)"></span>
+                    <span class="dot" onclick="goToSlide(1)"></span>
+                </div>
+            </div>
+        </div>
+ 
+        <script>
+            let cur = 0;
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            function goToSlide(n) {
+                slides[cur].classList.remove('active');
+                dots[cur].classList.remove('active');
+                cur = n;
+                slides[cur].classList.add('active');
+                dots[cur].classList.add('active');
+            }
+            setInterval(() => goToSlide((cur + 1) % slides.length), 3500);
+        </script>
+
     </body>
 </html>
