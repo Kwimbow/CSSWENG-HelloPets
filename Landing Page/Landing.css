@@ -348,13 +348,13 @@ header:after{
 
 .book { 
     display: flex; 
-    height: 420px; 
+    height: 30vh; 
     overflow: hidden;
-    margin-top: -1px; 
+    margin-top: -0.1vh; 
 }
 .book-slideshow { 
     position: relative; 
-    width: 50%; 
+    width: 30%; 
 }
 .slides { 
     width: 100%; 
@@ -377,33 +377,41 @@ header:after{
 }
 .slide-dots { 
     position: absolute; 
-    bottom: 14px; 
+    bottom: 1.5vh; 
     left: 50%; 
     transform: translateX(-50%); 
     display: flex; 
-    gap: 8px; 
+    gap: 0.5vw; 
     z-index: 2; 
 }
 .dot { 
-    width: 10px; 
-    height: 10px; 
+    width: 1vh; 
+    height: 1vh; 
     border-radius: 50%; 
     background: rgba(255,255,255,0.5); 
     cursor: pointer; 
     transition: background 0.3s; 
 }
-
 .dot.active { 
     background: white; 
 }
 .book-cta { 
-    flex: 1; 
+    flex: 1;
+    position: relative;
     background: #28B9B2; 
     display: flex; 
     flex-direction: column; 
     align-items: center; 
     justify-content: center; 
-    gap: 1rem; 
+    gap: 1rem;
+    overflow: hidden;
+}
+.paw-watermark {
+    position: absolute;
+    width: 70%;
+    opacity: 0.08;
+    fill: white;
+    pointer-events: none;
 }
 .book-now-btn { 
     background: #EE3A78; 
@@ -411,10 +419,10 @@ header:after{
     font-family: Inder, sans-serif; 
     font-size: 2rem; 
     font-weight: 700; 
-    padding: 1.2rem 3.5rem; 
-    border-radius: 6px; 
+    padding: 1.2vh 3.5vw; 
+    border-radius: 0.5vh; 
     text-decoration: none; 
-    box-shadow: 0 4px 14px rgba(238,58,120,0.45); 
+    box-shadow: 0 0.4vh 1.4vh rgba(238,58,120,0.45); 
     transition: transform 0.2s ease; 
 }
 .book-now-btn:hover { 
