@@ -108,6 +108,8 @@ header:after{
 }
 
 /* featured pet */
+
+/* white + pink dots */
 .polkadots {
     background-color: #D9D9D9;
     background-image: radial-gradient(#EE3A78 6%, transparent 10%),
@@ -130,12 +132,66 @@ header:after{
 
 #featured-pet {
     height: 65vh;
-    background-color: #D9D9D9;
     
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
+/* plain pink
+#featured-pet {
+    height: 65vh;
+    background-color: #EE3A78;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}*/
+
+/* pink + white dots
+.polkadots {
+    background-color: #EE3A78;
+    background-image: radial-gradient(#D9D9D9 6%, transparent 10%),
+        radial-gradient(#D9D9D9 6%, transparent 10%);
+    background-size:40px 40px;
+    background-position: 0 0, 60px 60px;
+    animation-name: backgroundmovement;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+@keyframes backgroundmovement {
+    0% {
+        background-position: 0px 0px, 60px 60px;
+    }
+    100% {
+        background-position: 60px 60px, 120px 120px;
+    }
+}*/
+
+/* pink + dark pink dots 
+.polkadots {
+    background-color: #EE3A78;
+    background-image: radial-gradient(#B01C4E 6%, transparent 10%),
+        radial-gradient(#B01C4E 6%, transparent 10%);
+    background-size:40px 40px;
+    background-position: 0 0, 60px 60px;
+    animation-name: backgroundmovement;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+@keyframes backgroundmovement {
+    0% {
+        background-position: 0px 0px, 60px 60px;
+    }
+    100% {
+        background-position: 60px 60px, 120px 120px;
+    }
+}*/
+
+
+
 .featpet-container {
     display: flex;
     flex-direction: row;
