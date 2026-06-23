@@ -506,7 +506,28 @@ header:after{
 }
 
 /* Mobile */
-@media (max-width: 768px) {
+
+@media (max-width: 1230px) {
+    #pano-video {
+        max-width: 55.5%;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 4/3;
+        object-fit: cover;
+    }
+
+    .g-maps{
+        max-width: 41.5%;
+        width: 100%;
+        height: auto;
+    }
+
+    .location-add {
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 850px) {
     /* Navbar */
     .nav-bar {
         flex-direction: column;
@@ -603,7 +624,7 @@ header:after{
     }
 
     .video-container p {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         height: auto;
         padding: 0.4rem 0.25rem;
         line-height: 1.1;
@@ -636,13 +657,25 @@ header:after{
     }
 
     #pano-video {
-        max-width: 95%;
+        max-width: 55.5%;
         width: 100%;
+        height: auto;
+        aspect-ratio: 4/3;
+        object-fit: cover;
     }
 
     .g-maps{
-        max-width: 50%;
+        max-width: 41.5%;
         width: 100%;
+        height: auto;
+    }
+
+    #map pre{
+        white-space: normal;
+    }
+
+    .location-add {
+        margin-bottom: 20px;
     }
 
     /* Booking */
