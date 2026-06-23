@@ -92,9 +92,10 @@ header:after{
 #ad{
     background-color: #76C2C0;
     height: 90px;
+    width: 100%;
 }
 #ad p {
-    font-size: 2.5rem;
+    font-size: clamp(1.3rem, 2.5vw, 3rem);
     font-family: "Berkshire Swash", serif;
     font-weight: 400;
     text-align: center;
@@ -131,8 +132,8 @@ header:after{
 }
 
 #featured-pet {
-    height: 65vh;
-    
+    min-height: 65vh;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -205,7 +206,7 @@ header:after{
     width: 50%;
     object-fit: cover;
     border-radius: 50px;
-
+    max-height: 50vh;
     transition: transform .2s ease;
 }
 #featured-pet img:hover {
@@ -249,7 +250,7 @@ header:after{
 #store-videos {
     background-color: #28B9B2;
     height: 90vh;
-
+    width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -309,7 +310,7 @@ header:after{
     background-color: #EE3A78;
     min-height: 90vh;
     height: auto;
-
+    width: 100%;
     display: flex;
     flex-direction: row;
     gap: 5rem;
@@ -326,14 +327,14 @@ header:after{
     object-fit: cover;
     transition: transform .2s ease;
 }
-
+/*
 .fade-right {
       width: 100%;
       height: auto;
       display: block;
       mask-image: linear-gradient(to right, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 95%);
     }
-
+*/
 .store-front-video{
     padding-top: 5vh;
     padding-left: 3vh;
@@ -409,6 +410,7 @@ header:after{
     color: white;
     margin-left: 1rem;
     margin-top: 0.5rem;
+    text-decoration: none !important;
 }
 
 
@@ -418,6 +420,7 @@ header:after{
     height: 30vh; 
     overflow: hidden;
     margin-top: -0.1vh; 
+    width: 100%;
 }
 .book-slideshow { 
     position: relative; 
@@ -501,44 +504,222 @@ header:after{
     font-size: 1.4rem; 
     opacity: 0.9; 
 }
-/*
-.scalloped-edge {
-  height: 50px;
-  width: 100%;
-  background-color: #28B9B2;
-  background-image: radial-gradient(circle at 50% 100%, #28B9B2 70%, transparent 71%);
-  background-size: 40px 20px;
-  background-repeat: repeat-x;
-  background-position: 0 0;
+
+/* Mobile */
+@media (max-width: 768px) {
+    /* Navbar */
+    .nav-bar {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .nav-bar ul {
+        display: flex; 
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .nav-bar ul li {
+        margin: 0.2rem 0.6rem;
+    }
+
+    .nav-bar ul li a {
+        font-size: 0.9rem;
+    }
+
+    #nav-space {
+        height: 140px;
+    }
+
+    header:after {
+        top: 110px;
+    }
+
+    /* AD */
+    #ad {
+        height: auto;
+        padding: 15px 10px;
+    }
+    #ad p {
+        font-size: 1.2rem;
+        padding-top: 0;
+        white-space: normal;
+    }
+
+    /* Featured Pet */
+    #featured-pet {
+        height: auto;
+        padding: 2rem 0;
+    }
+
+    .featpet-container {
+        flex-direction: column;
+        align-items: center;
+        height: auto;
+        width: 100%;
+        padding: 0 1rem;
+        box-sizing: border-box;
+    }
+
+    #featured-pet img {
+        width: 100%;
+        max-width: 340px;
+        height: 340px;
+        max-height: 340px;
+        margin-bottom: 1rem;
+    }
+
+    .featpet-info {
+        width: 100%;
+        max-width: 340px;
+        height: auto;
+        margin-left: 0;
+        margin-top: 0;
+        padding: 1.5rem;
+        box-sizing: border-box;
+    }
+
+    /* Store Vids */
+    #store-videos {
+        height: auto;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 2rem 0.5rem;
+        gap: 0.6rem;
+    }
+
+    .video-container {
+        width: calc(33.33% - 0.5rem); 
+        min-width: 0;
+        padding: 0 !important;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .video-container p {
+        font-size: 0.75rem;
+        height: auto;
+        padding: 0.4rem 0.25rem;
+        line-height: 1.1;
+        margin-top: -10px;
+    }
+
+    .paw-svg {
+        width: 1.5rem;
+        padding-top: 4.5rem;
+    }
+
+    .showcase-video {
+        width: 100%;
+    }
+
+    /* Store location */
+    #store-locator {
+        flex-direction: column;
+        gap: 2rem;
+        height: auto;
+        padding-bottom: 3rem;
+    }
+
+    .store-front {
+        max-width: 100%;
+    }
+
+    .store-loc {
+        font-size: 3.5rem;
+    }
+
+    #pano-video {
+        max-width: 95%;
+        width: 100%;
+    }
+
+    .g-maps{
+        max-width: 50%;
+        width: 100%;
+    }
+
+    /* Booking */
+    .book {
+        flex-direction: column;
+        height: auto;
+        width: 100%;
+        max-width: 100vw;
+        overflow: hidden;
+    }
+
+    .book-slideshow {
+        width: 100% !important;
+        height: 250px;
+    }
+
+    .book-cta {
+        padding: 3rem 1rem;
+    }
+    
+    html, body {
+        width: 100%;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    #featured-pet, #store-videos, #store-locator, .book {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
 }
 
+/*For smaller view, like phones, cuz i was testing it using a minimized browser in pc*/
+@media (max-width: 600px) {
+    header:after {
+            top: 125px;
+        }
+    #nav-space {
+        height: 145px;
+    }
 
-#nav-icon{
-    height: 50px;
-    display: flex;
-    left: 30px;
-    position: absolute;
-    margin: none;
-}
+    #pano-video {
+        max-width: 95%;
+        width: 100%;
+    }
 
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 80px;
-    margin-left: 270px;
-    align-items: center;
-}
+    .store-loc {
+        font-size: 2.5rem;
+        margin-right: 1rem;
+    }
 
-.nav-btns{
-    text-decoration: none;
-    color: white;
-    font-size: 15px;
-    font-family: Inder, sans-serif;
-    white-space: nowrap;
-}
+    .g-maps{
+        max-width: 80%;
+        width: 100%;
+    }
 
-.nav-btns:hover {
-    color: #EE3A78;
-    transition: color 0.3s ease;
+    #map{
+        margin-top: 1.5rem;
+        font-size: 5vh;
+    }
+
+    #map pre {
+        font-size: 2.5vh;
+        margin-top: -2px;
+        margin-left: 0.5rem;
+        white-space: normal;
+    }
+
+    #phone {
+        margin-top: 1rem;
+        font-size: 5vh;
+    }
+
+    #phone p {
+        font-size: 3.5vh;
+        margin-top: -1px;
+        margin-left: 0.5rem;
+        white-space: normal;
+    }
 }
-*/
