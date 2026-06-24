@@ -708,6 +708,24 @@ header:after{
     }
 }
 
+/* FOr the persistent book now bottom right button */
+.floating-book-btn {
+    position: fixed;
+    bottom: 3rem;
+    right: 3rem;
+    z-index: 999;
+    transition: transform 0.2s ease;
+}
+
+.floating-book-btn img {
+    width: 100px;
+    height: 100px;
+}
+
+.floating-book-btn:hover {
+    transform: scale(1.1);
+}
+
 /*For smaller view, like phones, cuz i was testing it using a minimized browser in pc*/
 @media (max-width: 600px) {
     header:after {
@@ -754,5 +772,9 @@ header:after{
         margin-top: -1px;
         margin-left: 0.5rem;
         white-space: normal;
+    }
+
+    .floating-book-btn{
+        display: none;
     }
 }
