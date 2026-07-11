@@ -453,15 +453,18 @@ header:after{
     right: 3rem;
     z-index: 999;
     transition: transform 0.2s ease;
+    animation: pulse 3s linear infinite;
 }
 
 .floating-book-btn img {
-    width: 100px;
-    height: 100px;
+    width: 130px;
+    height: 130px;
 }
 
-.floating-book-btn:hover {
-    transform: scale(1.1);
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
 }
 
 /* Mobile */
