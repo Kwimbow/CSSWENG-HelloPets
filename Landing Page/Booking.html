@@ -14,6 +14,9 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Stack+Sans+Headline:wght@200..700&display=swap" rel="stylesheet">
+
+        <!-- script -->
+        <!-- <script src="js/booking.js" defer></script> -->
     </head>
     <body>
         <header>
@@ -71,13 +74,13 @@
                 <div class="card-content">
                     <div class="dog-cat-list">
                         <label class="custom-radio">
-                            <input type="radio" name="pet-selection" checked>
+                            <input type="radio" name="pet-selection" value="dog" checked>
                             <span class="pet-label-text">DOG</span>
                             <img src="Pics/dog.png" alt="Dog Icon" class="pet-icon">
                         </label>
 
                         <label class="custom-radio">
-                            <input type="radio" name="pet-selection">
+                            <input type="radio" name="pet-selection" value="cat">
                             <span class="pet-label-text">CAT</span>
                             <img src="Pics/cat.png" alt="Cat Icon" class="pet-icon">
                         </label>
@@ -123,31 +126,31 @@
                     <!-- left radio buttons -->
                     <div class="services-list">
                         <label class="custom-radio">
-                            <input type="radio" name="pet-service" checked>
+                            <input type="radio" name="pet-service" value="essential-bath" checked>
                             <span class="radio-circle"></span>
                             <span class="service-label-text">Essential Bath</span>
                         </label>
 
                         <label class="custom-radio">
-                            <input type="radio" name="pet-service">
+                            <input type="radio" name="pet-service" value="premium-bath">
                             <span class="radio-circle"></span>
                             <span class="service-label-text">Premium Bath</span>
                         </label>
 
                         <label class="custom-radio">
-                            <input type="radio" name="pet-service">
+                            <input type="radio" name="pet-service" value="classic-grooming">
                             <span class="radio-circle"></span>
                             <span class="service-label-text">Classic Grooming</span>
                         </label>
 
                         <label class="custom-radio">
-                            <input type="radio" name="pet-service">
+                            <input type="radio" name="pet-service" value="luxe-grooming">
                             <span class="radio-circle"></span>
                             <span class="service-label-text">Luxe Grooming</span>
                         </label>
 
                         <label class="custom-radio">
-                            <input type="radio" name="pet-service">
+                            <input type="radio" name="pet-service" value="special-cut">
                             <span class="radio-circle"></span>
                             <span class="service-label-text">Special Cut</span>
                         </label>
@@ -194,13 +197,13 @@
                     <!-- up checkboxes -->
                     <div class="addon-list">
                         <label class="custom-checkbox">
-                            <input type="checkbox" name="pet-service">
+                            <input type="checkbox" name="dematting" id="dematting">
                             <span class="checkbox-box"></span>
                             <span class="service-label-text">Dematting</span>
                         </label>
 
                         <label class="custom-checkbox">
-                            <input type="checkbox" name="pet-service">
+                            <input type="checkbox" name="deshedding" id="deshedding">
                             <span class="checkbox-box"></span>
                             <span class="service-label-text">Deshedding</span>
                         </label>
