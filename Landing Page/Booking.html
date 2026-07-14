@@ -69,7 +69,19 @@
                     <span class="step-num">2</span> Pet Type
                 </div>
                 <div class="card-content">
-                    <p style="padding: 20px; color: #888;">[Dog or cat radio button, should be non-copyright photo]</p>
+                    <div class="dog-cat-list">
+                        <label class="custom-radio">
+                            <input type="radio" name="pet-selection" checked>
+                            <span class="pet-label-text">DOG</span>
+                            <img src="Pics/dog.png" alt="Dog Icon" class="pet-icon">
+                        </label>
+
+                        <label class="custom-radio">
+                            <input type="radio" name="pet-selection">
+                            <span class="pet-label-text">CAT</span>
+                            <img src="Pics/cat.png" alt="Cat Icon" class="pet-icon">
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -326,6 +338,12 @@
                         <input type="text" id="optional-notes" class="styled-input">
                     </div>
                 </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div id="session-footer">
+                <span id="booking-summary">Booking Summary</span>
+                <span id="confirm-booking">Confirm Booking</span>
             </div>
         </div>
     </body>

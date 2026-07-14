@@ -508,12 +508,50 @@ header:after{
     grid-column: span 2;
 }
 
-#session-header p {
+#session-footer{
+    background-color: #28B9B2;
+    height: 150px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 20px;
+    grid-column: span 2;
+    padding: 0 2rem;
+}
+
+#session-header p{
     font-size: clamp(1.5rem, 3vw, 4rem);
     font-family: "Stack Sans Headline", sans-serif;
     font-weight: 500;
     color: white;
     text-shadow: 2px 2px #5E5E5E;
+}
+
+#session-footer span{
+    font-size: 1rem;
+    font-family: "Stack Sans Headline", sans-serif;
+    font-weight: 400;
+    color: white;
+}
+
+#booking-summary {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #1a1a1a;
+}
+
+#confirm-booking {
+    background-color: #EE3A78;
+    color: white;
+    padding: 0.8rem 2rem;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#confirm-booking:hover {
+    background-color: #d62d64;
 }
 
 /* Actual booking portion */
@@ -634,6 +672,56 @@ header:after{
     font-size: 0.95rem;
     line-height: 1.25;
     font-weight: 400;
+}
+
+/* Dog or cat selection */
+.dog-cat-list{
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dog-cat-list .custom-radio{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 15px;
+    padding: 1.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.pet-label-text {
+    background-color: #8a8a8a;
+    padding: 8px 30px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border-radius: 4px;
+    text-align: center;
+    width: 20vw;
+
+}
+
+.pet-icon{
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    margin-top: 1rem;
+    object-fit: contain;
+    filter: brightness(0);
+    transition: filter 0.2s ease;
+}
+
+.dog-cat-list .custom-radio input:checked ~ .pet-icon{
+    filter: brightness(1);
+}
+
+.dog-cat-list .custom-radio input:checked ~ .pet-label-text{
+    font-weight: bold;
+    background-color: #ffcc00;
 }
 
 /* All Services */
