@@ -46,87 +46,87 @@ allCheckboxInputs = document.querySelectorAll("input[type='checkbox']");
 
 // accepts a collection of radio buttons and returns the value of the selected one
 const getRadioButtonsValue = function(radButtons) {
-    for (const btn of radButtons) {
-        if (btn.checked) {
-            return btn.value;
-        }
-    }
-    return null;
+	for (const btn of radButtons) {
+		if (btn.checked) {
+			return btn.value;
+		}
+	}
+	return null;
 }
 
 // accepts a collection of checkboxes and returns an array containing the ones checked
 const getCheckboxesValue = function(chkButtons) {
-    checkedArr = []
-    for (const btn of chkButtons) {
-        if (btn.checked) {
-            checkedArr.push(btn.name);
-        }
-    }
-    return checkedArr;
+	checkedArr = []
+	for (const btn of chkButtons) {
+		if (btn.checked) {
+			checkedArr.push(btn.name);
+		}
+	}
+	return checkedArr;
 }
 
 // verifies form elements (like required inputs, as well as email formatting)
 // returns true if form inputs are valid
 const verifyForm = function() {
-    if (!selectedDate || !selectedTime) {
-        appointmentError.style.display = "";
-        return false;
-    }
-    appointmentError.style.display = "none";
+	if (!selectedDate || !selectedTime) {
+		appointmentError.style.display = "";
+		return false;
+	}
+	appointmentError.style.display = "none";
 
-    for (const btn of allInputs) {
-        // informs the user of the first invalid form input
-        isValid = btn.reportValidity();
-        if (!isValid) {
-            return false;
-        }
-    }
-    return true;
+	for (const btn of allInputs) {
+		// informs the user of the first invalid form input
+		isValid = btn.reportValidity();
+		if (!isValid) {
+			return false;
+		}
+	}
+	return true;
 }
 
 // accepts a group of radio buttons and a value
 // and checks the one with that value
 const checkRadioButton = function(radButtons, value) {
-    for (const btn of radButtons) {
-        if (btn.value === value) {
-            btn.checked = true;
-            return;
-        }
-    }
+	for (const btn of radButtons) {
+		if (btn.value === value) {
+			btn.checked = true;
+			return;
+		}
+	}
 }
 
 // shows/hides steps 3-7 based on whether a pet type has been picked yet,
 // and swaps steps 3 & 4 between the dog layout and the cat layout
 const updatePetTypeSections = function() {
-    selectedPetType = getRadioButtonsValue(radsPetSelection);
+	selectedPetType = getRadioButtonsValue(radsPetSelection);
 
-    if (!selectedPetType) {
-        // nothing picked yet
-        sectionPostPetType.classList.remove("visible");
-        for (const inp of inpsDogRequired) { inp.required = false; }
-        for (const inp of inpsCatRequired) { inp.required = false; }
-        return;
-    }
+	if (!selectedPetType) {
+		// nothing picked yet
+		sectionPostPetType.classList.remove("visible");
+		for (const inp of inpsDogRequired) { inp.required = false; }
+		for (const inp of inpsCatRequired) { inp.required = false; }
+		return;
+	}
 
-    // somethign is selected
-    sectionPostPetType.classList.add("visible");
+	// somethign is selected
+	sectionPostPetType.classList.add("visible");
 
-    isDogSelected = selectedPetType === "dog";
+	isDogSelected = selectedPetType === "dog";
 
-    for (const el of elsDogOnly) {
-        el.style.display = isDogSelected ? "" : "none";
-    }
-    for (const el of elsCatOnly) {
-        el.style.display = isDogSelected ? "none" : "";
-    }
+	for (const el of elsDogOnly) {
+		el.style.display = isDogSelected ? "" : "none";
+	}
+	for (const el of elsCatOnly) {
+		el.style.display = isDogSelected ? "none" : "";
+	}
 
-    // only the active pet type's fields should be required
-    for (const inp of inpsDogRequired) { inp.required = isDogSelected; }
-    for (const inp of inpsCatRequired) { inp.required = !isDogSelected; }
+	// only the active pet type's fields should be required
+	for (const inp of inpsDogRequired) { inp.required = isDogSelected; }
+	for (const inp of inpsCatRequired) { inp.required = !isDogSelected; }
 }
 
 for (const rad of radsPetSelection) {
-    rad.addEventListener("change", updatePetTypeSections);
+	rad.addEventListener("change", updatePetTypeSections);
 }
 
 // run once on load in
@@ -135,88 +135,76 @@ updatePetTypeSections();
 
 // clearing/resetting the form after submitting
 const clearForm = function() {
-    for (const btn of allTextInputs) {
-        btn.value = "";
-    }
+	for (const btn of allTextInputs) {
+		btn.value = "";
+	}
 
-    for (const btn of allCheckboxInputs) {
-        btn.checked = false;
-    }
+	for (const btn of allCheckboxInputs) {
+		btn.checked = false;
+	}
 
-    // uncheck pet type entirely so the form goes back to its initial
-    // state (only steps 1 & 2 visible) instead of defaulting to dog
-    for (const rad of radsPetSelection) {
-        rad.checked = false;
-    }
-    updatePetTypeSections();
+	// uncheck pet type entirely so the form goes back to its initial
+	// state (only steps 1 & 2 visible) instead of defaulting to dog
+	for (const rad of radsPetSelection) {
+		rad.checked = false;
+	}
+	updatePetTypeSections();
 
-    // checking the default option for radio buttons
-    checkRadioButton(radsPetSelection, "dog")
-    checkRadioButton(radsSelectedService, "essential-bath");
-    resetCalendarSelection();
+	// checking the default option for radio buttons
+	checkRadioButton(radsPetSelection, "dog")
+	checkRadioButton(radsSelectedService, "essential-bath");
+	resetCalendarSelection();
 }
 
 const submitForm = async function() {
-    isValid = verifyForm();
-    if (!isValid) {
-        return;
-    }
+	isValid = verifyForm();
+	if (!isValid) {
+		return;
+	}
 
-    petSelection = getRadioButtonsValue(radsPetSelection);
-    isDogSelected = petSelection === "dog";
+	petSelection = getRadioButtonsValue(radsPetSelection);
+	isDogSelected = petSelection === "dog";
 
-    payloadObj = {
-        "appointmentDate": selectedDate,
-        "appointmentTime": selectedTime,
-        "petSelection": petSelection,
-        "petName": isDogSelected ? inpPetName.value : inpPetNameCat.value,
-        "petWeight": isDogSelected ? inpPetWeight.value : inpPetWeightCat.value,
-        "petBreed": isDogSelected ? inpPetBreed.value : null,
-        "selectedService": isDogSelected ? getRadioButtonsValue(radsSelectedService) : getRadioButtonsValue(radsSelectedServiceCat),
-        "addOnServices": getCheckboxesValue(chksAddOn),
-        "aLaCarteServices": getCheckboxesValue(chksALaCarte),
-        "firstName": inpFirstName.value,
-        "lastName": inpLastName.value,
-        "email": inpEmail.value,
-        "mobileNumber": inpMobileNumber.value,
-        "optionalNotes": inpNotes.value
-    };
+	payloadObj = {
+		"appointmentDate": selectedDate,
+		"appointmentTime": selectedTime,
+		"petSelection": petSelection,
+		"petName": isDogSelected ? inpPetName.value : inpPetNameCat.value,
+		"petWeight": isDogSelected ? inpPetWeight.value : inpPetWeightCat.value,
+		"petBreed": isDogSelected ? inpPetBreed.value : null,
+		"selectedService": isDogSelected ? getRadioButtonsValue(radsSelectedService) : getRadioButtonsValue(radsSelectedServiceCat),
+		"addOnServices": getCheckboxesValue(chksAddOn),
+		"aLaCarteServices": getCheckboxesValue(chksALaCarte),
+		"firstName": inpFirstName.value,
+		"lastName": inpLastName.value,
+		"email": inpEmail.value,
+		"mobileNumber": inpMobileNumber.value,
+		"optionalNotes": inpNotes.value
+	};
 
-    const response = await fetch("/submit-booking", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payloadObj)
-    });
+	const response = await fetch("/submit-booking", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(payloadObj)
+	});
 
-    const responseObj = await response.json();
-    const success = responseObj.success;
+	const responseObj = await response.json();
+	const success = responseObj.success;
 
-    if (success) {
-        alert("Form successfully submitted.");
-        clearForm();
-    } else {
-        alert("There was an error submitting the form.");
-    }
+	if (success) {
+		alert("Form successfully submitted.");
+		clearForm();
+	} else {
+		alert("There was an error submitting the form.");
+	}
 }
 
 btnConfirmBooking.addEventListener("click", submitForm);
 
 
 // STEP 1 CALENDAR / TIME SLOT PICKER
-// ---------------------------------------------------------------------
-// Appointments are only offered Tuesday-Sunday (no Mondays), 10am-5pm,
-// in 1-hour slots (last slot starts at 4pm so it wraps up by 5pm).
-//
-// MANUAL OVERRIDES (not wired up to any UI yet):
-// To block off an entire day, add its "YYYY-MM-DD" string to
-// manuallyUnavailableDates. To block specific times on a specific day,
-// add an entry to manuallyUnavailableSlots keyed by "YYYY-MM-DD" whose
-// value is an array of "HH:MM" (24hr) strings pulled from timeSlots below.
-// Example:
-//   manuallyUnavailableDates.add("2026-08-15");
-//   manuallyUnavailableSlots["2026-08-20"] = ["10:00", "11:00"];
 const manuallyUnavailableDates = new Set();
 const manuallyUnavailableSlots = {};
 
@@ -240,143 +228,144 @@ let selectedTime = null; // "HH:MM"
 
 // formats a Date object as a local "YYYY-MM-DD" string (avoids UTC shift issues)
 const formatDateStr = function(dateObj) {
-    year = dateObj.getFullYear();
-    month = String(dateObj.getMonth() + 1).padStart(2, "0");
-    day = String(dateObj.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+	year = dateObj.getFullYear();
+	month = String(dateObj.getMonth() + 1).padStart(2, "0");
+	day = String(dateObj.getDate()).padStart(2, "0");
+	return `${year}-${month}-${day}`;
 }
 
 // formats "HH:MM" (24hr) into a human readable 12hr label, e.g. "14:00" -> "2:00 PM"
 const formatTimeLabel = function(timeStr) {
-    const [hourStr, minuteStr] = timeStr.split(":");
-    hour = parseInt(hourStr, 10);
-    period = hour >= 12 ? "PM" : "AM";
-    hour12 = hour % 12 === 0 ? 12 : hour % 12;
-    return `${hour12}:${minuteStr} ${period}`;
+	const [hourStr, minuteStr] = timeStr.split(":");
+	hour = parseInt(hourStr, 10);
+	period = hour >= 12 ? "PM" : "AM";
+	hour12 = hour % 12 === 0 ? 12 : hour % 12;
+	return `${hour12}:${minuteStr} ${period}`;
 }
 
 // formats "YYYY-MM-DD" into a human readable label, e.g. "July 20, 2026"
 const formatDateLabel = function(dateStr) {
-    const [year, month, day] = dateStr.split("-").map(Number);
-    dateObj = new Date(year, month - 1, day);
-    return dateObj.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+	const [year, month, day] = dateStr.split("-").map(Number);
+	dateObj = new Date(year, month - 1, day);
+	return dateObj.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 }
 
 const updateSelectedAppointmentDisplay = function() {
-    if (selectedDate && selectedTime) {
-        selectedAppointmentDisplay.textContent = `Selected: ${formatDateLabel(selectedDate)} at ${formatTimeLabel(selectedTime)}`;
-    } else if (selectedDate) {
-        selectedAppointmentDisplay.textContent = `Selected: ${formatDateLabel(selectedDate)}`;
-    } else {
-        selectedAppointmentDisplay.textContent = "";
-    }
+	if (selectedDate && selectedTime) {
+		selectedAppointmentDisplay.textContent = `Selected: ${formatDateLabel(selectedDate)} at ${formatTimeLabel(selectedTime)}`;
+	} else if (selectedDate) {
+		selectedAppointmentDisplay.textContent = `Selected: ${formatDateLabel(selectedDate)}`;
+	} else {
+		selectedAppointmentDisplay.textContent = "";
+	}
 }
 
 // renders the 10am-5pm time slot buttons for whatever date is currently selected
 const renderTimeSlots = function() {
-    timeSlotsGrid.innerHTML = "";
+	timeSlotsGrid.innerHTML = "";
 
-    if (!selectedDate) {
-        hint = document.createElement("div");
-        hint.textContent = "Pick a date first";
-        hint.style.cssText = "font-size:0.85rem;color:#9a9a9a;";
-        timeSlotsGrid.appendChild(hint);
-        return;
-    }
+	if (!selectedDate) {
+		hint = document.createElement("div");
+		hint.textContent = "Pick a date first";
+		hint.style.cssText = "font-size:0.85rem;color:#9a9a9a;";
+		timeSlotsGrid.appendChild(hint);
+		return;
+	}
 
-    blockedSlotsForDate = manuallyUnavailableSlots[selectedDate] || [];
+	blockedSlotsForDate = manuallyUnavailableSlots[selectedDate] || [];
 
-    for (const slot of timeSlots) {
-        btn = document.createElement("button");
-        btn.type = "button";
-        btn.textContent = formatTimeLabel(slot);
+	for (const slot of timeSlots) {
+		btn = document.createElement("button");
+		btn.type = "button";
+		btn.textContent = formatTimeLabel(slot);
 
-        if (blockedSlotsForDate.includes(slot)) {
-            btn.className = "time-slot-btn";
-            btn.disabled = true;
-        } else {
-            btn.className = "time-slot-btn" + (selectedTime === slot ? " selected" : "");
-            btn.addEventListener("click", function() {
-                selectedTime = slot;
-                renderTimeSlots();
-                updateSelectedAppointmentDisplay();
-            });
-        }
+		if (blockedSlotsForDate.includes(slot)) {
+			btn.className = "time-slot-btn";
+			btn.disabled = true;
+		} else {
+			btn.className = "time-slot-btn" + (selectedTime === slot ? " selected" : "");
+			btn.addEventListener("click", function() {
+				selectedTime = slot;
+				renderTimeSlots();
+				updateSelectedAppointmentDisplay();
+			});
+		}
 
-        timeSlotsGrid.appendChild(btn);
-    }
+		timeSlotsGrid.appendChild(btn);
+	}
 }
 
 // renders the day grid for calViewYear/calViewMonth
 const renderCalendar = function() {
-    firstOfMonth = new Date(calViewYear, calViewMonth, 1);
-    calMonthLabel.textContent = firstOfMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+	firstOfMonth = new Date(calViewYear, calViewMonth, 1);
+	calMonthLabel.textContent = firstOfMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
-    // grid starts on Monday, so figure out how many blank cells precede day 1
-    // (JS getDay(): Sun=0..Sat=6, shift so Mon=0..Sun=6)
-    leadingBlanks = (firstOfMonth.getDay() + 6) % 7;
-    daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+	// grid starts on Monday, so figure out how many blank cells precede day 1
+	// (JS getDay(): Sun=0..Sat=6, shift so Mon=0..Sun=6)
+	leadingBlanks = (firstOfMonth.getDay() + 6) % 7;
+	daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
 
-    calDaysGrid.innerHTML = "";
+	calDaysGrid.innerHTML = "";
 
-    for (let i = 0; i < leadingBlanks; i++) {
-        blank = document.createElement("div");
-        blank.className = "cal-day-cell";
-        calDaysGrid.appendChild(blank);
-    }
+	for (let i = 0; i < leadingBlanks; i++) {
+		blank = document.createElement("div");
+		blank.className = "cal-day-cell";
+		calDaysGrid.appendChild(blank);
+	}
 
-    for (let day = 1; day <= daysInMonth; day++) {
-        dateObj = new Date(calViewYear, calViewMonth, day);
-        dateStr = formatDateStr(dateObj);
-        isMonday = dateObj.getDay() === 1;
-        isPast = dateObj < today;
-        isManuallyBlocked = manuallyUnavailableDates.has(dateStr);
+	for (let day = 1; day <= daysInMonth; day++) {
+		let dateObj = new Date(calViewYear, calViewMonth, day);
+		let dateStr = formatDateStr(dateObj);
+		let isMonday = dateObj.getDay() === 1;
+		let isPast = dateObj < today;
+		let isManuallyBlocked = manuallyUnavailableDates.has(dateStr);
 
-        cell = document.createElement("div");
-        cell.className = "cal-day-cell";
+		let cell = document.createElement("div");
+		cell.className = "cal-day-cell";
 
-        if (isMonday || isPast || isManuallyBlocked) {
-            dayEl = document.createElement("span");
-            dayEl.className = "cal-day-disabled";
-            dayEl.textContent = day;
-        } else {
-            dayEl = document.createElement("button");
-            dayEl.type = "button";
-            dayEl.className = "cal-day" + (selectedDate === dateStr ? " selected" : "");
-            dayEl.textContent = day;
-            dayEl.addEventListener("click", function() {
-                selectedDate = dateStr;
-                selectedTime = null;
-                renderCalendar();
-                renderTimeSlots();
-                updateSelectedAppointmentDisplay();
-            });
-        }
+		let dayEl;
+		if (isMonday || isPast || isManuallyBlocked) {
+			dayEl = document.createElement("span");
+			dayEl.className = "cal-day-disabled";
+			dayEl.textContent = day;
+		} else {
+			dayEl = document.createElement("button");
+			dayEl.type = "button";
+			dayEl.className = "cal-day" + (selectedDate === dateStr ? " selected" : "");
+			dayEl.textContent = day;
+			dayEl.addEventListener("click", function() {
+				selectedDate = dateStr;
+				selectedTime = null;
+				renderCalendar();
+				renderTimeSlots();
+				updateSelectedAppointmentDisplay();
+			});
+		}
 
-        cell.appendChild(dayEl);
-        calDaysGrid.appendChild(cell);
-    }
+		cell.appendChild(dayEl);
+		calDaysGrid.appendChild(cell);
+	}
 
-    // don't allow navigating to months before the current one
-    calPrevBtn.disabled = (calViewYear === today.getFullYear() && calViewMonth === today.getMonth());
+	// don't allow navigating to months before the current one
+	calPrevBtn.disabled = (calViewYear === today.getFullYear() && calViewMonth === today.getMonth());
 }
 
 calPrevBtn.addEventListener("click", function() {
-    calViewMonth -= 1;
-    if (calViewMonth < 0) {
-        calViewMonth = 11;
-        calViewYear -= 1;
-    }
-    renderCalendar();
+	calViewMonth -= 1;
+	if (calViewMonth < 0) {
+		calViewMonth = 11;
+		calViewYear -= 1;
+	}
+	renderCalendar();
 });
 
 calNextBtn.addEventListener("click", function() {
-    calViewMonth += 1;
-    if (calViewMonth > 11) {
-        calViewMonth = 0;
-        calViewYear += 1;
-    }
-    renderCalendar();
+	calViewMonth += 1;
+	if (calViewMonth > 11) {
+		calViewMonth = 0;
+		calViewYear += 1;
+	}
+	renderCalendar();
 });
 
 renderCalendar();
@@ -384,12 +373,12 @@ renderTimeSlots();
 
 // resets the calendar/time selection back to nothing and jumps back to the current month
 const resetCalendarSelection = function() {
-    selectedDate = null;
-    selectedTime = null;
-    calViewYear = today.getFullYear();
-    calViewMonth = today.getMonth();
-    appointmentError.style.display = "none";
-    renderCalendar();
-    renderTimeSlots();
-    updateSelectedAppointmentDisplay();
+	selectedDate = null;
+	selectedTime = null;
+	calViewYear = today.getFullYear();
+	calViewMonth = today.getMonth();
+	appointmentError.style.display = "none";
+	renderCalendar();
+	renderTimeSlots();
+	updateSelectedAppointmentDisplay();
 }

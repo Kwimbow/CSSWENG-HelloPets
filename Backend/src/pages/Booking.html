@@ -1,425 +1,425 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Hello Pets PH | Book an Appointment</title>
-        <link rel="icon" type="image/jpg" href="/Logos/Icon.png">
-        <link rel="stylesheet" type="text/css" href="/css/Index.css">
-        <link rel="stylesheet" type="text/css" href="/css/Booking.css">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-        <link href="https://fonts.googleapis.com/css2?family=Inder&family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+	<head>
+		<title>Hello Pets PH | Book an Appointment</title>
+		<link rel="icon" type="image/jpg" href="/Logos/Icon.png">
+		<link rel="stylesheet" type="text/css" href="/css/Index.css">
+		<link rel="stylesheet" type="text/css" href="/css/Booking.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+		<link href="https://fonts.googleapis.com/css2?family=Inder&family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
 
-        <!-- fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Stack+Sans+Headline:wght@200..700&display=swap" rel="stylesheet">
+		<!-- fonts -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Stack+Sans+Headline:wght@200..700&display=swap" rel="stylesheet">
 
-        <!-- script -->
-        <script src="/js/booking.js" defer></script>
-    </head>
-    <body>
-        <header>
-            <div class="container">
-                <div class="nav-bar">
-                    <div class="logo">
-                        <a href="/">
-                            <img src="/Logos/Logo.png" alt="Hello Pets Logo" id="nav-icon">
-                        </a>
-                    </div>
-                    <nav>
-                        <ul class="nav-links">
-                            <li><a href="/" class="nav-btns">HOME</a></li>
-                            <li><a href="#" class="nav-btns">SHOP</a></li>
-                            <li><a href="/booking" class="nav-btns">BOOK AN APPOINTMENT</a></li>
-                            <li><a href="#" class="nav-btns">BOARDING SERVICES</a></li>
-                            <li><a href="#" class="nav-btns">ABOUT US</a></li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
-        </header>
-        <div class="scalloped-edge"></div>
+		<!-- script -->
+		<script src="/js/booking.js" defer></script>
+	</head>
+	<body>
+		<header>
+			<div class="container">
+				<div class="nav-bar">
+					<div class="logo">
+						<a href="/">
+							<img src="/Logos/Logo.png" alt="Hello Pets Logo" id="nav-icon">
+						</a>
+					</div>
+					<nav>
+						<ul class="nav-links">
+							<li><a href="/" class="nav-btns">HOME</a></li>
+							<li><a href="#" class="nav-btns">SHOP</a></li>
+							<li><a href="/booking" class="nav-btns">BOOK AN APPOINTMENT</a></li>
+							<li><a href="#" class="nav-btns">BOARDING SERVICES</a></li>
+							<li><a href="#" class="nav-btns">ABOUT US</a></li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</header>
+		<div class="scalloped-edge"></div>
 
-        <div id="nav-space">
-            
-        </div>
+		<div id="nav-space">
+			
+		</div>
 
-        <!-- ad -->
-        <div id="ad">
-            <p>Buy 5 full grooming services & <span class="pink-text">get the 6th at 50% off!</span></p>
-        </div>
+		<!-- ad -->
+		<div id="ad">
+			<p>Buy 5 full grooming services & <span class="pink-text">get the 6th at 50% off!</span></p>
+		</div>
 
-        <div id="session-background">
-            <!-- HEADER -->
-            <div id="session-header">
-                <p>Book your Pet's Appointment</p>
-            </div>
+		<div id="session-background">
+			<!-- HEADER -->
+			<div id="session-header">
+				<p>Book your Pet's Appointment</p>
+			</div>
 
-            <!-- CALENDAR -->
-            <div class="step-card half-width">
-                <div class="step-title">
-                    <span class="step-num">1</span> Pick time & date
-                </div>
-                <div class="card-content">
-                    <div class="card-content calendar-widget">
-                        <div class="calendar-col">
-                            <div class="calendar-header">
-                                <button type="button" id="cal-prev" class="cal-nav-btn" aria-label="Previous month">&#10094;</button>
-                                <span id="cal-month-label"></span>
-                                <button type="button" id="cal-next" class="cal-nav-btn" aria-label="Next month">&#10095;</button>
-                            </div>
-                            <div class="calendar-weekdays">
-                                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-                            </div>
-                            <div id="cal-days-grid" class="calendar-days-grid"></div>
-                        </div>
+			<!-- CALENDAR -->
+			<div class="step-card half-width">
+				<div class="step-title">
+					<span class="step-num">1</span> Pick time & date
+				</div>
+				<div class="card-content">
+					<div class="card-content calendar-widget">
+						<div class="calendar-col">
+							<div class="calendar-header">
+								<button type="button" id="cal-prev" class="cal-nav-btn" aria-label="Previous month">&#10094;</button>
+								<span id="cal-month-label"></span>
+								<button type="button" id="cal-next" class="cal-nav-btn" aria-label="Next month">&#10095;</button>
+							</div>
+							<div class="calendar-weekdays">
+								<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+							</div>
+							<div id="cal-days-grid" class="calendar-days-grid"></div>
+						</div>
 
-                        <div class="time-slot-section" id="time-slot-section">
-                            <div class="time-slot-label">Select a time</div>
-                            <div id="time-slots-grid" class="time-slots-grid"></div>
-                            <div id="selected-appointment-display" class="selected-appointment-display"></div>
-                        </div>
-                    </div>
-                    <div id="appointment-error" class="imp-message" style="display:none;">Please select an appointment date and time.</div>
-                </div>
-            </div>
+						<div class="time-slot-section" id="time-slot-section">
+							<div class="time-slot-label">Select a time</div>
+							<div id="time-slots-grid" class="time-slots-grid"></div>
+							<div id="selected-appointment-display" class="selected-appointment-display"></div>
+						</div>
+					</div>
+					<div id="appointment-error" class="imp-message" style="display:none;">Please select an appointment date and time.</div>
+				</div>
+			</div>
 
-            <!-- DOG OR CAT -->
-            <div class="step-card half-width">
-                <div class="step-title">
-                    <span class="step-num">2</span> Pet Type
-                </div>
-                <div class="card-content">
-                    <div class="dog-cat-list">
-                        <label class="custom-radio">
-                            <input type="radio" name="pet-selection" value="dog" checked>
-                            <span class="pet-label-text">DOG</span>
-                            <img src="/Pics/dog.png" alt="Dog Icon" class="pet-icon">
-                        </label>
+			<!-- DOG OR CAT -->
+			<div class="step-card half-width">
+				<div class="step-title">
+					<span class="step-num">2</span> Pet Type
+				</div>
+				<div class="card-content">
+					<div class="dog-cat-list">
+						<label class="custom-radio">
+							<input type="radio" name="pet-selection" value="dog" checked>
+							<span class="pet-label-text">DOG</span>
+							<img src="/Pics/dog.png" alt="Dog Icon" class="pet-icon">
+						</label>
 
-                        <label class="custom-radio">
-                            <input type="radio" name="pet-selection" value="cat">
-                            <span class="pet-label-text">CAT</span>
-                            <img src="/Pics/cat.png" alt="Cat Icon" class="pet-icon">
-                        </label>
-                    </div>
-                </div>
-            </div>
+						<label class="custom-radio">
+							<input type="radio" name="pet-selection" value="cat">
+							<span class="pet-label-text">CAT</span>
+							<img src="/Pics/cat.png" alt="Cat Icon" class="pet-icon">
+						</label>
+					</div>
+				</div>
+			</div>
 
-            <!-- all fields below only show after pet type is selected -->
-            <div id="post-pet-type">
+			<!-- all fields below only show after pet type is selected -->
+			<div id="post-pet-type">
 
-            <!-- PET INFORMATION - DOG-->
-            <div class="step-card full-width dog-only" style="display:none;">
-                <div class="step-title">
-                    <span class="step-num">3</span> Pet Information
-                </div>
+			<!-- PET INFORMATION - DOG-->
+			<div class="step-card full-width dog-only" style="display:none;">
+				<div class="step-title">
+					<span class="step-num">3</span> Pet Information
+				</div>
 
-                <div class="card-content info-form-grid">
-                    <div class="form-group">
-                        <label for="pet-name">Pet Name <span class="required"> *</span></label>
-                        <input type="text" id="pet-name" class="styled-input" required>
-                    </div>
+				<div class="card-content info-form-grid">
+					<div class="form-group">
+						<label for="pet-name">Pet Name <span class="required"> *</span></label>
+						<input type="text" id="pet-name" class="styled-input" required>
+					</div>
 
-                    <div class="form-group">
-                        <label for="pet-weight">Last Recorded Weight <span class="required"> *</span></label>
-                        <input type="text" id="pet-weight" class="styled-input" required>
-                    </div>
+					<div class="form-group">
+						<label for="pet-weight">Last Recorded Weight <span class="required"> *</span></label>
+						<input type="text" id="pet-weight" class="styled-input" required>
+					</div>
 
-                    <div class="form-group">
-                        <label for="pet-breed">Pet Breed <span class="required"> *</span></label>
-                        <input type="text" id="pet-breed" class="styled-input" required>
-                    </div>
+					<div class="form-group">
+						<label for="pet-breed">Pet Breed <span class="required"> *</span></label>
+						<input type="text" id="pet-breed" class="styled-input" required>
+					</div>
 
-                    <div class="size-notice-banner">
-                        <div class="banner-title">Estimated pet size: </div>
-                        <div class="banner-subtext">This affects pricing. Pet size is still subject to assessment during appointment.</div>
-                    </div>
-                </div>
-            </div>
+					<div class="size-notice-banner">
+						<div class="banner-title">Estimated pet size: </div>
+						<div class="banner-subtext">This affects pricing. Pet size is still subject to assessment during appointment.</div>
+					</div>
+				</div>
+			</div>
 
-            <!-- PET INFORMATION - CAT -->
-            <div class="step-card full-width cat-only" style="display:none;">
-                <div class="step-title">
-                    <span class="step-num">3</span> Pet Information
-                </div>
+			<!-- PET INFORMATION - CAT -->
+			<div class="step-card full-width cat-only" style="display:none;">
+				<div class="step-title">
+					<span class="step-num">3</span> Pet Information
+				</div>
 
-                <div class="card-content info-form-grid">
-                    <div class="form-group">
-                        <label for="pet-name-cat">Pet Name <span class="required"> *</span></label>
-                        <input type="text" id="pet-name-cat" class="styled-input" required>
-                    </div>
+				<div class="card-content info-form-grid">
+					<div class="form-group">
+						<label for="pet-name-cat">Pet Name <span class="required"> *</span></label>
+						<input type="text" id="pet-name-cat" class="styled-input" required>
+					</div>
 
-                    <div class="form-group">
-                        <label for="pet-weight-cat">Last Recorded Weight <span class="required"> *</span></label>
-                        <input type="text" id="pet-weight-cat" class="styled-input" required>
-                    </div>
-                </div>
-            </div>
+					<div class="form-group">
+						<label for="pet-weight-cat">Last Recorded Weight <span class="required"> *</span></label>
+						<input type="text" id="pet-weight-cat" class="styled-input" required>
+					</div>
+				</div>
+			</div>
 
 
 
-            <!-- SERVICE SELECTION - DOG -->
-            <div class="step-card full-width dog-only" style="display:none;">
-                <div class="step-title">
-                    <span class="step-num">4</span> Select Service <span class="imp-message">(Prices vary by pet size)</span>
-                </div>
-                <div class="card-content service-selection-container">
-                    <!-- left radio buttons -->
-                    <div class="services-list">
-                        <label class="custom-radio">
-                            <input type="radio" name="pet-service" value="essential-bath" checked>
-                            <span class="radio-circle"></span>
-                            <span class="service-label-text">Essential Bath</span>
-                        </label>
+			<!-- SERVICE SELECTION - DOG -->
+			<div class="step-card full-width dog-only" style="display:none;">
+				<div class="step-title">
+					<span class="step-num">4</span> Select Service <span class="imp-message">(Prices vary by pet size)</span>
+				</div>
+				<div class="card-content service-selection-container">
+					<!-- left radio buttons -->
+					<div class="services-list">
+						<label class="custom-radio">
+							<input type="radio" name="pet-service" value="essential-bath" checked>
+							<span class="radio-circle"></span>
+							<span class="service-label-text">Essential Bath</span>
+						</label>
 
-                        <label class="custom-radio">
-                            <input type="radio" name="pet-service" value="premium-bath">
-                            <span class="radio-circle"></span>
-                            <span class="service-label-text">Premium Bath</span>
-                        </label>
+						<label class="custom-radio">
+							<input type="radio" name="pet-service" value="premium-bath">
+							<span class="radio-circle"></span>
+							<span class="service-label-text">Premium Bath</span>
+						</label>
 
-                        <label class="custom-radio">
-                            <input type="radio" name="pet-service" value="classic-grooming">
-                            <span class="radio-circle"></span>
-                            <span class="service-label-text">Classic Grooming</span>
-                        </label>
+						<label class="custom-radio">
+							<input type="radio" name="pet-service" value="classic-grooming">
+							<span class="radio-circle"></span>
+							<span class="service-label-text">Classic Grooming</span>
+						</label>
 
-                        <label class="custom-radio">
-                            <input type="radio" name="pet-service" value="luxe-grooming">
-                            <span class="radio-circle"></span>
-                            <span class="service-label-text">Luxe Grooming</span>
-                        </label>
+						<label class="custom-radio">
+							<input type="radio" name="pet-service" value="luxe-grooming">
+							<span class="radio-circle"></span>
+							<span class="service-label-text">Luxe Grooming</span>
+						</label>
 
-                        <label class="custom-radio">
-                            <input type="radio" name="pet-service" value="special-cut">
-                            <span class="radio-circle"></span>
-                            <span class="service-label-text">Special Cut</span>
-                        </label>
-                    </div>
+						<label class="custom-radio">
+							<input type="radio" name="pet-service" value="special-cut">
+							<span class="radio-circle"></span>
+							<span class="service-label-text">Special Cut</span>
+						</label>
+					</div>
 
-                    <!-- right service descriptions -->
-                    <div class="service-details-box">
-                        <div class="service-description">
-                            [Insert js service description]
-                        </div>
-                        
-                        <div class="pricing-grid">
-                            <div class="price-tier">
-                                <span class="size-letter">S</span>
-                                <span class="price-amount">₱[Price]</span>
-                            </div>
-                            <div class="price-tier">
-                                <span class="size-letter">M</span>
-                                <span class="price-amount">₱[Price]</span>
-                            </div>
-                            <div class="price-tier">
-                                <span class="size-letter">L</span>
-                                <span class="price-amount">₱[Price]</span>
-                            </div>
-                            <div class="price-tier">
-                                <span class="size-letter">XL</span>
-                                <span class="price-amount">₱[Price]</span>
-                            </div>
-                            <div class="price-tier">
-                                <span class="size-letter">XXL</span>
-                                <span class="price-amount">₱[Price]</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+					<!-- right service descriptions -->
+					<div class="service-details-box">
+						<div class="service-description">
+							[Insert js service description]
+						</div>
+						
+						<div class="pricing-grid">
+							<div class="price-tier">
+								<span class="size-letter">S</span>
+								<span class="price-amount">₱[Price]</span>
+							</div>
+							<div class="price-tier">
+								<span class="size-letter">M</span>
+								<span class="price-amount">₱[Price]</span>
+							</div>
+							<div class="price-tier">
+								<span class="size-letter">L</span>
+								<span class="price-amount">₱[Price]</span>
+							</div>
+							<div class="price-tier">
+								<span class="size-letter">XL</span>
+								<span class="price-amount">₱[Price]</span>
+							</div>
+							<div class="price-tier">
+								<span class="size-letter">XXL</span>
+								<span class="price-amount">₱[Price]</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <!-- SERVICE SELECTION - CAT -->
-            <div class="step-card full-width cat-only" style="display:none;">
-                <div class="step-title">
-                    <span class="step-num">4</span> Select Service
-                </div>
-                <div class="card-content cat-service-list">
-                    <label class="custom-radio cat-service-option">
-                        <input type="radio" name="pet-service-cat" value="kitty-grooming" checked>
-                        <span class="radio-circle"></span>
-                        <span class="cat-service-text">
-                            <span class="service-label-text">Kitty Grooming</span>
-                            <span class="cat-service-desc">Essential Bath, nail trim, ear clean, sanitary trim, belly+butt+paw pads shaving</span>
-                        </span>
-                    </label>
+			<!-- SERVICE SELECTION - CAT -->
+			<div class="step-card full-width cat-only" style="display:none;">
+				<div class="step-title">
+					<span class="step-num">4</span> Select Service
+				</div>
+				<div class="card-content cat-service-list">
+					<label class="custom-radio cat-service-option">
+						<input type="radio" name="pet-service-cat" value="kitty-grooming" checked>
+						<span class="radio-circle"></span>
+						<span class="cat-service-text">
+							<span class="service-label-text">Kitty Grooming</span>
+							<span class="cat-service-desc">Essential Bath, nail trim, ear clean, sanitary trim, belly+butt+paw pads shaving</span>
+						</span>
+					</label>
 
-                    <label class="custom-radio cat-service-option">
-                        <input type="radio" name="pet-service-cat" value="kitty-special-cut">
-                        <span class="radio-circle"></span>
-                        <span class="cat-service-text">
-                            <span class="service-label-text">Kitty Special Cut</span>
-                        </span>
-                    </label>
-                </div>
-            </div>
+					<label class="custom-radio cat-service-option">
+						<input type="radio" name="pet-service-cat" value="kitty-special-cut">
+						<span class="radio-circle"></span>
+						<span class="cat-service-text">
+							<span class="service-label-text">Kitty Special Cut</span>
+						</span>
+					</label>
+				</div>
+			</div>
 
-            <!-- ADD-ON SERVICES -->
-            <div class="step-card half-width">
-                <div class="step-title">
-                    <span class="step-num">5</span> Add-on Services <span class="imp-message">(Optional; May select more than one option)</span>
-                </div>
-                <div class="card-content addons-container">
-                    <!-- up checkboxes -->
-                    <div class="addon-list">
-                        <label class="custom-checkbox">
-                            <input type="checkbox" name="dematting" id="dematting">
-                            <span class="checkbox-box"></span>
-                            <span class="service-label-text">Dematting</span>
-                        </label>
+			<!-- ADD-ON SERVICES -->
+			<div class="step-card half-width">
+				<div class="step-title">
+					<span class="step-num">5</span> Add-on Services <span class="imp-message">(Optional; May select more than one option)</span>
+				</div>
+				<div class="card-content addons-container">
+					<!-- up checkboxes -->
+					<div class="addon-list">
+						<label class="custom-checkbox">
+							<input type="checkbox" name="dematting" id="dematting">
+							<span class="checkbox-box"></span>
+							<span class="service-label-text">Dematting</span>
+						</label>
 
-                        <label class="custom-checkbox">
-                            <input type="checkbox" name="deshedding" id="deshedding">
-                            <span class="checkbox-box"></span>
-                            <span class="service-label-text">Deshedding</span>
-                        </label>
-                    </div>
-                    <!-- below addon prices -->
-                    <div class="service-details-box">
-                        <div class="pricing-grid-addons">
-                            <div class="price-tier">
-                                <span class="size-letter">LIGHT</span>
-                                <span class="price-amount">₱[Price]</span>
-                            </div>
-                            <div class="price-tier">
-                                <span class="size-letter">MEDIUM</span>
-                                <span class="price-amount">₱[Price]</span>
-                            </div>
-                            <div class="price-tier">
-                                <span class="size-letter">HEAVY</span>
-                                <span class="price-amount">₱[Price]</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+						<label class="custom-checkbox">
+							<input type="checkbox" name="deshedding" id="deshedding">
+							<span class="checkbox-box"></span>
+							<span class="service-label-text">Deshedding</span>
+						</label>
+					</div>
+					<!-- below addon prices -->
+					<div class="service-details-box">
+						<div class="pricing-grid-addons">
+							<div class="price-tier">
+								<span class="size-letter">LIGHT</span>
+								<span class="price-amount">₱[Price]</span>
+							</div>
+							<div class="price-tier">
+								<span class="size-letter">MEDIUM</span>
+								<span class="price-amount">₱[Price]</span>
+							</div>
+							<div class="price-tier">
+								<span class="size-letter">HEAVY</span>
+								<span class="price-amount">₱[Price]</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <!-- ALA CARTE SERVICES -->
-            <div class="step-card half-width">
-                <div class="step-title">
-                    <span class="step-num">6</span> A la carte Services <span class="imp-message">(Optional; May select more than one option)</span>
-                </div>
-                <div class="card-content alac-container">
-                    <!-- alacarte checkboxes -->
-                    <div class="alac-list">
-                        <label class="custom-checkbox">
-                            <input type="checkbox" name="face-trim">
-                            <span class="checkbox-box"></span>
-                            <span class="service-text-wrapper">
-                                <span class="service-name">Face Trim</span>
-                                <span class="price-leader-line"></span>
-                                <span class="ala-price">₱[Price]</span>
-                            </span>
-                        </label>
+			<!-- ALA CARTE SERVICES -->
+			<div class="step-card half-width">
+				<div class="step-title">
+					<span class="step-num">6</span> A la carte Services <span class="imp-message">(Optional; May select more than one option)</span>
+				</div>
+				<div class="card-content alac-container">
+					<!-- alacarte checkboxes -->
+					<div class="alac-list">
+						<label class="custom-checkbox">
+							<input type="checkbox" name="face-trim">
+							<span class="checkbox-box"></span>
+							<span class="service-text-wrapper">
+								<span class="service-name">Face Trim</span>
+								<span class="price-leader-line"></span>
+								<span class="ala-price">₱[Price]</span>
+							</span>
+						</label>
 
-                        <label class="custom-checkbox">
-                            <input type="checkbox" name="poodle-feet">
-                            <span class="checkbox-box"></span>
-                            <span class="service-text-wrapper">
-                                <span class="service-name">Poodle Feet</span>
-                                <span class="price-leader-line"></span>
-                                <span class="ala-price">₱[Price]</span>
-                            </span>
-                        </label>
+						<label class="custom-checkbox">
+							<input type="checkbox" name="poodle-feet">
+							<span class="checkbox-box"></span>
+							<span class="service-text-wrapper">
+								<span class="service-name">Poodle Feet</span>
+								<span class="price-leader-line"></span>
+								<span class="ala-price">₱[Price]</span>
+							</span>
+						</label>
 
-                        <label class="custom-checkbox">
-                            <input type="checkbox" name="nail-trim">
-                            <span class="checkbox-box"></span>
-                            <span class="service-text-wrapper">
-                                <span class="service-name">Nail Trim</span>
-                                <span class="price-leader-line"></span>
-                                <span class="ala-price">₱[Price]</span>
-                            </span>
-                        </label>
+						<label class="custom-checkbox">
+							<input type="checkbox" name="nail-trim">
+							<span class="checkbox-box"></span>
+							<span class="service-text-wrapper">
+								<span class="service-name">Nail Trim</span>
+								<span class="price-leader-line"></span>
+								<span class="ala-price">₱[Price]</span>
+							</span>
+						</label>
 
-                        <label class="custom-checkbox">
-                            <input type="checkbox" name="ear-clean">
-                            <span class="checkbox-box"></span>
-                            <span class="service-text-wrapper">
-                                <span class="service-name">Ear Clean</span>
-                                <span class="price-leader-line"></span>
-                                <span class="ala-price">₱[Price]</span>
-                            </span>
-                        </label>
+						<label class="custom-checkbox">
+							<input type="checkbox" name="ear-clean">
+							<span class="checkbox-box"></span>
+							<span class="service-text-wrapper">
+								<span class="service-name">Ear Clean</span>
+								<span class="price-leader-line"></span>
+								<span class="ala-price">₱[Price]</span>
+							</span>
+						</label>
 
-                        <label class="custom-checkbox">
-                            <input type="checkbox" name="teeth-brushing">
-                            <span class="checkbox-box"></span>
-                            <span class="service-text-wrapper">
-                                <span class="service-name">Teeth Brushing</span>
-                                <span class="price-leader-line"></span>
-                                <span class="ala-price">₱[Price]</span>
-                            </span>
-                        </label>
+						<label class="custom-checkbox">
+							<input type="checkbox" name="teeth-brushing">
+							<span class="checkbox-box"></span>
+							<span class="service-text-wrapper">
+								<span class="service-name">Teeth Brushing</span>
+								<span class="price-leader-line"></span>
+								<span class="ala-price">₱[Price]</span>
+							</span>
+						</label>
 
-                        <label class="custom-checkbox">
-                            <input type="checkbox" name="anal-sac-draining">
-                            <span class="checkbox-box"></span>
-                            <span class="service-text-wrapper">
-                                <span class="service-name">Anal Sac Draining</span>
-                                <span class="price-leader-line"></span>
-                                <span class="ala-price">₱[Price]</span>
-                            </span>
-                        </label>
+						<label class="custom-checkbox">
+							<input type="checkbox" name="anal-sac-draining">
+							<span class="checkbox-box"></span>
+							<span class="service-text-wrapper">
+								<span class="service-name">Anal Sac Draining</span>
+								<span class="price-leader-line"></span>
+								<span class="ala-price">₱[Price]</span>
+							</span>
+						</label>
 
-                        <label class="custom-checkbox">
-                            <input type="checkbox" name="cologne">
-                            <span class="checkbox-box"></span>
-                            <span class="service-text-wrapper">
-                                <span class="service-name">Cologne</span>
-                                <span class="price-leader-line"></span>
-                                <span class="ala-price">₱[Price]</span>
-                            </span>
-                        </label>
-                        
-                    </div>
-                </div>
-            </div>
+						<label class="custom-checkbox">
+							<input type="checkbox" name="cologne">
+							<span class="checkbox-box"></span>
+							<span class="service-text-wrapper">
+								<span class="service-name">Cologne</span>
+								<span class="price-leader-line"></span>
+								<span class="ala-price">₱[Price]</span>
+							</span>
+						</label>
+						
+					</div>
+				</div>
+			</div>
 
-            <!-- CUSTOMER INFO -->
-            <div class="step-card full-width">
-                <div class="step-title">
-                    <span class="step-num">7</span> Customer Information
-                </div>
-                <div class="card-content info-form-grid">
-                    <div class="form-group">
-                        <label for="first-name">First Name<span class="required"> *</span></label>
-                        <input type="text" id="first-name" class="styled-input" required>
-                    </div>
+			<!-- CUSTOMER INFO -->
+			<div class="step-card full-width">
+				<div class="step-title">
+					<span class="step-num">7</span> Customer Information
+				</div>
+				<div class="card-content info-form-grid">
+					<div class="form-group">
+						<label for="first-name">First Name<span class="required"> *</span></label>
+						<input type="text" id="first-name" class="styled-input" required>
+					</div>
 
-                    <div class="form-group">
-                        <label for="last-name">Last Name<span class="required"> *</span></label>
-                        <input type="text" id="last-name" class="styled-input" required>
-                    </div>
+					<div class="form-group">
+						<label for="last-name">Last Name<span class="required"> *</span></label>
+						<input type="text" id="last-name" class="styled-input" required>
+					</div>
 
-                    <div class="form-group">
-                        <label for="email">Email Address<span class="required"> *</span></label>
-                        <input type="email" id="email" class="styled-input" required>
-                    </div>
+					<div class="form-group">
+						<label for="email">Email Address<span class="required"> *</span></label>
+						<input type="email" id="email" class="styled-input" required>
+					</div>
 
-                    <div class="form-group">
-                        <label for="mobile">Mobile Number<span class="required"> *</span></label>
-                        <input type="text" id="mobile" class="styled-input" required>
-                    </div>
+					<div class="form-group">
+						<label for="mobile">Mobile Number<span class="required"> *</span></label>
+						<input type="text" id="mobile" class="styled-input" required>
+					</div>
 
-                    <div class="form-group full-row">
-                        <label for="optional-notes">Notes (Optional)</label>
-                        <input type="text" id="optional-notes" class="styled-input">
-                    </div>
-                </div>
-            </div>
+					<div class="form-group full-row">
+						<label for="optional-notes">Notes (Optional)</label>
+						<input type="text" id="optional-notes" class="styled-input">
+					</div>
+				</div>
+			</div>
 
-            <!-- FOOTER -->
-            <div id="session-footer">
-                <span id="booking-summary">Booking Summary</span>
-                <span id="confirm-booking">Confirm Booking</span>
-            </div>
+			<!-- FOOTER -->
+			<div id="session-footer">
+				<span id="booking-summary">Booking Summary</span>
+				<span id="confirm-booking">Confirm Booking</span>
+			</div>
 
-            </div> <!-- #post-pet-type -->
+			</div> <!-- #post-pet-type -->
 
-        </div>
-    </body>
+		</div>
+	</body>
 </html>
