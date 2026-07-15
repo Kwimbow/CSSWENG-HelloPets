@@ -89,8 +89,11 @@
                 </div>
             </div>
 
-            <!-- PET INFORMATION -->
-            <div class="step-card full-width">
+            <!-- all fields below only show after pet type is selected -->
+            <div id="post-pet-type">
+
+            <!-- PET INFORMATION - DOG-->
+            <div class="step-card full-width dog-only" style="display:none;">
                 <div class="step-title">
                     <span class="step-num">3</span> Pet Information
                 </div>
@@ -118,8 +121,29 @@
                 </div>
             </div>
 
-            <!-- SERVICE SELECTION -->
-            <div class="step-card full-width">
+            <!-- PET INFORMATION - CAT -->
+            <div class="step-card full-width cat-only" style="display:none;">
+                <div class="step-title">
+                    <span class="step-num">3</span> Pet Information
+                </div>
+
+                <div class="card-content info-form-grid">
+                    <div class="form-group">
+                        <label for="pet-name-cat">Pet Name <span class="required"> *</span></label>
+                        <input type="text" id="pet-name-cat" class="styled-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pet-weight-cat">Last Recorded Weight <span class="required"> *</span></label>
+                        <input type="text" id="pet-weight-cat" class="styled-input" required>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- SERVICE SELECTION - DOG -->
+            <div class="step-card full-width dog-only" style="display:none;">
                 <div class="step-title">
                     <span class="step-num">4</span> Select Service <span class="imp-message">(Prices vary by pet size)</span>
                 </div>
@@ -186,6 +210,31 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- SERVICE SELECTION - CAT -->
+            <div class="step-card full-width cat-only" style="display:none;">
+                <div class="step-title">
+                    <span class="step-num">4</span> Select Service
+                </div>
+                <div class="card-content cat-service-list">
+                    <label class="custom-radio cat-service-option">
+                        <input type="radio" name="pet-service-cat" value="kitty-grooming" checked>
+                        <span class="radio-circle"></span>
+                        <span class="cat-service-text">
+                            <span class="service-label-text">Kitty Grooming</span>
+                            <span class="cat-service-desc">Essential Bath, nail trim, ear clean, sanitary trim, belly+butt+paw pads shaving</span>
+                        </span>
+                    </label>
+
+                    <label class="custom-radio cat-service-option">
+                        <input type="radio" name="pet-service-cat" value="kitty-special-cut">
+                        <span class="radio-circle"></span>
+                        <span class="cat-service-text">
+                            <span class="service-label-text">Kitty Special Cut</span>
+                        </span>
+                    </label>
                 </div>
             </div>
 
@@ -349,6 +398,9 @@
                 <span id="booking-summary">Booking Summary</span>
                 <span id="confirm-booking">Confirm Booking</span>
             </div>
+
+            </div> <!-- #post-pet-type -->
+
         </div>
     </body>
 </html>
