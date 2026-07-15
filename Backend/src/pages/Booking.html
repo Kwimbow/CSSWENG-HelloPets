@@ -63,7 +63,26 @@
                     <span class="step-num">1</span> Pick time & date
                 </div>
                 <div class="card-content">
-                    <p style="padding: 20px; color: #888;">[Calendar widget]</p>
+                    <div class="card-content calendar-widget">
+                        <div class="calendar-col">
+                            <div class="calendar-header">
+                                <button type="button" id="cal-prev" class="cal-nav-btn" aria-label="Previous month">&#10094;</button>
+                                <span id="cal-month-label"></span>
+                                <button type="button" id="cal-next" class="cal-nav-btn" aria-label="Next month">&#10095;</button>
+                            </div>
+                            <div class="calendar-weekdays">
+                                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                            </div>
+                            <div id="cal-days-grid" class="calendar-days-grid"></div>
+                        </div>
+
+                        <div class="time-slot-section" id="time-slot-section">
+                            <div class="time-slot-label">Select a time</div>
+                            <div id="time-slots-grid" class="time-slots-grid"></div>
+                            <div id="selected-appointment-display" class="selected-appointment-display"></div>
+                        </div>
+                    </div>
+                    <div id="appointment-error" class="imp-message" style="display:none;">Please select an appointment date and time.</div>
                 </div>
             </div>
 

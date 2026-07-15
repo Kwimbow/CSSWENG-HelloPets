@@ -68,6 +68,12 @@ const getCheckboxesValue = function(chkButtons) {
 // verifies form elements (like required inputs, as well as email formatting)
 // returns true if form inputs are valid
 const verifyForm = function() {
+    if (!selectedDate || !selectedTime) {
+        appointmentError.style.display = "";
+        return false;
+    }
+    appointmentError.style.display = "none";
+
     for (const btn of allInputs) {
         // informs the user of the first invalid form input
         isValid = btn.reportValidity();
@@ -147,6 +153,7 @@ const clearForm = function() {
     // checking the default option for radio buttons
     checkRadioButton(radsPetSelection, "dog")
     checkRadioButton(radsSelectedService, "essential-bath");
+    resetCalendarSelection();
 }
 
 const submitForm = async function() {
@@ -159,6 +166,8 @@ const submitForm = async function() {
     isDogSelected = petSelection === "dog";
 
     payloadObj = {
+        "appointmentDate": selectedDate,
+        "appointmentTime": selectedTime,
         "petSelection": petSelection,
         "petName": isDogSelected ? inpPetName.value : inpPetNameCat.value,
         "petWeight": isDogSelected ? inpPetWeight.value : inpPetWeightCat.value,
@@ -193,3 +202,194 @@ const submitForm = async function() {
 }
 
 btnConfirmBooking.addEventListener("click", submitForm);
+
+
+// STEP 1 CALENDAR / TIME SLOT PICKER
+// ---------------------------------------------------------------------
+// Appointments are only offered Tuesday-Sunday (no Mondays), 10am-5pm,
+// in 1-hour slots (last slot starts at 4pm so it wraps up by 5pm).
+//
+// MANUAL OVERRIDES (not wired up to any UI yet):
+// To block off an entire day, add its "YYYY-MM-DD" string to
+// manuallyUnavailableDates. To block specific times on a specific day,
+// add an entry to manuallyUnavailableSlots keyed by "YYYY-MM-DD" whose
+// value is an array of "HH:MM" (24hr) strings pulled from timeSlots below.
+// Example:
+//   manuallyUnavailableDates.add("2026-08-15");
+//   manuallyUnavailableSlots["2026-08-20"] = ["10:00", "11:00"];
+const manuallyUnavailableDates = new Set();
+const manuallyUnavailableSlots = {};
+
+const timeSlots = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
+
+const calMonthLabel = document.getElementById("cal-month-label");
+const calPrevBtn = document.getElementById("cal-prev");
+const calNextBtn = document.getElementById("cal-next");
+const calDaysGrid = document.getElementById("cal-days-grid");
+const timeSlotsGrid = document.getElementById("time-slots-grid");
+const selectedAppointmentDisplay = document.getElementById("selected-appointment-display");
+const appointmentError = document.getElementById("appointment-error");
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+let calViewYear = today.getFullYear();
+let calViewMonth = today.getMonth(); // 0-indexed
+let selectedDate = null; // "YYYY-MM-DD"
+let selectedTime = null; // "HH:MM"
+
+// formats a Date object as a local "YYYY-MM-DD" string (avoids UTC shift issues)
+const formatDateStr = function(dateObj) {
+    year = dateObj.getFullYear();
+    month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    day = String(dateObj.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+// formats "HH:MM" (24hr) into a human readable 12hr label, e.g. "14:00" -> "2:00 PM"
+const formatTimeLabel = function(timeStr) {
+    const [hourStr, minuteStr] = timeStr.split(":");
+    hour = parseInt(hourStr, 10);
+    period = hour >= 12 ? "PM" : "AM";
+    hour12 = hour % 12 === 0 ? 12 : hour % 12;
+    return `${hour12}:${minuteStr} ${period}`;
+}
+
+// formats "YYYY-MM-DD" into a human readable label, e.g. "July 20, 2026"
+const formatDateLabel = function(dateStr) {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    dateObj = new Date(year, month - 1, day);
+    return dateObj.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+
+const updateSelectedAppointmentDisplay = function() {
+    if (selectedDate && selectedTime) {
+        selectedAppointmentDisplay.textContent = `Selected: ${formatDateLabel(selectedDate)} at ${formatTimeLabel(selectedTime)}`;
+    } else if (selectedDate) {
+        selectedAppointmentDisplay.textContent = `Selected: ${formatDateLabel(selectedDate)}`;
+    } else {
+        selectedAppointmentDisplay.textContent = "";
+    }
+}
+
+// renders the 10am-5pm time slot buttons for whatever date is currently selected
+const renderTimeSlots = function() {
+    timeSlotsGrid.innerHTML = "";
+
+    if (!selectedDate) {
+        hint = document.createElement("div");
+        hint.textContent = "Pick a date first";
+        hint.style.cssText = "font-size:0.85rem;color:#9a9a9a;";
+        timeSlotsGrid.appendChild(hint);
+        return;
+    }
+
+    blockedSlotsForDate = manuallyUnavailableSlots[selectedDate] || [];
+
+    for (const slot of timeSlots) {
+        btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = formatTimeLabel(slot);
+
+        if (blockedSlotsForDate.includes(slot)) {
+            btn.className = "time-slot-btn";
+            btn.disabled = true;
+        } else {
+            btn.className = "time-slot-btn" + (selectedTime === slot ? " selected" : "");
+            btn.addEventListener("click", function() {
+                selectedTime = slot;
+                renderTimeSlots();
+                updateSelectedAppointmentDisplay();
+            });
+        }
+
+        timeSlotsGrid.appendChild(btn);
+    }
+}
+
+// renders the day grid for calViewYear/calViewMonth
+const renderCalendar = function() {
+    firstOfMonth = new Date(calViewYear, calViewMonth, 1);
+    calMonthLabel.textContent = firstOfMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+    // grid starts on Monday, so figure out how many blank cells precede day 1
+    // (JS getDay(): Sun=0..Sat=6, shift so Mon=0..Sun=6)
+    leadingBlanks = (firstOfMonth.getDay() + 6) % 7;
+    daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+
+    calDaysGrid.innerHTML = "";
+
+    for (let i = 0; i < leadingBlanks; i++) {
+        blank = document.createElement("div");
+        blank.className = "cal-day-cell";
+        calDaysGrid.appendChild(blank);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        dateObj = new Date(calViewYear, calViewMonth, day);
+        dateStr = formatDateStr(dateObj);
+        isMonday = dateObj.getDay() === 1;
+        isPast = dateObj < today;
+        isManuallyBlocked = manuallyUnavailableDates.has(dateStr);
+
+        cell = document.createElement("div");
+        cell.className = "cal-day-cell";
+
+        if (isMonday || isPast || isManuallyBlocked) {
+            dayEl = document.createElement("span");
+            dayEl.className = "cal-day-disabled";
+            dayEl.textContent = day;
+        } else {
+            dayEl = document.createElement("button");
+            dayEl.type = "button";
+            dayEl.className = "cal-day" + (selectedDate === dateStr ? " selected" : "");
+            dayEl.textContent = day;
+            dayEl.addEventListener("click", function() {
+                selectedDate = dateStr;
+                selectedTime = null;
+                renderCalendar();
+                renderTimeSlots();
+                updateSelectedAppointmentDisplay();
+            });
+        }
+
+        cell.appendChild(dayEl);
+        calDaysGrid.appendChild(cell);
+    }
+
+    // don't allow navigating to months before the current one
+    calPrevBtn.disabled = (calViewYear === today.getFullYear() && calViewMonth === today.getMonth());
+}
+
+calPrevBtn.addEventListener("click", function() {
+    calViewMonth -= 1;
+    if (calViewMonth < 0) {
+        calViewMonth = 11;
+        calViewYear -= 1;
+    }
+    renderCalendar();
+});
+
+calNextBtn.addEventListener("click", function() {
+    calViewMonth += 1;
+    if (calViewMonth > 11) {
+        calViewMonth = 0;
+        calViewYear += 1;
+    }
+    renderCalendar();
+});
+
+renderCalendar();
+renderTimeSlots();
+
+// resets the calendar/time selection back to nothing and jumps back to the current month
+const resetCalendarSelection = function() {
+    selectedDate = null;
+    selectedTime = null;
+    calViewYear = today.getFullYear();
+    calViewMonth = today.getMonth();
+    appointmentError.style.display = "none";
+    renderCalendar();
+    renderTimeSlots();
+    updateSelectedAppointmentDisplay();
+}
