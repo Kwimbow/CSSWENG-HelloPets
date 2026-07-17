@@ -157,7 +157,7 @@ const clearForm = function() {
 }
 
 function goBackHome(){
-	window.location.href = "Index.html"
+	window.location.replace("Index.html")
 }
 
 const submitForm = async function() {
