@@ -156,6 +156,10 @@ const clearForm = function() {
 	resetCalendarSelection();
 }
 
+function goBackHome(){
+	window.location.href = "Index.html"
+}
+
 const submitForm = async function() {
 	isValid = verifyForm();
 	if (!isValid) {
@@ -196,6 +200,7 @@ const submitForm = async function() {
 	if (success) {
 		alert("Form successfully submitted.");
 		clearForm();
+		goBackHome();
 	} else {
 		alert("There was an error submitting the form.");
 	}
