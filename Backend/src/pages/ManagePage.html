@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hello Pets PH | Manage Page </title>
+        <link rel="icon" type="image/jpg" href="Logos/Icon.png">
+        <link rel="stylesheet" type="text/css" href="Landing.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <link href="https://fonts.googleapis.com/css2?family=Inder&family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+
+        <!-- fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Stack+Sans+Headline:wght@200..700&display=swap" rel="stylesheet">
+
+        <!-- script -->
+        <script src="js/booking.js" defer></script>
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <div class="nav-bar">
+                    <div class="logo">
+                        <a href="Index.html">
+                            <img src="Logos/Logo.png" alt="Hello Pets Logo" id="nav-icon">
+                        </a>
+                    </div>
+                    <nav>
+                        <ul class="nav-links">
+                            <li><a href="Index.html" class="nav-btns">ALL BOOKINGS</a></li>
+                            <li><a href="ManagePage.html" class="nav-btns">MANAGE PAGE</a></li>
+                            <li><a href="#" class="nav-btns">MANAGE SHOP</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </header>
+        <div class="scalloped-edge"></div>
+
+        <div id="nav-space">
+            
+        </div>
+
+        <!-- featured pet -->
+        <div id="featured-pet" class="pawlkadots">
+            <div class="featpet-container">
+                <div class="image-wrapper">
+                    <input type="file" id="featuredPetImg" class="upload-btn" accept="image/*">
+                    <label for="featuredPetImg" class="featured-pet-upload">Upload Photo</label>
+                    <img id="displayImage" src="Logos/dog.jpg">
+                </div>
+                <div class="featpet-info">
+                    <h2>FEATURED PET</h2>
+                    <textarea class="name-breed" placeholder="Edit Name, Breed"></textarea>
+                    <textarea class="description" placeholder="Edit Description"></textarea>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- videos -->
+        <div id="store-videos">
+            <img class="paw-svg" src="Logos/paw.svg">
+            <div class="video-container">
+                <div class="video-image-wrapper">
+                    <input type="file" id="videoImg1" class="upload-btn video-upload-btn" accept="image/*">
+                    <label for="videoImg1" class="upload-label">Upload Photo</label>
+                    <img id="videoPreview1" class="showcase-video" src="Logos/placeholder.png" alt="Video showcase 1">
+                </div>
+                <textarea class="video-text" placeholder="Edit Text"></textarea>
+            </div>
+
+            <div class="video-container">
+                <div class="video-image-wrapper">
+                    <input type="file" id="videoImg2" class="upload-btn video-upload-btn" accept="image/*">
+                    <label for="videoImg2" class="upload-label">Upload Photo</label>
+                    <img id="videoPreview2" class="showcase-video" src="Logos/placeholder.png" alt="Video showcase 2">
+                </div>
+                <textarea class="video-text" placeholder="Edit Text"></textarea>
+            </div>
+
+            <div class="video-container">
+                <div class="video-image-wrapper">
+                    <input type="file" id="videoImg3" class="upload-btn video-upload-btn" accept="image/*">
+                    <label for="videoImg3" class="upload-label">Upload Photo</label>
+                    <img id="videoPreview3" class="showcase-video" src="Logos/placeholder.png" alt="Video showcase 3">
+                </div>
+                <textarea class="video-text" placeholder="Edit Text"></textarea>
+            </div>
+            <img class="paw-svg" src="Logos/paw.svg">
+            
+        </div>
+
+        <!-- FOOTER -->
+        <div id="session-footer">
+            <span id="save-changes">Save Changes</span>
+        </div>
+
+        <script>
+        const featuredFileInput = document.getElementById('featuredPetImg');
+        const displayImage = document.getElementById('displayImage');
+
+        featuredFileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    displayImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        const videoInputs = [
+            document.getElementById('videoImg1'),
+            document.getElementById('videoImg2'),
+            document.getElementById('videoImg3')
+        ];
+
+        const videoPreviews = [
+            document.getElementById('videoPreview1'),
+            document.getElementById('videoPreview2'),
+            document.getElementById('videoPreview3')
+        ];
+
+        videoInputs.forEach((input, index) => {
+            input.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        videoPreviews[index].src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        const maxChars = 20;
+        const textareas = document.querySelectorAll('.video-text');
+        textareas.forEach((textarea) => {
+            textarea.addEventListener('input', function() {
+                if (textarea.value.length > maxChars) {
+                    textarea.value = textarea.value.slice(0, maxChars);
+                }
+            });
+        });
+
+        const autoResizeTextareas = document.querySelectorAll('.video-container .video-text');
+        function resizeTextarea(textarea){
+            textarea.style.height = '5rem';
+            textarea.style.height = `${textarea.scrollHeight}px`;
+        }
+        autoResizeTextareas.forEach((textarea) => {
+            resizeTextarea(textarea);
+            textarea.addEventListener('input', () => resizeTextarea(textarea));
+        }); 
+    </script>
+    </body>
+</html>
