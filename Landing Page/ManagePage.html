@@ -69,7 +69,7 @@
                     <label for="videoImg1" class="upload-label">Upload Photo</label>
                     <img id="videoPreview1" class="showcase-video" src="Logos/placeholder.png" alt="Video showcase 1">
                 </div>
-                <p>Clean Interior!</p>
+                <textarea class="video-text" placeholder="Edit Text"></textarea>
             </div>
 
             <div class="video-container">
@@ -78,7 +78,7 @@
                     <label for="videoImg2" class="upload-label">Upload Photo</label>
                     <img id="videoPreview2" class="showcase-video" src="Logos/placeholder.png" alt="Video showcase 2">
                 </div>
-                <p>Sanitized Tools!</p>
+                <textarea class="video-text" placeholder="Edit Text"></textarea>
             </div>
 
             <div class="video-container">
@@ -87,7 +87,7 @@
                     <label for="videoImg3" class="upload-label">Upload Photo</label>
                     <img id="videoPreview3" class="showcase-video" src="Logos/placeholder.png" alt="Video showcase 3">
                 </div>
-                <p>Clean Bathing!</p>
+                <textarea class="video-text" placeholder="Edit Text"></textarea>
             </div>
             <img class="paw-svg" src="Logos/paw.svg">
             
@@ -136,6 +136,26 @@
                     reader.readAsDataURL(file);
                 }
             });
+        });
+
+        const maxChars = 20;
+        const textareas = document.querySelectorAll('.video-text');
+        textareas.forEach((textarea) => {
+            textarea.addEventListener('input', function() {
+                if (textarea.value.length > maxChars) {
+                    textarea.value = textarea.value.slice(0, maxChars);
+                }
+            });
+        });
+
+        const autoResizeTextareas = document.querySelectorAll('.video-container .video-text');
+        function resizeTextarea(textarea){
+            textarea.style.height = '5rem';
+            textarea.style.height = `${textarea.scrollHeight}px`;
+        }
+        autoResizeTextareas.forEach((textarea) => {
+            resizeTextarea(textarea);
+            textarea.addEventListener('input', () => resizeTextarea(textarea));
         });
     </script>
     </body>
