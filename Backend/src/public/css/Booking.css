@@ -399,6 +399,10 @@
 
 
 /* Dog or cat selection */
+.pet-type-card {
+    height: 300px;
+}
+
 .dog-cat-list{
 	display: flex;
 	gap: 1rem;
@@ -413,16 +417,16 @@
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	border-radius: 15px;
+	border-radius: 23px;
 	padding: 1.5rem;
 	transition: background-color 0.2s ease;
 }
 
 .pet-label-text {
-	background-color: #8a8a8a;
-	padding: 8px 30px;
+	background-color: transparent;
+	padding: 6px 30px;
 	font-weight: bold;
-	font-size: 1.2rem;
+	font-size: 2.2rem;
 	border-radius: 4px;
 	text-align: center;
 	width: 20vw;
@@ -433,18 +437,13 @@
 	width: 100%;
 	max-width: 200px;
 	height: auto;
-	margin-top: 1rem;
 	object-fit: contain;
-	filter: brightness(0);
 	transition: filter 0.2s ease;
 }
 
-.dog-cat-list .custom-radio input:checked ~ .pet-icon{
-	filter: brightness(1);
-}
-
-.dog-cat-list .custom-radio input:checked ~ .pet-label-text{
-	font-weight: bold;
+.dog-cat-list .custom-radio:has(input[type="radio"]:checked){
+	width: 90%;
+	height: auto;
 	background-color: #ffcc00;
 }
 
