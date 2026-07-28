@@ -18,7 +18,7 @@ body{
 
 header{
     padding: 1rem 0;
-    background-color: #28B9B2;
+    background-color: #EE3A78;
     box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
     top:0;
     position: fixed;
@@ -32,7 +32,7 @@ header:after{
     top: 67px;
     width: 100%;
     content:" ";
-    background: radial-gradient(circle at 50% 0%, #28B9B2 25%, #28B9B2 26%, #28B9B2 40%, transparent 41%);
+    background: radial-gradient(circle at 50% 0%, #EE3A78 25%, #EE3A78 26%, #EE3A78 40%, transparent 41%);
     background-color: transparent;
     background-size:40px 70px;
     height:50px;
@@ -78,7 +78,6 @@ header:after{
 }
 
 .nav-bar ul li a:hover {
-    color: #EE3A78;
     transition: color 0.3s ease;
     text-shadow: 0 0 5px #ffc9dc;
 }
@@ -157,17 +156,46 @@ header:after{
     width: 90%;
     border-radius: 50px;
 }
+
+.image-wrapper {
+    position: relative;
+    width: 50%;
+    border-radius: 50px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.upload-btn {
+    display: none;
+}
+
+.featured-pet-upload{
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.2s;
+    font-family: "Stack Sans Headline", serif;
+}
+
+.featured-pet-upload:hover{
+    transform: scale(1.1);
+}
+
 #featured-pet img {
     height: 95%;
-    width: 50%;
+    max-height: 95%;
+    width: 100%;
     object-fit: cover;
     border-radius: 50px;
     max-height: 50vh;
-    transition: transform .2s ease;
 }
-#featured-pet img:hover {
-    transform: scale(1.05);
-}
+
 .featpet-info {
     margin-left: 3.4%;
     margin-top: 2%;
@@ -188,18 +216,40 @@ header:after{
     font-weight: 700;
     margin-bottom: -9px;
 }
-.featpet-info h4 {
+.name-breed {
     text-align: center;
     color: #EE3A78;
     font-size: clamp(1.2rem, 2.5vw, 3rem);
     font-family: "Stack Sans Headline", sans-serif;
     font-weight: 400;
-    margin-bottom: 10px;
+    margin-top: 10px;
+    width: 100%;
+    height: 10vh;
+    border: none;
+    border-radius: 25px;
+    background-color: #d6d6d6;
+    resize: none;
+    box-sizing: border-box;
+    padding: 2vh 10px;
 }
-.featpet-info p {
+
+.description {
     text-align: center;
     font-size: clamp(0.9rem, 1.5vw, 1.8rem);
     font-family: "Stack Sans Headline", sans-serif;
+    width: 100%;
+    height: 15vh;
+    border: none;
+    border-radius: 25px;
+    background-color: #d6d6d6;
+    resize: none;
+    box-sizing: border-box;
+    padding: 2vh 10px;
+}
+
+
+.description::placeholder, .name-breed::placeholder{
+    color: #545454
 }
 
 /* store videos */
@@ -220,6 +270,37 @@ header:after{
     flex-direction: column;
     align-items: center;
 }
+
+.upload-label{
+    position: absolute;
+    bottom: 20px;
+    left: 30px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.2s;
+    font-family: "Stack Sans Headline", serif;
+}
+
+.upload-label:hover{
+    transform: scale(1.1);
+}
+
+.video-image-wrapper {
+    position: relative;
+    width: 90%;
+    height: 64%;
+    border-radius: 47% 47% 0 0;
+    overflow: hidden;
+
+    -webkit-box-shadow:0px 0px 91px 8px rgba(255,255,255,0.43);
+    -moz-box-shadow: 0px 0px 91px 8px rgba(255,255,255,0.43);
+    box-shadow: 0px 0px 91px 8px rgba(255,255,255,0.43);
+}
+
 .paw-svg{
     width: 5rem;
     filter: invert(100%);
@@ -231,13 +312,12 @@ header:after{
     filter: invert(32%) sepia(85%) saturate(1500%) hue-rotate(310deg) brightness(100%);
 }
 .showcase-video {
-    width: 90%;
+    width: 100%;
+    min-height: 100%;
+    height: 100%;
     border-radius: 47% 47% 0 0;
-
-
-    -webkit-box-shadow:0px 0px 91px 8px rgba(255,255,255,0.43);
-    -moz-box-shadow: 0px 0px 91px 8px rgba(255,255,255,0.43);
-    box-shadow: 0px 0px 91px 8px rgba(255,255,255,0.43);
+    object-fit: cover;
+    object-position: center;
 
 }
 .video-container p {
@@ -256,6 +336,7 @@ header:after{
     box-shadow: 7px 7px 5px #525252;
 
     transition: transform .2s ease;
+    z-index: 2;
 }
 .video-container p:hover {
     transform: scale(1.05);
@@ -509,12 +590,11 @@ header:after{
 }
 
 #session-footer{
-    background-color: #28B9B2;
+    background-color: #EE3A78;
     height: 150px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    border-radius: 20px;
     grid-column: span 2;
     padding: 0 2rem;
 }
@@ -531,7 +611,6 @@ header:after{
     font-size: 1rem;
     font-family: "Stack Sans Headline", sans-serif;
     font-weight: 400;
-    color: white;
 }
 
 #booking-summary {
@@ -540,9 +619,9 @@ header:after{
     color: #1a1a1a;
 }
 
-#confirm-booking {
-    background-color: #EE3A78;
-    color: white;
+#save-changes {
+    background-color: #ffffff;
+    color: #EE3A78;
     padding: 0.8rem 2rem;
     border-radius: 30px;
     font-weight: bold;
@@ -550,8 +629,8 @@ header:after{
     transition: background-color 0.2s ease;
 }
 
-#confirm-booking:hover {
-    background-color: #d62d64;
+#save-changes:hover {
+    background-color: #dadada;
 }
 
 /* Actual booking portion */
