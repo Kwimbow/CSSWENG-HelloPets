@@ -148,13 +148,22 @@ function formatTime(t) {
 
 
 // blocking time
-function buildSelectOptions(count, pad) {
+
+
+
+// for the time selection 
+function buildHourOptions() {
     let out = '';
-    for (let i = 0; i < count; i++) {
-        const val = pad ? String(i).padStart(2,'0') : (i + 1);
-        out += `<option value="${val}">${val}</option>`;
+    for (let i = 1; i <= 12; i++) {
+        out += `<option value="${i}">${i}</option>`;
     }
     return out;
+}
+function buildMinuteOptions() {
+    return [0, 15, 30, 45].map(m => {
+        const val = String(m).padStart(2, '0');
+        return `<option value="${val}">${val}</option>`;
+    }).join('');
 }
 
 function closeBlockBox() {
@@ -176,18 +185,18 @@ function openBlockBox() {
             <div class="time-group">
                 <label>Start</label>
                 <div class="time-box">
-                    <select id="startHour">${buildSelectOptions(12,false)}</select>
+                    <select id="startHour">${buildHourOptions()}</select>
                     <span class="time-colon">:</span>
-                    <select id="startMin">${buildSelectOptions(60,true)}</select>
+                    <select id="startMin">${buildMinuteOptions()}</select>
                     <select id="startPeriod"><option>AM</option><option>PM</option></select>
                 </div>
             </div>
             <div class="time-group">
                 <label>End</label>
                 <div class="time-box">
-                    <select id="endHour">${buildSelectOptions(12,false)}</select>
+                    <select id="endHour">${buildHourOptions()}</select>
                     <span class="time-colon">:</span>
-                    <select id="endMin">${buildSelectOptions(60,true)}</select>
+                    <select id="endMin">${buildMinuteOptions()}</select>
                     <select id="endPeriod"><option>AM</option><option>PM</option></select>
                 </div>
             </div>
@@ -206,7 +215,7 @@ function openBlockBox() {
         document.getElementById('timeInputsRow').classList.toggle('disabled', e.target.checked);
     });
 
-    document.getElementById('cancelBlockBtn').addEventListener('click', closeBlockBox); // ---------- why is this not working
+    document.getElementById('cancelBlockBtn').addEventListener('click', closeBlockBox);
 
     document.getElementById('addBlockBtn').addEventListener('click', () => {
         const key = dateKey(selectedDate);
