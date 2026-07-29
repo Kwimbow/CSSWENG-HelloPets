@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hello Pets PH | Salon Bookings</title>
+        <link rel="icon" type="image/jpg" href="/Logos/Icon.png">
+        <link rel="stylesheet" type="text/css" href="/css/Landing_Admin.css">
+        <link rel="stylesheet" type="text/css" href="/css/View_Bookings.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <link href="https://fonts.googleapis.com/css2?family=Inder&family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+
+        <!-- fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Stack+Sans+Headline:wght@200..700&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <div class="nav-bar">
+                    <div class="logo">
+                        <a href="/">
+                            <img src="/Logos/Logo.png" alt="Hello Pets Logo" id="nav-icon">
+                        </a>
+                    </div>
+                    <nav>
+                        <ul class="nav-links">
+                            <li><a href="/admin/view_bookings" class="nav-btns">ALL BOOKINGS</a></li>
+                            <li><a href="/admin/manage_page" class="nav-btns">MANAGE PAGE</a></li>
+                            <li><a href="#" class="nav-btns">MANAGE SHOP</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </header>
+        <div class="scalloped-edge"></div>
+
+        <div id="nav-space"></div>
+
+        <!-- SALON BOOKINGS -->
+        <div id="bookings">
+
+            <div id="salon-bookings">
+
+                <h1 class="booking-heading">Salon Bookings</h1>
+
+                <div class="booking-layout">
+
+                    <!-- Calendar -->
+                    <div class="calendar-card">
+                        <div class="calendar-nav">
+                            <button class="cal-nav-btn" id="prevMonthBtn"><i class='bx bx-chevron-left'></i></button>
+                            <h3 id="calMonthLabel">May 2026</h3>
+                            <button class="cal-nav-btn" id="nextMonthBtn"><i class='bx bx-chevron-right'></i></button>
+                        </div>
+                        <div class="calendar-grid-header">
+                            <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid">
+                            <!-- days injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Day detail panel -->
+                    <div class="day-detail-card">
+                        <div class="day-detail-header">
+                            <h3 id="selectedDateLabel">May 6 2026</h3>
+                        </div>
+
+                        <div class="bookings-list" id="bookingsList">
+                            <!-- bookings injected by JS -->
+                        </div>
+
+                        <div class="block-time-box" id="blockTimeBox">
+                            Block a time on this day
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <script src="/js/view_bookings.js"></script>
+    </body>
+</html>
