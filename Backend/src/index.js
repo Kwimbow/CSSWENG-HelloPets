@@ -21,6 +21,22 @@ app.post("/submit-booking", async (req, res) => {
     res.json({ success: true });
 });
 
+app.get("/admin", async (req, res) => {
+    res.redirect("/admin/login");
+});
+
+app.get("/admin/login", async (req, res) => {
+    res.sendFile(path.join(__dirname, "pages", "admin", "Login.html"));
+});
+
+app.get("/admin/manage_page", async (req, res) => {
+    res.sendFile(path.join(__dirname, "pages", "admin", "ManagePage.html"));
+});
+
+app.get("/admin/view_bookings", async (req, res) => {
+    res.sendFile(path.join(__dirname, "pages", "admin", "ViewBookings.html"));
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server running at port ${PORT}`);
