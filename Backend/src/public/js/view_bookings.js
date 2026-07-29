@@ -215,7 +215,10 @@ function openBlockBox() {
         document.getElementById('timeInputsRow').classList.toggle('disabled', e.target.checked);
     });
 
-    document.getElementById('cancelBlockBtn').addEventListener('click', closeBlockBox);
+    document.getElementById('cancelBlockBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeBlockBox();
+    });
 
     document.getElementById('addBlockBtn').addEventListener('click', () => {
         const key = dateKey(selectedDate);
