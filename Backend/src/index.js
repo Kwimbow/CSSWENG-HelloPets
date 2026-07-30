@@ -22,6 +22,13 @@ app.use(
     })
 );
 
+const mongoose = require("mongoose");
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/hello-pets-db";
+mongoose.connect(MONGODB_URI);
+
+const LandingPageMedia = require("./schemas/LandingPageMedia");
+const LandingPageText = require("./schemas/LandingPageText");
+
 const adminAuthenticated = (req, res, next) => {
     if (req.session.admin) {
         next();
