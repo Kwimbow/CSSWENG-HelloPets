@@ -8,6 +8,16 @@ const fileUpload = require("express-fileupload");
 adminUsername = process.env.ADMIN_USERNAME || "admin";
 adminPassword = process.env.ADMIN_PASSWORD || "123456";
 
+require("dotenv").config();
+// env file currently being used for the MONGODB URI so we can easily migrate to atlas
+// will also be used for the email and password to send confirmations
+const connectDB = require("./public/js/db");
+
+connectDB();
+
+const { ensureSlotsExistForDate, timeSlots } = require("./public/js/ensure_slots");
+const Slot = require("./public/js/models/Slot");
+
 const app = express();
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -80,9 +90,49 @@ app.get("/booking", async (req, res) => {
     res.sendFile(path.join(__dirname, "pages", "Booking.html"))
 });
 
+// Endpoint with no auth, just gets the slots and their availability
+app.get("/slots/:date", async (req, res) => {
+    const { date } = req.params;
+    await ensureSlotsExistForDate(date);
+    const slots = await Slot.find({ date });
+    res.json({ success: true, slots });
+});
+
+app.get("/admin/slots/:date", async (req, res) => {
+  const { date } = req.params;
+  await ensureSlotsExistForDate(date);
+  const slots = await Slot.find({ date });
+  res.json({ success: true, slots });
+});
+
 app.post("/submit-booking", async (req, res) => {
-    console.log(req.body);
-    res.json({ success: true });
+    const { appointmentDate, appointmentTime, ...bookingData } = req.body;
+    console.log("Date: " + appointmentDate);
+    console.log("Time: " + appointmentTime);
+    console.log(bookingData);
+
+	const slot = await Slot.findOneAndUpdate(
+        { date: appointmentDate, time: appointmentTime, status: "open" },
+        { status: "booked" },
+        { new: true },
+    );
+    
+	if (!slot) {
+		return res.json({ success: false, error: "That time slot is no longer available." });
+	}
+
+    try {
+        const booking = await Booking.create(bookingFields);
+        slot.booking = booking._id;
+        await slot.save();
+        res.json({ success: true, booking });
+    } catch (err) {
+        // booking creation failed after slot was claimed, reset slot to open
+        slot.status = "open";
+        slot.booking = null;
+        await slot.save();
+        res.json({ success: false, error: err.message });
+    }
 });
 
 app.get("/admin", async (req, res) => {

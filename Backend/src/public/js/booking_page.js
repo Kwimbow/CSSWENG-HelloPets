@@ -160,31 +160,43 @@ function goBackHome(){
 	window.location.replace("/")
 }
 
+
+const buildBookingObj = function() {
+	petSelection = getRadioButtonsValue(radsPetSelection);
+    
+    isDogSelected = petSelection === "dog";
+
+    return {
+        appointmentDate: selectedDate,
+        appointmentTime: selectedTime,
+        petSelection: petSelection,
+        petName: isDogSelected ? inpPetName.value : inpPetNameCat.value,
+        petWeight: isDogSelected ? inpPetWeight.value : inpPetWeightCat.value,
+        petBreed: isDogSelected ? inpPetBreed.value : null,
+        selectedService: isDogSelected
+        ? getRadioButtonsValue(radsSelectedService)
+        : getRadioButtonsValue(radsSelectedServiceCat),
+        addOnServices: getCheckboxesValue(chksAddOn),
+        aLaCarteServices: getCheckboxesValue(chksALaCarte),
+        customer: {
+        firstName: inpFirstName.value,
+        lastName: inpLastName.value,
+        email: inpEmail.value,
+        mobileNumber: inpMobileNumber.value,
+        },
+        optionalNotes: inpNotes.value,
+        createdAt: new Date().toISOString(),
+      };
+}
+
+
 const submitForm = async function() {
 	isValid = verifyForm();
 	if (!isValid) {
 		return;
 	}
 
-	petSelection = getRadioButtonsValue(radsPetSelection);
-	isDogSelected = petSelection === "dog";
-
-	payloadObj = {
-		"appointmentDate": selectedDate,
-		"appointmentTime": selectedTime,
-		"petSelection": petSelection,
-		"petName": isDogSelected ? inpPetName.value : inpPetNameCat.value,
-		"petWeight": isDogSelected ? inpPetWeight.value : inpPetWeightCat.value,
-		"petBreed": isDogSelected ? inpPetBreed.value : null,
-		"selectedService": isDogSelected ? getRadioButtonsValue(radsSelectedService) : getRadioButtonsValue(radsSelectedServiceCat),
-		"addOnServices": getCheckboxesValue(chksAddOn),
-		"aLaCarteServices": getCheckboxesValue(chksALaCarte),
-		"firstName": inpFirstName.value,
-		"lastName": inpLastName.value,
-		"email": inpEmail.value,
-		"mobileNumber": inpMobileNumber.value,
-		"optionalNotes": inpNotes.value
-	};
+	payloadObj = buildBookingObj();
 
 	const response = await fetch("/submit-booking", {
 		method: "POST",
@@ -266,7 +278,9 @@ const updateSelectedAppointmentDisplay = function() {
 }
 
 // renders the 10am-5pm time slot buttons for whatever date is currently selected
-const renderTimeSlots = function() {
+// TODO (2026-07-31) 5pm written here but actual website uses 4pm 
+// now fetches the time slots from the backend API
+async function renderTimeSlots() {
 	timeSlotsGrid.innerHTML = "";
 
 	if (!selectedDate) {
@@ -277,14 +291,22 @@ const renderTimeSlots = function() {
 		return;
 	}
 
-	blockedSlotsForDate = manuallyUnavailableSlots[selectedDate] || [];
+    const res = await fetch(`/api/slots/${selectedDate}`);
+    const data = await res.json();
+    slotData = data.slots;
+
+
 
 	for (const slot of timeSlots) {
+
+        const matching = currentSlotData.find(s => s.time === slot);
+		const isUnavailable = matching && matching.status !== "open";
+
 		btn = document.createElement("button");
 		btn.type = "button";
 		btn.textContent = formatTimeLabel(slot);
 
-		if (blockedSlotsForDate.includes(slot)) {
+		if (isUnavailable) {
 			btn.className = "time-slot-btn";
 			btn.disabled = true;
 		} else {

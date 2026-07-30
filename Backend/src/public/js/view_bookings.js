@@ -18,6 +18,56 @@ const selectedDateLabel = document.getElementById('selectedDateLabel');
 const bookingsList = document.getElementById('bookingsList');
 const blockTimeBox = document.getElementById('blockTimeBox');
 
+async function fetchMonthBookings(year, month) {
+  try {
+
+    const formattedMonth = String(month + 1).padStart(2, "0");
+    const response = await fetch(
+      `/api/slots?year=${year}&month=${formattedMonth}`,
+    );
+    const slotsFromDB = await response.json();
+
+
+    bookings = {};
+
+    slotsFromDB.forEach((slot) => {
+      if (!bookings[slot.date]) {
+        bookings[slot.date] = [];
+      }
+
+      // Calculate a 1-hour end time since slots are fixed 1-hour durations
+      const [h, m] = slot.time.split(":").map(Number);
+      const endHour = String((h + 1) % 24).padStart(2, "0");
+      const endString = `${endHour}:${String(m).padStart(2, "0")}`;
+
+      if (slot.status === "booked" && slot.booking) {
+        bookings[slot.date].push({
+          _id: slot._id, // Keep DB ID for deletions
+          start: slot.time,
+          end: endString,
+          name: `${slot.booking.customer.firstName} ${slot.booking.customer.lastName}`,
+          pet: `${slot.booking.petName}, ${slot.booking.petSelection}, ${slot.booking.petBreed || ""}`,
+        });
+      } else if (slot.status === "blocked") {
+        bookings[slot.date].push({
+          _id: slot._id,
+          start: slot.time,
+          end: endString,
+          name: "Blocked",
+          pet: "Time slot blocked by Admin",
+        });
+      }
+    });
+
+    renderCalendar();
+    renderDayPanel();
+  } catch (error) {
+    console.error("Failed to load bookings:", error);
+  }
+}
+
+
+
 function dateKey(d) {
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
