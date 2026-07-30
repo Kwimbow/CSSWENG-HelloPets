@@ -25,7 +25,7 @@ loginForm.addEventListener("submit", async (event) => {
         const { success } = messageObj;
 
         if (success) {
-            window.location.href = "/admin/manage_page"
+            window.location.href = "/admin/view_bookings"
         } else {
             throw new Error("Login unsuccessful");
         }

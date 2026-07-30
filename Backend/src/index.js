@@ -49,7 +49,7 @@ app.get("/admin", async (req, res) => {
 
 app.get("/admin/login", async (req, res) => {
     if (req.session.admin) {
-        res.redirect("/admin/manage_page");
+        res.redirect("/admin/view_bookings");
     } else {
         res.sendFile(path.join(__dirname, "pages", "admin", "Login.html"));
     }
