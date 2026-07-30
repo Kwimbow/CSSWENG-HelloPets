@@ -5,17 +5,21 @@ const mongoose = require("mongoose");
 - path corresponds to the file path (route) of the image/video
 */
 
+const landingPageMediaDefaultVals = {
+    "featured-pet-img": "/Logos/dog.jpg",
+    "video-img-1": "/Logos/placeholder.png",
+    "video-img-2": "/Logos/placeholder.png",
+    "video-img-3": "/Logos/placeholder.png",
+};
+
+const landingPageMediaKeys = Object.keys(landingPageMediaDefaultVals);
+
 const LandingPageMediaSchema = new mongoose.Schema({
     key: {
         type: String,
         required: true,
         unique: true,
-        enum: [
-            "featured-pet-img",
-            "video-img-1",
-            "video-img-2",
-            "video-img-3"
-        ]
+        enum: landingPageMediaKeys
     },
     path: {
         type: String,
@@ -25,4 +29,4 @@ const LandingPageMediaSchema = new mongoose.Schema({
 
 const LandingPageMedia = mongoose.model("LandingPageMedia", LandingPageMediaSchema, "landing_page_media");
 
-module.exports = LandingPageMedia;
+module.exports = { LandingPageMedia, landingPageMediaDefaultVals, landingPageMediaKeys };
