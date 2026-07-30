@@ -111,16 +111,26 @@ const saveChangesButton = document.getElementById("save-changes");
         formData.append("videoText2", videoText2.value);
         formData.append("videoText3", videoText3.value);
 
+        let success = false;
+
         const response = await fetch("/admin/manage_page", {
             method: "POST",
             body: formData
         });
 
-        console.log(fpImgInput.files);
+        if (response.ok) {
+            const message = await response.json();
+            if (message.success) {
+                success = true;
+            }
+        }
+
+        if (success) {
+            alert("Your changes have been saved successfully.");
+        } else {
+            alert("Something went wrong.");
+        }
     };
     
     saveChangesButton.addEventListener("click", submitForm);
-
-
-
 }
