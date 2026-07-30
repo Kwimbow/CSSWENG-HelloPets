@@ -1,4 +1,4 @@
-const Slot = require("./models/Slot");
+const Slot = require("../../schemas/Slot");
 
 const timeSlots = [
   "10:00",
@@ -10,7 +10,7 @@ const timeSlots = [
   "16:00",
 ];
 
-// Either creates the slots for a date or leaves them alone if they exist already
+// either creates the slots for a date or leaves them alone if they exist already
 async function ensureSlotsExistForDate(dateStr) {
   const day = new Date(dateStr).getDay();
   if (day === 1) {

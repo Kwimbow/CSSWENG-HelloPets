@@ -1,4 +1,4 @@
-// Fixed, 1-hour slots for every appointment that can also be manually blocked by admin
+// fixed, 1-hour slots for every appointment that can also be manually blocked by admin
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -14,7 +14,7 @@ const slotSchema = new Schema({
 	booking: {
 		type: Schema.Types.ObjectId,
 		ref: "Booking",
-		default: null // set only when status === "booked"
+		default: null
 	}
 }, { timestamps: true });
 

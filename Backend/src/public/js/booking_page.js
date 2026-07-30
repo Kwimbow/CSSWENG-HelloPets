@@ -295,11 +295,9 @@ async function renderTimeSlots() {
     const data = await res.json();
     slotData = data.slots;
 
-
-
 	for (const slot of timeSlots) {
 
-        const matching = currentSlotData.find(s => s.time === slot);
+        const matching = slotData.find((s) => s.time === slot);
 		const isUnavailable = matching && matching.status !== "open";
 
 		btn = document.createElement("button");
