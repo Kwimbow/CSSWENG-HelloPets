@@ -10,13 +10,13 @@ const fileUpload = require("express-fileupload");
 adminUsername = process.env.ADMIN_USERNAME || "admin";
 adminPassword = process.env.ADMIN_PASSWORD || "123456";
 
-const connectDB = require("./public/js/db");
+const connectDB = require("./backend_js/db");
 connectDB();
 
 const {
   ensureSlotsExistForDate,
   timeSlots,
-} = require("./public/js/ensure_slots");
+} = require("./backend_js/ensure_slots");
 const Slot = require("./schemas/Slot");
 const Booking = require("./schemas/Booking");
 

@@ -1,4 +1,4 @@
-const Slot = require("../../schemas/Slot");
+const Slot = require("../schemas/Slot");
 
 const timeSlots = [
   "10:00",
