@@ -162,12 +162,6 @@ function buildHourOptions() {
     }
     return out;
 }
-function buildMinuteOptions() {
-    return [0, 15, 30, 45].map(m => {
-        const val = String(m).padStart(2, '0');
-        return `<option value="${val}">${val}</option>`;
-    }).join('');
-}
 
 function closeBlockBox() {
     blockTimeBox.classList.remove('open');
@@ -189,8 +183,7 @@ function openBlockBox() {
                 <label>Start</label>
                 <div class="time-box">
                     <select id="startHour">${buildHourOptions()}</select>
-                    <span class="time-colon">:</span>
-                    <select id="startMin">${buildMinuteOptions()}</select>
+                    <span class="time-colon">: 00</span>
                     <select id="startPeriod"><option>AM</option><option>PM</option></select>
                 </div>
             </div>
@@ -198,8 +191,7 @@ function openBlockBox() {
                 <label>End</label>
                 <div class="time-box">
                     <select id="endHour">${buildHourOptions()}</select>
-                    <span class="time-colon">:</span>
-                    <select id="endMin">${buildMinuteOptions()}</select>
+                    <span class="time-colon">: 00</span>
                     <select id="endPeriod"><option>AM</option><option>PM</option></select>
                 </div>
             </div>
@@ -233,9 +225,7 @@ function openBlockBox() {
             bookings[key].push({ start: "00:00", end: "23:59", name: "Blocked", pet: "Full day blocked" });
         } else {
             const sh = to24h(document.getElementById('startHour').value, document.getElementById('startPeriod').value);
-            const sm = document.getElementById('startMin').value;
             const eh = to24h(document.getElementById('endHour').value, document.getElementById('endPeriod').value);
-            const em = document.getElementById('endMin').value;
             bookings[key].push({ start: `${sh}:${sm}`, end: `${eh}:${em}`, name: "Blocked", pet: "Time slot blocked" });
         }
 
