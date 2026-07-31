@@ -1,14 +1,12 @@
 // bookings list containing list of bookings 
-const bookings = {
-    "2026-07-30": [ // dummy bookings for july 30
-        { start: "12:30", end: "13:30", name: "Coby", pet: "Max, Dog, Beagle" }
-    ]
-};
+// bookings mapped to dates in the format "YYYY-MM--DD"
+let bookings = {};
 
 // selected
-let currentYear = 2026;
-let currentMonth = 6; // 0-indexed
-let selectedDate = new Date(2026, 6, 29);
+const today = new Date();
+let currentYear = today.getFullYear();
+let currentMonth = today.getMonth(); 
+let selectedDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
 const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -17,6 +15,71 @@ const calMonthLabel = document.getElementById('calMonthLabel');
 const selectedDateLabel = document.getElementById('selectedDateLabel');
 const bookingsList = document.getElementById('bookingsList');
 const blockTimeBox = document.getElementById('blockTimeBox');
+
+// adds slot from the DB into the bookings cache
+function parseSlotIntoBookings(slot) {
+  if (!bookings[slot.date]) {
+    bookings[slot.date] = [];
+  }
+
+  // slots are fixed 1-hour durations
+  const [h, m] = slot.time.split(":").map(Number);
+  const endHour = String((h + 1) % 24).padStart(2, "0");
+  const endString = `${endHour}:${String(m).padStart(2, "0")}`;
+
+  if (slot.status === "booked" && slot.booking) {
+    bookings[slot.date].push({
+      _id: slot._id,
+      start: slot.time,
+      end: endString,
+      name: `${slot.booking.customer.firstName} ${slot.booking.customer.lastName}`,
+      pet: `${slot.booking.petName}, ${slot.booking.petSelection}, ${slot.booking.petBreed || ""}`,
+    });
+  } else if (slot.status === "blocked") {
+    bookings[slot.date].push({
+      _id: slot._id,
+      start: slot.time,
+      end: endString,
+      name: "Blocked",
+      pet: "Slot blocked",
+    });
+  }
+}
+
+// fetches all booked/blocked slots for every day in the given month
+async function fetchMonthBookings(year, month) {
+  try {
+    bookings = {}; 
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const formattedMonth = String(month + 1).padStart(2, "0");
+
+    const dates = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+      dates.push(`${year}-${formattedMonth}-${String(day).padStart(2, "0")}`);
+    }
+
+    const responses = await Promise.all(
+      dates.map((date) => fetch(`/api/admin/slots/${date}`))
+    );
+    const results = await Promise.all(
+      responses.map((res) => res.json())
+    );
+
+    results.forEach((data) => {
+      if (data.success && Array.isArray(data.slots)) {
+        data.slots.forEach(parseSlotIntoBookings);
+      }
+    });
+
+    renderCalendar();
+    renderDayPanel();
+  } catch (error) {
+    console.error("Failed to load bookings:", error);
+  }
+}
+
+
 
 function dateKey(d) {
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -85,7 +148,7 @@ function renderCalendar() {
     }
 }
 
-function renderDayPanel() {
+async function renderDayPanel() {
     selectedDateLabel.textContent = `${monthNames[selectedDate.getMonth()]} ${selectedDate.getDate()} ${selectedDate.getFullYear()}`;
 
     // fetch bookings
@@ -153,8 +216,9 @@ function formatTime(t) {
 // blocking time
 
 
+const timeSlots = ["10:00","11:00","12:00","13:00","14:00","15:00","16:00"];
 
-// for the time selection 
+// for the time selection
 function buildHourOptions() {
     let out = '';
     for (let i = 1; i <= 12; i++) {
@@ -215,19 +279,54 @@ function openBlockBox() {
         closeBlockBox();
     });
 
-    document.getElementById('addBlockBtn').addEventListener('click', () => {
-        const key = dateKey(selectedDate);
-        if (!bookings[key]) bookings[key] = [];
-
+    document.getElementById('addBlockBtn').addEventListener('click', async () => {
+        const date = dateKey(selectedDate);
         const fullDay = document.getElementById('blockFullDayChk').checked;
-
+        
+        // TODO (2026-07-31) consider simplifying UI to just a selector of the slots for the given day
+        let slotsToBlock;
         if (fullDay) {
-            bookings[key].push({ start: "00:00", end: "23:59", name: "Blocked", pet: "Full day blocked" });
+            slotsToBlock = timeSlots;
         } else {
-            const sh = to24h(document.getElementById('startHour').value, document.getElementById('startPeriod').value);
-            const eh = to24h(document.getElementById('endHour').value, document.getElementById('endPeriod').value);
-            bookings[key].push({ start: `${sh}:${sm}`, end: `${eh}:${em}`, name: "Blocked", pet: "Time slot blocked" });
+            const startH = parseInt(to24h(document.getElementById('startHour').value, document.getElementById('startPeriod').value), 10);
+            const startM = 0;
+            const endH   = parseInt(to24h(document.getElementById('endHour').value,   document.getElementById('endPeriod').value),   10);
+            const endM   = 0;
+
+            const inputStart = startH * 60 + startM;
+            const inputEnd   = endH   * 60 + endM;
+
+            slotsToBlock = timeSlots.filter(t => {
+                const [sh, sm] = t.split(':').map(Number);
+                const slotStart = sh * 60 + sm;
+                return slotStart < inputEnd && slotStart + 60 > inputStart;
+            });
         }
+
+        if (slotsToBlock.length === 0) {
+            alert('No available time slots overlap with the selected range.');
+            return;
+        }
+
+        const results = await Promise.all(
+            slotsToBlock.map(time =>
+                fetch('/api/admin/slots/block', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date, time }),
+                }).then(r => r.json())
+            )
+        );
+
+        if (results.some(r => !r.success)) {
+            alert('One or more slots failed to block.');
+        }
+
+        // fetch this date again to keep the cache in sync
+        const slotRes = await fetch(`/api/admin/slots/${date}`);
+        const slotData = await slotRes.json();
+        bookings[date] = [];
+        if (slotData.success) slotData.slots.forEach(parseSlotIntoBookings);
 
         renderCalendar();
         renderDayPanel();
@@ -244,15 +343,13 @@ function to24h(hour12, period) {
 document.getElementById('prevMonthBtn').addEventListener('click', () => {
     currentMonth--;
     if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-    renderCalendar();
+    fetchMonthBookings(currentYear, currentMonth);
 });
 
 document.getElementById('nextMonthBtn').addEventListener('click', () => {
     currentMonth++;
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-    renderCalendar();
+    fetchMonthBookings(currentYear, currentMonth);
 });
 
-// init
-renderCalendar();
-renderDayPanel();
+fetchMonthBookings(currentYear, currentMonth);

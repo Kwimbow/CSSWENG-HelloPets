@@ -1,6 +1,8 @@
 const express = require("express");
 const path = require("path");
 require("dotenv").config();
+// env file currently being used for the MONGODB URI so we can easily migrate to atlas
+// will also be used for the email and password to send confirmations
 const session = require("express-session");
 const fileUpload = require("express-fileupload");
 
@@ -8,39 +10,45 @@ const fileUpload = require("express-fileupload");
 adminUsername = process.env.ADMIN_USERNAME || "admin";
 adminPassword = process.env.ADMIN_PASSWORD || "123456";
 
+const connectDB = require("./public/js/db");
+connectDB();
+
+const {
+  ensureSlotsExistForDate,
+  timeSlots,
+} = require("./public/js/ensure_slots");
+const Slot = require("./schemas/Slot");
+const Booking = require("./schemas/Booking");
+
 const app = express();
 app.use(express.static(path.join(__dirname, "public")));
 
 // middleware for parsing requests
-app.use(express.urlencoded({extended: false})); // for form data
+app.use(express.urlencoded({ extended: false })); // for form data
 app.use(express.json());
 app.use(fileUpload());
 
 app.use(
-    session({
-        secret: "secret-key",
-        resave: false,
-        saveUninitialized: false,
-    })
+  session({
+    secret: "secret-key",
+    resave: false,
+    saveUninitialized: false,
+  }),
 );
 
-const mongoose = require("mongoose");
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/hello-pets-db";
-mongoose.connect(MONGODB_URI);
-
-const { LandingPageMedia, landingPageMediaDefaultVals, landingPageMediaKeys } = require("./schemas/LandingPageMedia");
-const { LandingPageText, landingPageTextDefaultVals, landingPageTextKeys } = require("./schemas/LandingPageText");
+const LandingPageMedia = require("./schemas/LandingPageMedia");
+const LandingPageText = require("./schemas/LandingPageText");
 
 const adminAuthenticated = (req, res, next) => {
-    if (req.session.admin) {
-        next();
-    } else {
-        res.redirect("/admin/login");
-    }
-}
+  if (req.session.admin) {
+    next();
+  } else {
+    res.redirect("/admin/login");
+  }
+};
 
 app.get("/", async (req, res) => {
-    res.sendFile(path.join(__dirname, "pages", "Index.html"))
+  res.sendFile(path.join(__dirname, "pages", "Index.html"));
 });
 
 // Gets any changes to the landing page that were edited through "Manage Page"
@@ -77,46 +85,122 @@ app.get("/landing-page-edits", async (req, res) => {
 });
 
 app.get("/booking", async (req, res) => {
-    res.sendFile(path.join(__dirname, "pages", "Booking.html"))
+  res.sendFile(path.join(__dirname, "pages", "Booking.html"));
 });
 
+// main user endpoint with no auth, just gets the slots and their availability
+app.get("/api/slots/:date", async (req, res) => {
+  const { date } = req.params;
+  await ensureSlotsExistForDate(date);
+  const slots = await Slot.find({ date });
+  res.json({ success: true, slots });
+});
+
+// admin endpoint, gets the slots + booking info
+app.get("/api/admin/slots/:date", adminAuthenticated, async (req, res) => {
+  const { date } = req.params;
+  await ensureSlotsExistForDate(date);
+  const slots = await Slot.find({ date }).populate("booking");
+  res.json({ success: true, slots });
+});
+
+// admin endpoint, block one or all open slots on a date
+// body: { date: "YYYY-MM-DD", time?: "HH:MM" }  (omit time to block full day)
+app.post("/api/admin/slots/block", adminAuthenticated, async (req, res) => {
+  const { date, time } = req.body;
+  if (!date) return res.json({ success: false, error: "date is required" });
+
+  await ensureSlotsExistForDate(date);
+
+  const filter = time
+    ? { date, time, status: "open" }
+    : { date, status: "open" };
+
+  const result = await Slot.updateMany(filter, { status: "blocked" });
+  res.json({ success: true, modified: result.modifiedCount });
+});
+
+// admin endpoint, unblock one or all blocked slots on a date
+// body: { date: "YYYY-MM-DD", time?: "HH:MM" }
+// TODO (2026-07-31) use this endpoint in the view bookings page
+app.post("/api/admin/slots/unblock", adminAuthenticated, async (req, res) => {
+  const { date, time } = req.body;
+  if (!date) return res.json({ success: false, error: "date is required" });
+
+  const filter = time
+    ? { date, time, status: "blocked" }
+    : { date, status: "blocked" };
+
+  const result = await Slot.updateMany(filter, { status: "open" });
+  res.json({ success: true, modified: result.modifiedCount });
+});
+
+
 app.post("/submit-booking", async (req, res) => {
-    console.log(req.body);
-    res.json({ success: true });
+  const { appointmentDate, appointmentTime, ...bookingData } = req.body;
+  console.log("Date: " + appointmentDate);
+  console.log("Time: " + appointmentTime);
+  console.log(bookingData);
+
+  const slot = await Slot.findOneAndUpdate(
+    { date: appointmentDate, time: appointmentTime, status: "open" },
+    { status: "booked" },
+    { new: true },
+  );
+
+  if (!slot) {
+    return res.json({
+      success: false,
+      error: "That time slot is no longer available.",
+    });
+  }
+
+  try {
+    const booking = await Booking.create(bookingData);
+    slot.booking = booking._id;
+    await slot.save();
+    res.json({ success: true, booking });
+  } catch (err) {
+    // booking creation failed after slot was claimed, reset slot to open
+    slot.status = "open";
+    slot.booking = null;
+    await slot.save();
+    res.json({ success: false, error: err.message });
+  }
 });
 
 app.get("/admin", async (req, res) => {
-    res.redirect("/admin/login");
+  res.redirect("/admin/login");
 });
 
 app.get("/admin/login", async (req, res) => {
-    if (req.session.admin) {
-        res.redirect("/admin/view_bookings");
-    } else {
-        res.sendFile(path.join(__dirname, "pages", "admin", "Login.html"));
-    }
+  if (req.session.admin) {
+    res.redirect("/admin/view_bookings");
+  } else {
+    res.sendFile(path.join(__dirname, "pages", "admin", "Login.html"));
+  }
 });
 
 app.post("/admin/login", async (req, res) => {
-    if (req.session.userId) {
-        res.status(401).send("Error: You are already signed in as administrator.");
-        return;
-    }
+  if (req.session.userId) {
+    res.status(401).send("Error: You are already signed in as administrator.");
+    return;
+  }
 
-    console.log(req.body);
+  console.log(req.body);
 
-    const { username, password } = req.body;
+  const { username, password } = req.body;
 
-    if (username === adminUsername && password === adminPassword) {
-        req.session.admin = true;
-        res.json({ success: true });
-    } else {
-        res.status(422).send("Incorrect username/password");
-    }
+  if (username === adminUsername && password === adminPassword) {
+    req.session.admin = true;
+    res.json({ success: true });
+  } else {
+    res.status(422).send("Incorrect username/password");
+  }
 });
 
 app.get("/admin/manage_page", adminAuthenticated, async (req, res) => {
-    res.sendFile(path.join(__dirname, "pages", "admin", "ManagePage.html"));
+  res.sendFile(path.join(__dirname, "pages", "admin", "ManagePage.html"));
 });
 
 app.post("/admin/manage_page", adminAuthenticated, async (req, res) => {
@@ -208,10 +292,10 @@ app.post("/admin/manage_page", adminAuthenticated, async (req, res) => {
 });
 
 app.get("/admin/view_bookings", adminAuthenticated, async (req, res) => {
-    res.sendFile(path.join(__dirname, "pages", "admin", "ViewBookings.html"));
+  res.sendFile(path.join(__dirname, "pages", "admin", "ViewBookings.html"));
 });
 
 const PORT = 3000;
 app.listen(PORT, () => {
-    console.log(`Server running at port ${PORT}`);
+  console.log(`Server running at port ${PORT}`);
 });
