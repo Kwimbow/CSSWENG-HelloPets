@@ -36,8 +36,8 @@ app.use(
   }),
 );
 
-const LandingPageMedia = require("./schemas/LandingPageMedia");
-const LandingPageText = require("./schemas/LandingPageText");
+const { LandingPageMedia, landingPageMediaDefaultVals, landingPageMediaKeys } = require("./schemas/LandingPageMedia");
+const { LandingPageText, landingPageTextDefaultVals, landingPageTextKeys } = require("./schemas/LandingPageText");
 
 const adminAuthenticated = (req, res, next) => {
   if (req.session.admin) {
