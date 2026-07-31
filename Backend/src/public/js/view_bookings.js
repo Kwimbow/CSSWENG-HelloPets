@@ -27,9 +27,12 @@ function sameDate(a, b) {
 }
 
 // removes sunday 
-function mondaySatColumn(jsDay) {
-    if (jsDay === 0) return -1;
-    return jsDay - 1; // Mon=1->0 ... Sat=6->5
+function tuesSunColumn(jsDay) {
+    if (jsDay === 1) return -1;
+    if (jsDay === 0) return 5;
+    return jsDay - 2;
+    // sun 0, mon 1, tues 2, wed 3, thur 4, fri 5, sat 6
+    // tues 0, wed 1, thurs 2, fri 3, sat 4, sun 5
 }
 
 function renderCalendar() {
@@ -38,10 +41,10 @@ function renderCalendar() {
 
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const firstOfMonth = new Date(currentYear, currentMonth, 1);
-    let firstCol = mondaySatColumn(firstOfMonth.getDay());
+    let firstCol = tuesSunColumn(firstOfMonth.getDay());
 
     // removes 1st week if moneth starts on sunday
-    if (firstCol === -1) firstCol = 0, calendarGrid.dataset.sundayStart = "1";
+    if (firstCol === -1) firstCol = 0, calendarGrid.dataset.tuesdayStart = "1";
 
     // blank days
     const leading = firstCol === -1 ? 0 : firstCol;
@@ -55,7 +58,7 @@ function renderCalendar() {
     for (let day = 1; day <= daysInMonth; day++) {
         const thisDate = new Date(currentYear, currentMonth, day);
         const jsDay = thisDate.getDay();
-        if (jsDay === 0) continue; // skip sunday
+        if (jsDay === 1) continue; // skip monday
 
         const cell = document.createElement('div');
         cell.className = 'calendar-day';
