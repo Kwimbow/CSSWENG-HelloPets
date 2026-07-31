@@ -213,8 +213,9 @@ function formatTime(t) {
 // blocking time
 
 
+const timeSlots = ["10:00","11:00","12:00","13:00","14:00","15:00","16:00"];
 
-// for the time selection 
+// for the time selection
 function buildHourOptions() {
     let out = '';
     for (let i = 1; i <= 12; i++) {
@@ -283,21 +284,54 @@ function openBlockBox() {
         closeBlockBox();
     });
 
-    document.getElementById('addBlockBtn').addEventListener('click', () => {
-        const key = dateKey(selectedDate);
-        if (!bookings[key]) bookings[key] = [];
-
+    document.getElementById('addBlockBtn').addEventListener('click', async () => {
+        const date = dateKey(selectedDate);
         const fullDay = document.getElementById('blockFullDayChk').checked;
-
+        
+        // TODO (2026-07-31) consider simplifying UI to just a selector of the slots for the given day
+        let slotsToBlock;
         if (fullDay) {
-            bookings[key].push({ start: "00:00", end: "23:59", name: "Blocked", pet: "Full day blocked" });
+            slotsToBlock = timeSlots;
         } else {
-            const sh = to24h(document.getElementById('startHour').value, document.getElementById('startPeriod').value);
-            const sm = document.getElementById('startMin').value;
-            const eh = to24h(document.getElementById('endHour').value, document.getElementById('endPeriod').value);
-            const em = document.getElementById('endMin').value;
-            bookings[key].push({ start: `${sh}:${sm}`, end: `${eh}:${em}`, name: "Blocked", pet: "Time slot blocked" });
+            const startH = parseInt(to24h(document.getElementById('startHour').value, document.getElementById('startPeriod').value), 10);
+            const startM = parseInt(document.getElementById('startMin').value, 10);
+            const endH   = parseInt(to24h(document.getElementById('endHour').value,   document.getElementById('endPeriod').value),   10);
+            const endM   = parseInt(document.getElementById('endMin').value, 10);
+
+            const inputStart = startH * 60 + startM;
+            const inputEnd   = endH   * 60 + endM;
+
+            slotsToBlock = timeSlots.filter(t => {
+                const [sh, sm] = t.split(':').map(Number);
+                const slotStart = sh * 60 + sm;
+                return slotStart < inputEnd && slotStart + 60 > inputStart;
+            });
         }
+
+        if (slotsToBlock.length === 0) {
+            alert('No available time slots overlap with the selected range.');
+            return;
+        }
+
+        const results = await Promise.all(
+            slotsToBlock.map(time =>
+                fetch('/api/admin/slots/block', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date, time }),
+                }).then(r => r.json())
+            )
+        );
+
+        if (results.some(r => !r.success)) {
+            alert('One or more slots failed to block.');
+        }
+
+        // fetch this date again to keep the cache in sync
+        const slotRes = await fetch(`/api/admin/slots/${date}`);
+        const slotData = await slotRes.json();
+        bookings[date] = [];
+        if (slotData.success) slotData.slots.forEach(parseSlotIntoBookings);
 
         renderCalendar();
         renderDayPanel();

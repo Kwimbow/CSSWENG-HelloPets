@@ -278,7 +278,6 @@ const updateSelectedAppointmentDisplay = function() {
 }
 
 // renders the 10am-5pm time slot buttons for whatever date is currently selected
-// TODO (2026-07-31) 5pm written here but actual website uses 4pm 
 // now fetches the time slots from the backend API
 async function renderTimeSlots() {
 	timeSlotsGrid.innerHTML = "";

@@ -104,6 +104,38 @@ app.get("/api/admin/slots/:date", adminAuthenticated, async (req, res) => {
   res.json({ success: true, slots });
 });
 
+// admin endpoint, block one or all open slots on a date
+// body: { date: "YYYY-MM-DD", time?: "HH:MM" }  (omit time to block full day)
+app.post("/api/admin/slots/block", adminAuthenticated, async (req, res) => {
+  const { date, time } = req.body;
+  if (!date) return res.json({ success: false, error: "date is required" });
+
+  await ensureSlotsExistForDate(date);
+
+  const filter = time
+    ? { date, time, status: "open" }
+    : { date, status: "open" };
+
+  const result = await Slot.updateMany(filter, { status: "blocked" });
+  res.json({ success: true, modified: result.modifiedCount });
+});
+
+// admin endpoint, unblock one or all blocked slots on a date
+// body: { date: "YYYY-MM-DD", time?: "HH:MM" }
+// TODO (2026-07-31) use this endpoint in the view bookings page
+app.post("/api/admin/slots/unblock", adminAuthenticated, async (req, res) => {
+  const { date, time } = req.body;
+  if (!date) return res.json({ success: false, error: "date is required" });
+
+  const filter = time
+    ? { date, time, status: "blocked" }
+    : { date, status: "blocked" };
+
+  const result = await Slot.updateMany(filter, { status: "open" });
+  res.json({ success: true, modified: result.modifiedCount });
+});
+
+
 app.post("/submit-booking", async (req, res) => {
   const { appointmentDate, appointmentTime, ...bookingData } = req.body;
   console.log("Date: " + appointmentDate);
