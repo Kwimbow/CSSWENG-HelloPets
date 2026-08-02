@@ -160,6 +160,27 @@ app.post("/api/admin/slots/deleteAppointment", adminAuthenticated, async (req, r
   });
   const opened = await Slot.updateMany(filter, { status: "open", booking: null});
 
+  res.json({ success: true, modified: result.modifiedCount }); 
+});
+
+// admin endpoint, delete one or all appointments on a given date along with their booking info
+// body: { date: "YYYY-MM-DD", time?: "HH:MM" }
+app.post("/api/admin/slots/deleteAppointment", adminAuthenticated, async (req, res) => {
+  const { date, time } = req.body;
+  if (!date) return res.json({ success: false, error: "date is required" });
+
+  const filter = time
+    ? { date, time, status: "booked" }
+    : { date, status: "booked" };
+
+  const targetSlots = await Slot.find(filter).select("booking");
+  const bookingIds = targetSlots.map(slot => slot.booking).filter(id => id != null);
+   
+  const deleted = await Booking.deleteMany({
+    _id: { $in: bookingIds }
+  });
+  const opened = await Slot.updateMany(filter, { status: "open", booking: null});
+
   res.json({ success: true, modified: opened.modifiedCount }); 
 });
 
