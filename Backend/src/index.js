@@ -104,6 +104,14 @@ app.get("/api/admin/slots/:date", adminAuthenticated, async (req, res) => {
   res.json({ success: true, slots });
 });
 
+// admin endpoint, gets the info for a specific slot
+app.get("/api/admin/slotinfo", adminAuthenticated, async (req, res) => {
+    const { date, time } = req.query;
+    await ensureSlotsExistForDate(date);
+    const slot = await Slot.findOne({ date: date, time: time }).populate("booking");
+    res.json({ success: true, slot });
+});
+
 // admin endpoint, block one or all open slots on a date
 // body: { date: "YYYY-MM-DD", time?: "HH:MM" }  (omit time to block full day)
 app.post("/api/admin/slots/block", adminAuthenticated, async (req, res) => {
@@ -122,7 +130,6 @@ app.post("/api/admin/slots/block", adminAuthenticated, async (req, res) => {
 
 // admin endpoint, unblock one or all blocked slots on a date
 // body: { date: "YYYY-MM-DD", time?: "HH:MM" }
-// TODO (2026-07-31) use this endpoint in the view bookings page
 app.post("/api/admin/slots/unblock", adminAuthenticated, async (req, res) => {
   const { date, time } = req.body;
   if (!date) return res.json({ success: false, error: "date is required" });
@@ -133,6 +140,27 @@ app.post("/api/admin/slots/unblock", adminAuthenticated, async (req, res) => {
 
   const result = await Slot.updateMany(filter, { status: "open" });
   res.json({ success: true, modified: result.modifiedCount });
+});
+
+// admin endpoint, delete one or all appointments on a given date along with their booking info
+// body: { date: "YYYY-MM-DD", time?: "HH:MM" }
+app.post("/api/admin/slots/deleteAppointment", adminAuthenticated, async (req, res) => {
+  const { date, time } = req.body;
+  if (!date) return res.json({ success: false, error: "date is required" });
+
+  const filter = time
+    ? { date, time, status: "booked" }
+    : { date, status: "booked" };
+
+  const targetSlots = await Slot.find(filter).select("booking");
+  const bookingIds = targetSlots.map(slot => slot.booking).filter(id => id != null);
+   
+  const deleted = await Booking.deleteMany({
+    _id: { $in: bookingIds }
+  });
+  const opened = await Slot.updateMany(filter, { status: "open", booking: null});
+
+  res.json({ success: true, modified: opened.modifiedCount }); 
 });
 
 

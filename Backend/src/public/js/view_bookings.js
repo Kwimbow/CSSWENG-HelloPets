@@ -189,10 +189,31 @@ async function renderDayPanel() {
             const delBtn = document.createElement('button');
             delBtn.className = 'delete-btn';
             delBtn.innerHTML = "<i class='bx bx-trash'></i>";
-            delBtn.addEventListener('click', () => {
-                bookings[key].splice(idx, 1); // ---------------------------- js delete booking add db implementation here mayhaps
-                renderCalendar();
-                renderDayPanel();
+            delBtn.addEventListener('click', async () => {
+              bookings[key].splice(idx, 1);
+              // date: 2026-08-09
+              // time: "16:00"
+              date = key;
+              time = b.start;
+              const { slot } = await fetch(`/api/admin/slotinfo?date=${date}&time=${time}`).then(res => res.json());
+              
+              if (slot.status == "blocked") {
+                await fetch("/api/admin/slots/unblock", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ date, time }),
+                });
+              }
+              else {
+                await fetch("/api/admin/slots/deleteAppointment", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ date, time }),
+                });
+              }
+
+              renderCalendar();
+              renderDayPanel();
             });
 
             entry.appendChild(info);
