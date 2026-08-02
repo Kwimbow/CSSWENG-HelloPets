@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hello Pets PH | Admin Log In</title>
+        <link rel="icon" type="image/jpg" href="/Logos/Icon.png">
+        <link rel="stylesheet" type="text/css" href="/css/Landing_Admin.css">
+        <link rel="stylesheet" type="text/css" href="/css/Admin_Login.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <link href="https://fonts.googleapis.com/css2?family=Inder&family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+
+        <!-- fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Stack+Sans+Headline:wght@200..700&display=swap" rel="stylesheet">
+
+        <!-- script -->
+        <script src="/js/admin_login.js" defer></script>
+    </head>
+    <body>
+
+        <header>
+            <div class="container">
+                <div class="nav-bar">
+                    <div class="logo">
+                        <a href="/">
+                            <img src="/Logos/Logo.png" alt="Hello Pets Logo" id="nav-icon">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div id="nav-space"></div>
+
+        <div id="login-section">
+            <div class="login-card">
+                <h1>Admin Login</h1>
+                <form id="login-form" class="login-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" class="styled-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" class="styled-input" required>
+                    </div>
+                    <p class="login-error"></p>
+                    <button type="submit" class="login-btn">Log In</button>
+                </form>
+            </div>
+        </div>
+
+    </body>
+</html>

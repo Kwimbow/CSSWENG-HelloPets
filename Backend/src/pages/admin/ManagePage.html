@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hello Pets PH | Manage Page </title>
+        <link rel="icon" type="image/jpg" href="/Logos/Icon.png">
+        <link rel="stylesheet" type="text/css" href="/css/Landing_Admin.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <link href="https://fonts.googleapis.com/css2?family=Inder&family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+
+        <!-- fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Stack+Sans+Headline:wght@200..700&display=swap" rel="stylesheet">
+
+        <!-- script -->
+         <script src="/js/admin_manage_page.js" defer></script>
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <div class="nav-bar">
+                    <div class="logo">
+                        <a href="/admin/view_bookings">
+                            <img src="/Logos/Logo.png" alt="Hello Pets Logo" id="nav-icon">
+                        </a>
+                    </div>
+                    <nav>
+                        <ul class="nav-links">
+                            <li><a href="/admin/view_bookings" class="nav-btns">ALL BOOKINGS</a></li>
+                            <li><a href="/admin/manage_page" class="nav-btns">MANAGE PAGE</a></li>
+                            <li><a href="#" class="nav-btns">MANAGE SHOP</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </header>
+        <div class="scalloped-edge"></div>
+
+        <div id="nav-space">
+            
+        </div>
+
+        <!-- featured pet -->
+        <div id="featured-pet" class="pawlkadots">
+            <div class="featpet-container">
+                <div class="image-wrapper">
+                    <input type="file" id="featured-pet-img-input" class="upload-btn" accept="image/*">
+                    <label for="featured-pet-img-input" class="featured-pet-upload">Upload Photo</label>
+                    <img id="featured-pet-img" src="/Logos/dog.jpg">
+                </div>
+                <div class="featpet-info">
+                    <h2>FEATURED PET</h2>
+                    <textarea id="featured-pet-name-breed" class="name-breed" placeholder="Edit Name, Breed"></textarea>
+                    <textarea id="featured-pet-description" class="description" placeholder="Edit Description"></textarea>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- videos -->
+        <div id="store-videos">
+            <img class="paw-svg" src="/Logos/paw.svg">
+            <div class="video-container">
+                <div class="video-image-wrapper">
+                    <input type="file" id="video-img-input-1" class="upload-btn video-upload-btn" accept="image/*">
+                    <label for="video-img-input-1" class="upload-label">Upload Photo</label>
+                    <img id="video-img-1" class="showcase-video" src="/Logos/placeholder.png" alt="Video showcase 1">
+                </div>
+                <textarea id="video-text-1" class="video-text" placeholder="Edit Text"></textarea>
+            </div>
+
+            <div class="video-container">
+                <div class="video-image-wrapper">
+                    <input type="file" id="video-img-input-2" class="upload-btn video-upload-btn" accept="image/*">
+                    <label for="video-img-input-2" class="upload-label">Upload Photo</label>
+                    <img id="video-img-2" class="showcase-video" src="/Logos/placeholder.png" alt="Video showcase 2">
+                </div>
+                <textarea id="video-text-2" class="video-text" placeholder="Edit Text"></textarea>
+            </div>
+
+            <div class="video-container">
+                <div class="video-image-wrapper">
+                    <input type="file" id="video-img-input-3" class="upload-btn video-upload-btn" accept="image/*">
+                    <label for="video-img-input-3" class="upload-label">Upload Photo</label>
+                    <img id="video-img-3" class="showcase-video" src="/Logos/placeholder.png" alt="Video showcase 3">
+                </div>
+                <textarea id="video-text-3" class="video-text" placeholder="Edit Text"></textarea>
+            </div>
+            <img class="paw-svg" src="/Logos/paw.svg">
+            
+        </div>
+
+        <!-- FOOTER -->
+        <div id="session-footer">
+            <span id="save-changes">Save Changes</span>
+        </div>
+    </body>
+</html>
