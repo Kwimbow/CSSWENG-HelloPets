@@ -160,114 +160,114 @@ function renderCalendar() {
 }
 
 async function renderDayPanel() {
-    selectedDateLabel.textContent = `${monthNames[selectedDate.getMonth()]} ${selectedDate.getDate()} ${selectedDate.getFullYear()}`;
+  selectedDateLabel.textContent = `${monthNames[selectedDate.getMonth()]} ${selectedDate.getDate()} ${selectedDate.getFullYear()}`;
 
-    // fetch bookings
-    const key = dateKey(selectedDate);
-    const dayBookings = bookings[key] || [];
+  // fetch bookings
+  const key = dateKey(selectedDate);
+  const dayBookings = bookings[key] || [];
 
-    bookingsList.innerHTML = '';
+  bookingsList.innerHTML = '';
 
-    if (dayBookings.length === 0) {
-        const empty = document.createElement('div');
-        empty.className = 'no-bookings';
-        empty.textContent = 'No bookings for this day.';
-        bookingsList.appendChild(empty);
-    }
+  if (dayBookings.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'no-bookings';
+    empty.textContent = 'No bookings for this day.';
+    bookingsList.appendChild(empty);
+  }
 
-    else {
-        dayBookings.forEach((b, idx) => {
-            const isBlocked = b.name === 'Blocked';
+  else {
+    dayBookings.forEach((b, idx) => {
+      const isBlocked = b.name === 'Blocked';
 
-            const entry = document.createElement('div');
-            entry.className = isBlocked ? 'booking-entry blocked-entry' : 'booking-entry';
+      const entry = document.createElement('div');
+      entry.className = isBlocked ? 'booking-entry blocked-entry' : 'booking-entry';
 
-            const info = document.createElement('div');
-            info.className = 'booking-entry-info';
+      const info = document.createElement('div');
+      info.className = 'booking-entry-info';
 
-            const timeName = document.createElement('span');
-            timeName.className = 'booking-time-name';
-            timeName.textContent = isBlocked
-                ? `${formatTime(b.start)} - ${formatTime(b.end)} - Blocked`
-                : `${formatTime(b.start)} - ${formatTime(b.end)} || ${b.name}`;
+      const timeName = document.createElement('span');
+      timeName.className = 'booking-time-name';
+      timeName.textContent = isBlocked
+        ? `${formatTime(b.start)} - ${formatTime(b.end)} - Blocked`
+        : `${formatTime(b.start)} - ${formatTime(b.end)} || ${b.name}`;
 
-            info.appendChild(timeName);
+      info.appendChild(timeName);
 
-            if (!isBlocked) {
-                const petInfo = document.createElement('ul');
-                petInfo.className = 'booking-pet-preview';
-                petInfo.style.margin = '0';
-                const li = document.createElement('li');
-                li.className = 'booking-pet-info';
-                li.innerHTML = b.petSelection === 'cat'
-                  ? `<strong>${b.petName}</strong>, ${b.petSelection}`
-                  : `<strong>${b.petName}</strong>, ${b.petSelection}, ${b.petBreed || ''}`;                petInfo.appendChild(li);
-                info.appendChild(petInfo);
+      if (!isBlocked) {
+        const petInfo = document.createElement('ul');
+        petInfo.className = 'booking-pet-preview';
+        petInfo.style.margin = '0';
+        const li = document.createElement('li');
+        li.className = 'booking-pet-info';
+        li.innerHTML = b.petSelection === 'cat'
+          ? `<strong>${b.petName}</strong>, ${b.petSelection}`
+          : `<strong>${b.petName}</strong>, ${b.petSelection}, ${b.petBreed || ''}`;                petInfo.appendChild(li);
+        info.appendChild(petInfo);
 
-                const details = document.createElement('div');
-                details.className = 'booking-details';
-                details.innerHTML = `
-                    <div><b>Email:</b> ${b.email}</div>
-                    <div><b>Phone No.:</b> ${b.phone}</div>
-                    <div><b>Pet Weight:</b> ${b.petWeight}</div>
-                    <div class="booking-details-divider"></div>
-                    <div><b>Selected Service:</b> ${b.selectedService}</div>
-                    <div><b>Add-On Services:</b></div>
-                    <ul class="booking-details-list">
-                        ${b.addOnServices.length ? b.addOnServices.map(s => `<li>${s}</li>`).join('') : '<li>none</li>'}
-                    </ul>
-                    <div><b>Ala Carte Services:</b></div>
-                    <ul class="booking-details-list">
-                        ${b.aLaCarteServices.length ? b.aLaCarteServices.map(s => `<li>${s}</li>`).join('') : '<li>none</li>'}
-                    </ul>
-                    <div class="booking-details-divider"></div>
-                    <div><b>Notes:</b> ${b.notes || "none"}</div>
-                `;
-                info.appendChild(details);
+        const details = document.createElement('div');
+        details.className = 'booking-details';
+        details.innerHTML = `
+          <div><b>Email:</b> ${b.email}</div>
+          <div><b>Phone No.:</b> ${b.phone}</div>
+          <div><b>Pet Weight:</b> ${b.petWeight}</div>
+          <div class="booking-details-divider"></div>
+          <div><b>Selected Service:</b> ${b.selectedService}</div>
+          <div><b>Add-On Services:</b></div>
+          <ul class="booking-details-list">
+              ${b.addOnServices.length ? b.addOnServices.map(s => `<li>${s}</li>`).join('') : '<li>none</li>'}
+          </ul>
+          <div><b>Ala Carte Services:</b></div>
+          <ul class="booking-details-list">
+              ${b.aLaCarteServices.length ? b.aLaCarteServices.map(s => `<li>${s}</li>`).join('') : '<li>none</li>'}
+          </ul>
+          <div class="booking-details-divider"></div>
+          <div><b>Notes:</b> ${b.notes || "none"}</div>
+        `;
+        info.appendChild(details);
 
-                entry.addEventListener('click', () => {
-                    entry.classList.toggle('expanded');
-                });
-            }
-
-            const delBtn = document.createElement('button');
-            delBtn.className = 'delete-btn';
-            delBtn.innerHTML = "<i class='bx bx-trash'></i>";
-            delBtn.addEventListener('click', async (e) => {
-              e.stopPropagation();
-              bookings[key].splice(idx, 1);
-              // date: 2026-08-09
-              // time: "16:00"
-              date = key;
-              time = b.start;
-              const { slot } = await fetch(`/api/admin/slotinfo?date=${date}&time=${time}`).then(res => res.json());
-              
-              if (slot.status == "blocked") {
-                await fetch("/api/admin/slots/unblock", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ date, time }),
-                });
-              }
-              else {
-                await fetch("/api/admin/slots/deleteAppointment", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ date, time }),
-                });
-              }
-
-              renderCalendar();
-              renderDayPanel();
-            });
-
-            entry.appendChild(info);
-            entry.appendChild(delBtn);
-            bookingsList.appendChild(entry);
+        entry.addEventListener('click', () => {
+          entry.classList.toggle('expanded');
         });
-    }
+      }
 
-    closeBlockBox();
+      const delBtn = document.createElement('button');
+      delBtn.className = 'delete-btn';
+      delBtn.innerHTML = "<i class='bx bx-trash'></i>";
+      delBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        bookings[key].splice(idx, 1);
+        // date: 2026-08-09
+        // time: "16:00"
+        date = key;
+        time = b.start;
+        const { slot } = await fetch(`/api/admin/slotinfo?date=${date}&time=${time}`).then(res => res.json());
+        
+        if (slot.status == "blocked") {
+          await fetch("/api/admin/slots/unblock", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ date, time }),
+          });
+        }
+        else {
+          await fetch("/api/admin/slots/deleteAppointment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ date, time }),
+          });
+        }
+
+        renderCalendar();
+        renderDayPanel();
+      });
+
+      entry.appendChild(info);
+      entry.appendChild(delBtn);
+      bookingsList.appendChild(entry);
+    });
+  }
+
+  closeBlockBox();
 }
 
 function formatTime(t) {
@@ -286,136 +286,136 @@ const timeSlots = ["10:00","11:00","12:00","13:00","14:00","15:00","16:00"];
 
 // for the time selection
 function buildHourOptions() {
-    let out = '';
-    for (let i = 1; i <= 12; i++) {
-        out += `<option value="${i}">${i}</option>`;
-    }
-    return out;
+  let out = '';
+  for (let i = 1; i <= 12; i++) {
+    out += `<option value="${i}">${i}</option>`;
+  }
+  return out;
 }
 
 function closeBlockBox() {
-    blockTimeBox.classList.remove('open');
-    blockTimeBox.innerHTML = 'Block a time on this day';
-    blockTimeBox.addEventListener('click', openBlockBox, { once: true });
+  blockTimeBox.classList.remove('open');
+  blockTimeBox.innerHTML = 'Block a time on this day';
+  blockTimeBox.addEventListener('click', openBlockBox, { once: true });
 }
 
 function openBlockBox() {
-    blockTimeBox.classList.add('open');
-    blockTimeBox.innerHTML = `
-        <label class="block-full-day-row">
-            <input type="checkbox" id="blockFullDayChk">
-            <span class="block-checkbox-box"></span>
-            Block full day
-        </label>
+  blockTimeBox.classList.add('open');
+  blockTimeBox.innerHTML = `
+    <label class="block-full-day-row">
+      <input type="checkbox" id="blockFullDayChk">
+      <span class="block-checkbox-box"></span>
+      Block full day
+    </label>
 
-        <div class="time-inputs-row" id="timeInputsRow">
-            <div class="time-group">
-                <label>Start</label>
-                <div class="time-box">
-                    <select id="startHour">${buildHourOptions()}</select>
-                    <span class="time-colon">: 00</span>
-                    <select id="startPeriod"><option>AM</option><option>PM</option></select>
-                </div>
-            </div>
-            <div class="time-group">
-                <label>End</label>
-                <div class="time-box">
-                    <select id="endHour">${buildHourOptions()}</select>
-                    <span class="time-colon">: 00</span>
-                    <select id="endPeriod"><option>AM</option><option>PM</option></select>
-                </div>
-            </div>
+    <div class="time-inputs-row" id="timeInputsRow">
+      <div class="time-group">
+        <label>Start</label>
+        <div class="time-box">
+          <select id="startHour">${buildHourOptions()}</select>
+          <span class="time-colon">: 00</span>
+          <select id="startPeriod"><option>AM</option><option>PM</option></select>
         </div>
-
-        <div class="block-actions-row">
-            <button class="block-btn block-cancel-btn" id="cancelBlockBtn">Cancel</button>
-            <button class="block-btn block-add-btn" id="addBlockBtn">Add Block</button>
+      </div>
+      <div class="time-group">
+        <label>End</label>
+        <div class="time-box">
+          <select id="endHour">${buildHourOptions()}</select>
+          <span class="time-colon">: 00</span>
+          <select id="endPeriod"><option>AM</option><option>PM</option></select>
         </div>
-    `;
+      </div>
+    </div>
 
-    document.getElementById('startHour').value = 12;
-    document.getElementById('endHour').value = 12;
+    <div class="block-actions-row">
+      <button class="block-btn block-cancel-btn" id="cancelBlockBtn">Cancel</button>
+      <button class="block-btn block-add-btn" id="addBlockBtn">Add Block</button>
+    </div>
+  `;
 
-    document.getElementById('blockFullDayChk').addEventListener('change', (e) => {
-        document.getElementById('timeInputsRow').classList.toggle('disabled', e.target.checked);
-    });
+  document.getElementById('startHour').value = 12;
+  document.getElementById('endHour').value = 12;
 
-    document.getElementById('cancelBlockBtn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        closeBlockBox();
-    });
+  document.getElementById('blockFullDayChk').addEventListener('change', (e) => {
+    document.getElementById('timeInputsRow').classList.toggle('disabled', e.target.checked);
+  });
 
-    document.getElementById('addBlockBtn').addEventListener('click', async () => {
-        const date = dateKey(selectedDate);
-        const fullDay = document.getElementById('blockFullDayChk').checked;
-        
-        // TODO (2026-07-31) consider simplifying UI to just a selector of the slots for the given day
-        let slotsToBlock;
-        if (fullDay) {
-            slotsToBlock = timeSlots;
-        } else {
-            const startH = parseInt(to24h(document.getElementById('startHour').value, document.getElementById('startPeriod').value), 10);
-            const startM = 0;
-            const endH   = parseInt(to24h(document.getElementById('endHour').value,   document.getElementById('endPeriod').value),   10);
-            const endM   = 0;
+  document.getElementById('cancelBlockBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeBlockBox();
+  });
 
-            const inputStart = startH * 60 + startM;
-            const inputEnd   = endH   * 60 + endM;
+  document.getElementById('addBlockBtn').addEventListener('click', async () => {
+    const date = dateKey(selectedDate);
+    const fullDay = document.getElementById('blockFullDayChk').checked;
+    
+    // TODO (2026-07-31) consider simplifying UI to just a selector of the slots for the given day
+    let slotsToBlock;
+    if (fullDay) {
+      slotsToBlock = timeSlots;
+    } else {
+      const startH = parseInt(to24h(document.getElementById('startHour').value, document.getElementById('startPeriod').value), 10);
+      const startM = 0;
+      const endH   = parseInt(to24h(document.getElementById('endHour').value,   document.getElementById('endPeriod').value),   10);
+      const endM   = 0;
 
-            slotsToBlock = timeSlots.filter(t => {
-                const [sh, sm] = t.split(':').map(Number);
-                const slotStart = sh * 60 + sm;
-                return slotStart < inputEnd && slotStart + 60 > inputStart;
-            });
-        }
+      const inputStart = startH * 60 + startM;
+      const inputEnd   = endH   * 60 + endM;
 
-        if (slotsToBlock.length === 0) {
-            alert('No available time slots overlap with the selected range.');
-            return;
-        }
+      slotsToBlock = timeSlots.filter(t => {
+        const [sh, sm] = t.split(':').map(Number);
+        const slotStart = sh * 60 + sm;
+        return slotStart < inputEnd && slotStart + 60 > inputStart;
+      });
+    }
 
-        const results = await Promise.all(
-            slotsToBlock.map(time =>
-                fetch('/api/admin/slots/block', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ date, time }),
-                }).then(r => r.json())
-            )
-        );
+    if (slotsToBlock.length === 0) {
+      alert('No available time slots overlap with the selected range.');
+      return;
+    }
 
-        if (results.some(r => !r.success)) {
-            alert('One or more slots failed to block.');
-        }
+    const results = await Promise.all(
+      slotsToBlock.map(time =>
+        fetch('/api/admin/slots/block', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date, time }),
+        }).then(r => r.json())
+      )
+    );
 
-        // fetch this date again to keep the cache in sync
-        const slotRes = await fetch(`/api/admin/slots/${date}`);
-        const slotData = await slotRes.json();
-        bookings[date] = [];
-        if (slotData.success) slotData.slots.forEach(parseSlotIntoBookings);
+    if (results.some(r => !r.success)) {
+      alert('One or more slots failed to block.');
+    }
 
-        renderCalendar();
-        renderDayPanel();
-    });
+    // fetch this date again to keep the cache in sync
+    const slotRes = await fetch(`/api/admin/slots/${date}`);
+    const slotData = await slotRes.json();
+    bookings[date] = [];
+    if (slotData.success) slotData.slots.forEach(parseSlotIntoBookings);
+
+    renderCalendar();
+    renderDayPanel();
+  });
 }
 
 // display 12hr. in db, 24h
 function to24h(hour12, period) {
-    let h = parseInt(hour12, 10) % 12;
-    if (period === 'PM') h += 12;
-    return String(h).padStart(2, '0');
+  let h = parseInt(hour12, 10) % 12;
+  if (period === 'PM') h += 12;
+  return String(h).padStart(2, '0');
 }
 
 document.getElementById('prevMonthBtn').addEventListener('click', () => {
-    currentMonth--;
-    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-    fetchMonthBookings(currentYear, currentMonth);
+  currentMonth--;
+  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  fetchMonthBookings(currentYear, currentMonth);
 });
 
 document.getElementById('nextMonthBtn').addEventListener('click', () => {
-    currentMonth++;
-    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-    fetchMonthBookings(currentYear, currentMonth);
+  currentMonth++;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  fetchMonthBookings(currentYear, currentMonth);
 });
 
 fetchMonthBookings(currentYear, currentMonth);
