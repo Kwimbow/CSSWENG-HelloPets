@@ -166,25 +166,31 @@ async function renderDayPanel() {
 
     else {
         dayBookings.forEach((b, idx) => {
+            const isBlocked = b.name === 'Blocked';
+
             const entry = document.createElement('div');
-            entry.className = 'booking-entry';
+            entry.className = isBlocked ? 'booking-entry blocked-entry' : 'booking-entry';
 
             const info = document.createElement('div');
             info.className = 'booking-entry-info';
 
             const timeName = document.createElement('span');
             timeName.className = 'booking-time-name';
-            timeName.textContent = `${formatTime(b.start)} - ${formatTime(b.end)} || ${b.name}`;
-
-            const petInfo = document.createElement('ul');
-            petInfo.style.margin = '0';
-            const li = document.createElement('li');
-            li.className = 'booking-pet-info';
-            li.textContent = b.pet;
-            petInfo.appendChild(li);
+            timeName.textContent = isBlocked
+                ? `${formatTime(b.start)} - ${formatTime(b.end)} - Blocked`
+                : `${formatTime(b.start)} - ${formatTime(b.end)} || ${b.name}`;
 
             info.appendChild(timeName);
-            info.appendChild(petInfo);
+
+            if (!isBlocked) {
+                const petInfo = document.createElement('ul');
+                petInfo.style.margin = '0';
+                const li = document.createElement('li');
+                li.className = 'booking-pet-info';
+                li.textContent = b.pet;
+                petInfo.appendChild(li);
+                info.appendChild(petInfo);
+            }
 
             const delBtn = document.createElement('button');
             delBtn.className = 'delete-btn';

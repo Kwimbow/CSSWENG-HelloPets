@@ -213,6 +213,14 @@
     list-style-type: none;
 }
 
+.booking-entry.blocked-entry {
+    background-color: #8a8a8a;
+}
+
+.booking-entry.blocked-entry .booking-time-name {
+    color: #ffffff;
+}
+
 .delete-btn {
     background-color: #ffe1e8;
     border: none;
