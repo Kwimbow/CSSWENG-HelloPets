@@ -28,12 +28,23 @@ function parseSlotIntoBookings(slot) {
   const endString = `${endHour}:${String(m).padStart(2, "0")}`;
 
   if (slot.status === "booked" && slot.booking) {
+    const b = slot.booking;
     bookings[slot.date].push({
       _id: slot._id,
       start: slot.time,
       end: endString,
-      name: `${slot.booking.customer.firstName} ${slot.booking.customer.lastName}`,
-      pet: `${slot.booking.petName}, ${slot.booking.petSelection}, ${slot.booking.petBreed || ""}`,
+      name: `${b.customer.firstName} ${b.customer.lastName}`,
+      pet: `${b.petName}, ${b.petSelection}, ${b.petBreed || ""}`,
+      email: b.customer.email,
+      phone: b.customer.mobileNumber,
+      petName: b.petName,
+      petWeight: b.petWeight,
+      petSelection: b.petSelection,
+      petBreed: b.petBreed,
+      selectedService: b.selectedService,
+      addOnServices: b.addOnServices || [],
+      aLaCarteServices: b.aLaCarteServices || [],
+      notes: b.optionalNotes || "",
     });
   } else if (slot.status === "blocked") {
     bookings[slot.date].push({
@@ -184,18 +195,46 @@ async function renderDayPanel() {
 
             if (!isBlocked) {
                 const petInfo = document.createElement('ul');
+                petInfo.className = 'booking-pet-preview';
                 petInfo.style.margin = '0';
                 const li = document.createElement('li');
                 li.className = 'booking-pet-info';
-                li.textContent = b.pet;
-                petInfo.appendChild(li);
+                li.innerHTML = b.petSelection === 'cat'
+                  ? `<strong>${b.petName}</strong>, ${b.petSelection}`
+                  : `<strong>${b.petName}</strong>, ${b.petSelection}, ${b.petBreed || ''}`;                petInfo.appendChild(li);
                 info.appendChild(petInfo);
+
+                const details = document.createElement('div');
+                details.className = 'booking-details';
+                details.innerHTML = `
+                    <div><b>Email:</b> ${b.email}</div>
+                    <div><b>Phone No.:</b> ${b.phone}</div>
+                    <div><b>Pet Weight:</b> ${b.petWeight}</div>
+                    <div class="booking-details-divider"></div>
+                    <div><b>Selected Service:</b> ${b.selectedService}</div>
+                    <div><b>Add-On Services:</b></div>
+                    <ul class="booking-details-list">
+                        ${b.addOnServices.length ? b.addOnServices.map(s => `<li>${s}</li>`).join('') : '<li>none</li>'}
+                    </ul>
+                    <div><b>Ala Carte Services:</b></div>
+                    <ul class="booking-details-list">
+                        ${b.aLaCarteServices.length ? b.aLaCarteServices.map(s => `<li>${s}</li>`).join('') : '<li>none</li>'}
+                    </ul>
+                    <div class="booking-details-divider"></div>
+                    <div><b>Notes:</b> ${b.notes || "none"}</div>
+                `;
+                info.appendChild(details);
+
+                entry.addEventListener('click', () => {
+                    entry.classList.toggle('expanded');
+                });
             }
 
             const delBtn = document.createElement('button');
             delBtn.className = 'delete-btn';
             delBtn.innerHTML = "<i class='bx bx-trash'></i>";
-            delBtn.addEventListener('click', async () => {
+            delBtn.addEventListener('click', async (e) => {
+              e.stopPropagation();
               bookings[key].splice(idx, 1);
               // date: 2026-08-09
               // time: "16:00"
