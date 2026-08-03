@@ -123,39 +123,44 @@ function renderCalendar() {
     // blank days
     const leading = firstCol === -1 ? 0 : firstCol;
     for (let i = 0; i < leading; i++) {
-        const blank = document.createElement('div');
-        blank.className = 'calendar-day empty';
-        calendarGrid.appendChild(blank);
+      const blank = document.createElement('div');
+      blank.className = 'calendar-day empty';
+      calendarGrid.appendChild(blank);
     }
 
     // render remainindg days
     for (let day = 1; day <= daysInMonth; day++) {
-        const thisDate = new Date(currentYear, currentMonth, day);
-        const jsDay = thisDate.getDay();
-        if (jsDay === 1) continue; // skip monday
+      const thisDate = new Date(currentYear, currentMonth, day);
+      const jsDay = thisDate.getDay();
+      if (jsDay === 1) continue; // skip monday
 
-        const cell = document.createElement('div');
-        cell.className = 'calendar-day';
-        cell.textContent = day;
+      const cell = document.createElement('div');
+      cell.className = 'calendar-day';
+      cell.textContent = day;
 
-        if (bookings[dateKey(thisDate)] && bookings[dateKey(thisDate)].length) {
-            const dot = document.createElement('span');
-            dot.className = 'day-dot';
-            cell.appendChild(dot);
-        }
+      const isPast = thisDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      if (isPast) {
+        cell.classList.add('past-day');
+      }
 
-        // selected date stuff
-        if (sameDate(thisDate, selectedDate)) {
-            cell.classList.add('selected');
-        }
+      if (bookings[dateKey(thisDate)] && bookings[dateKey(thisDate)].length) {
+        const dot = document.createElement('span');
+        dot.className = 'day-dot';
+        cell.appendChild(dot);
+      }
 
-        cell.addEventListener('click', () => {
-            selectedDate = thisDate;
-            renderCalendar();
-            renderDayPanel();
-        });
+      // selected date stuff
+      if (sameDate(thisDate, selectedDate)) {
+        cell.classList.add('selected');
+      }
 
-        calendarGrid.appendChild(cell);
+      cell.addEventListener('click', () => {
+        selectedDate = thisDate;
+        renderCalendar();
+        renderDayPanel();
+      });
+
+      calendarGrid.appendChild(cell);
     }
 }
 
