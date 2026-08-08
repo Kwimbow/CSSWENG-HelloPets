@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
-const MongoStore = require("connect-mongo");
+const { MongoStore } = require("connect-mongo");
+
 require("dotenv").config();
 // env file currently being used for the MONGODB URI so we can easily migrate to atlas
 // will also be used for the email and password to send confirmations
