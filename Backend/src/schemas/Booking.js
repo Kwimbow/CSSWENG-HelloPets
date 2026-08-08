@@ -8,7 +8,16 @@ const bookingSchema = new Schema(
     petWeight: { type: String, required: true },
     petBreed: { type: String, default: null },
     selectedService: { type: String, required: true },
-    addOnServices: { type: [String], default: [] },
+    addOnServices: {
+          type: [
+            {
+              name: { type: String, required: true },
+              severity: { type: String, enum: ["light", "medium", "heavy"], required: true },
+              _id: false,
+            },
+          ],
+          default: [],
+        },
     aLaCarteServices: { type: [String], default: [] },
     customer: {
       firstName: { type: String, required: true, trim: true },

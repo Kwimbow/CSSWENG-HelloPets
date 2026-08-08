@@ -17,7 +17,7 @@ radsSelectedServiceCat = document.getElementsByName("pet-service-cat");
 
 // STEP 5-6
 // checkboxes for add-ons (dematting, deshedding)
-chksAddOn = document.querySelectorAll(".addon-list input");
+chksAddOn = document.querySelectorAll(".addon-list > .addon-item > .custom-checkbox input");
 // checkboxes for a la carte services
 chksALaCarte = document.querySelectorAll(".alac-list input");
 
@@ -44,6 +44,28 @@ allInputs = document.querySelectorAll("input");
 allTextInputs = document.querySelectorAll("input[type='text'], input[type='email']");
 allCheckboxInputs = document.querySelectorAll("input[type='checkbox']");
 
+// maps each add-on checkbox's id to its Light/Medium/Heavy severity pill group,
+// so the group can be shown/hidden and read alongside that checkbox
+addonSeverityGroups = {
+	dematting: document.getElementById("dematting-severity"),
+	deshedding: document.getElementById("deshedding-severity"),
+};
+
+// hides severity checker if service not picked
+const updateAddonSeverityVisibility = function() {
+	for (const [addonId, groupEl] of Object.entries(addonSeverityGroups)) {
+		checkbox = document.getElementById(addonId);
+		groupEl.classList.toggle("visible", checkbox.checked);
+	}
+}
+
+for (const addonId of Object.keys(addonSeverityGroups)) {
+	document.getElementById(addonId).addEventListener("change", updateAddonSeverityVisibility);
+}
+
+// run once on load in case the browser restored a previous checked state
+updateAddonSeverityVisibility();
+
 // accepts a collection of radio buttons and returns the value of the selected one
 const getRadioButtonsValue = function(radButtons) {
 	for (const btn of radButtons) {
@@ -63,6 +85,20 @@ const getCheckboxesValue = function(chkButtons) {
 		}
 	}
 	return checkedArr;
+}
+
+// like getCheckboxesValue, but for add-ons specifically
+// pairs each checked add-on with the severity picked 
+const getAddOnServicesValue = function() {
+	addOnArr = []
+	for (const btn of chksAddOn) {
+		if (btn.checked) {
+			severityGroup = addonSeverityGroups[btn.id];
+			severity = getRadioButtonsValue(severityGroup.querySelectorAll("input[type='radio']"));
+			addOnArr.push({ name: btn.name, severity: severity });
+		}
+	}
+	return addOnArr;
 }
 
 // verifies form elements (like required inputs, as well as email formatting)
@@ -150,6 +186,14 @@ const clearForm = function() {
 	}
 	updatePetTypeSections();
 
+	// reset each add-on's severity back to "light" and hide the pill group again
+	// since its checkbox was just unchecked above
+	for (const groupEl of Object.values(addonSeverityGroups)) {
+		checkRadioButton(groupEl.querySelectorAll("input[type='radio']"), "light");
+	}
+	updateAddonSeverityVisibility();
+
+
 	// checking the default option for radio buttons
 	checkRadioButton(radsPetSelection, "dog")
 	checkRadioButton(radsSelectedService, "essential-bath");
@@ -176,7 +220,7 @@ const buildBookingObj = function() {
         selectedService: isDogSelected
         ? getRadioButtonsValue(radsSelectedService)
         : getRadioButtonsValue(radsSelectedServiceCat),
-        addOnServices: getCheckboxesValue(chksAddOn),
+        addOnServices: getAddOnServicesValue(),
         aLaCarteServices: getCheckboxesValue(chksALaCarte),
         customer: {
         firstName: inpFirstName.value,
@@ -432,3 +476,4 @@ const resetCalendarSelection = function() {
 	renderTimeSlots();
 	updateSelectedAppointmentDisplay();
 }
+

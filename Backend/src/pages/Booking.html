@@ -264,18 +264,51 @@
 				</div>
 				<div class="card-content addons-container">
 					<!-- up checkboxes -->
+					<!-- up checkboxes -->
 					<div class="addon-list">
-						<label class="custom-checkbox">
-							<input type="checkbox" name="dematting" id="dematting">
-							<span class="checkbox-box"></span>
-							<span class="service-label-text">Dematting</span>
-						</label>
+						<div class="addon-item">
+							<label class="custom-checkbox">
+								<input type="checkbox" name="dematting" id="dematting">
+								<span class="checkbox-box"></span>
+								<span class="service-label-text">Dematting</span>
+							</label>
+							<div class="severity-group" id="dematting-severity">
+								<label class="severity-pill">
+									<input type="radio" name="dematting-severity" value="light" checked>
+									<span>Light</span>
+								</label>
+								<label class="severity-pill">
+									<input type="radio" name="dematting-severity" value="medium">
+									<span>Medium</span>
+								</label>
+								<label class="severity-pill">
+									<input type="radio" name="dematting-severity" value="heavy">
+									<span>Heavy</span>
+								</label>
+							</div>
+						</div>
 
-						<label class="custom-checkbox">
-							<input type="checkbox" name="deshedding" id="deshedding">
-							<span class="checkbox-box"></span>
-							<span class="service-label-text">Deshedding</span>
-						</label>
+						<div class="addon-item">
+							<label class="custom-checkbox">
+								<input type="checkbox" name="deshedding" id="deshedding">
+								<span class="checkbox-box"></span>
+								<span class="service-label-text">Deshedding</span>
+							</label>
+							<div class="severity-group" id="deshedding-severity">
+								<label class="severity-pill">
+									<input type="radio" name="deshedding-severity" value="light" checked>
+									<span>Light</span>
+								</label>
+								<label class="severity-pill">
+									<input type="radio" name="deshedding-severity" value="medium">
+									<span>Medium</span>
+								</label>
+								<label class="severity-pill">
+									<input type="radio" name="deshedding-severity" value="heavy">
+									<span>Heavy</span>
+								</label>
+							</div>
+						</div>
 					</div>
 					<!-- below addon prices -->
 					<div class="service-details-box">

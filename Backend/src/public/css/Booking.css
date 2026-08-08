@@ -553,6 +553,58 @@
 	transition: border 0.2s ease;
 }
 
+.addon-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+}
+
+/* light medium heavy */
+.severity-group {
+	display: none;
+	gap: 0.5rem;
+	padding-left: 2.2rem;
+}
+
+.severity-group.visible {
+	display: flex;
+}
+
+.severity-pill {
+	cursor: pointer;
+	user-select: none;
+}
+
+.severity-pill input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+
+.severity-pill span {
+	display: inline-block;
+	padding: 0.35rem 0.9rem;
+	border-radius: 20px;
+	background-color: #D6F4F0;
+	font-size: 0.8rem;
+	font-family: sans-serif;
+	color: #1a1a1a;
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.severity-pill:hover span {
+	background-color: #28B9B2;
+	color: white;
+}
+
+.severity-pill input:checked ~ span {
+	background-color: #EE3A78;
+	color: white;
+	font-weight: bold;
+}
+
 .custom-checkbox input:checked ~ .checkbox-box {
 	background-color: #EE3A78;
 	border: 2px solid #ffffff;
