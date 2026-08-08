@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const MongoStore = require("connect-mongo");
 require("dotenv").config();
 // env file currently being used for the MONGODB URI so we can easily migrate to atlas
 // will also be used for the email and password to send confirmations
@@ -40,9 +41,18 @@ app.use(fileUpload());
 
 app.use(
   session({
-    secret: "secret-key",
+    secret: "secret-key", // TODO (2026-08-08) migrate to env variable
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+      collectionName: "sessions",
+    }),
+    cookie: {
+      secure: true,
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24, 
+    },
   }),
 );
 
