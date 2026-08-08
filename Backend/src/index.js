@@ -263,7 +263,15 @@ app.post("/admin/login", async (req, res) => {
 
   if (username === adminUsername && password === adminPassword) {
     req.session.admin = true;
+    req.session.save((err) => {
+    if (err) {
+        console.error("Session save error:", err);
+        return res
+        .status(500)
+        .json({ success: false, error: "Session save failed" });
+    }
     res.json({ success: true });
+    });
   } else {
     res.status(422).send("Incorrect username/password");
   }
