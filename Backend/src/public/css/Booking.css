@@ -103,12 +103,6 @@
 	color: white;
 }
 
-#booking-summary {
-	font-weight: bold;
-	font-size: 1.2rem;
-	color: #1a1a1a;
-}
-
 #confirm-booking {
 	background-color: #EE3A78;
 	color: white;
@@ -711,4 +705,156 @@
 	font-size: 1rem;
 	font-family: sans-serif;
 	font-weight: 300;
+}
+
+/* for booking summary */
+.modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: none;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	padding: 2rem;
+	box-sizing: border-box;
+}
+
+.modal-overlay.visible {
+	display: flex;
+}
+
+.modal-box {
+	background-color: #FFFFFF;
+	border-radius: 25px;
+	width: 100%;
+	max-width: 560px;
+	max-height: 85vh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	font-family: sans-serif;
+}
+
+.modal-header {
+	background-color: #28B9B2;
+	padding: 1.25rem 1.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-shrink: 0;
+}
+
+.modal-header h2 {
+	color: white;
+	font-size: 1.3rem;
+	margin: 0;
+	font-family: "Stack Sans Headline", sans-serif;
+}
+
+.modal-close-btn {
+	color: white;
+	font-size: 1.6rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.modal-body {
+	padding: 1.75rem;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.summary-section {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.summary-section-title {
+	font-weight: 700;
+	font-size: 1rem;
+	color: #1a1a1a;
+	border-bottom: 2px solid #D6F4F0;
+	padding-bottom: 0.4rem;
+	margin-bottom: 0.2rem;
+}
+
+.summary-row {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	font-size: 0.9rem;
+	color: #1a1a1a;
+}
+
+.summary-row span:first-child {
+	color: #6b6b6b;
+}
+
+.summary-services-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.summary-total-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #D6F4F0;
+	border-radius: 15px;
+	padding: 1rem 1.25rem;
+	font-weight: 800;
+	font-size: 1.1rem;
+	color: #1a1a1a;
+}
+
+.summary-disclaimer {
+	font-size: 0.8rem;
+	color: #6b6b6b;
+	line-height: 1.35;
+	font-style: italic;
+}
+
+.modal-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 1rem;
+	padding: 1.25rem 1.75rem;
+	border-top: 1px solid #e0e0e0;
+	flex-shrink: 0;
+}
+
+.modal-btn {
+	padding: 0.7rem 1.5rem;
+	border-radius: 30px;
+	font-weight: bold;
+	cursor: pointer;
+	font-family: sans-serif;
+	font-size: 0.9rem;
+	transition: background-color 0.2s ease;
+}
+
+.modal-btn-secondary {
+	background-color: #f0f0f0;
+	color: #1a1a1a;
+}
+
+.modal-btn-secondary:hover {
+	background-color: #e0e0e0;
+}
+
+.modal-btn-primary {
+	background-color: #EE3A78;
+	color: white;
+}
+
+.modal-btn-primary:hover {
+	background-color: #d62d64;
 }

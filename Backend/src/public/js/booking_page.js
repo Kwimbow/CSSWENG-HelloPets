@@ -36,27 +36,39 @@ priceCellEls = {
 };
 
 // pricing/description for dog services
+// pricing/description for dog services
 dogServiceData = {
 	"essential-bath": {
+		label: "Essential Bath",
 		description: "Classic shampoo & conditioner, blow-dry",
 		prices: { S: 250, M: 350, L: 450, XL: 600, XXL: 800 },
 	},
 	"premium-bath": {
+		label: "Premium Bath",
 		description: "Show-grade shampoo & conditioner, blow-dry",
 		prices: { S: 350, M: 450, L: 550, XL: 700, XXL: 900 },
 	},
 	"classic-grooming": {
+		label: "Classic Grooming",
 		description: "Essential bath, nail cut, ear clean, sanitary trim, basic cut (summer cut/ semi-bald/ bald)",
 		prices: { S: 550, M: 650, L: 800, XL: 1000, XXL: 1300 },
 	},
 	"luxe-grooming": {
+		label: "Luxe Grooming",
 		description: "Premium bath, nail cut, ear clean, sanitary trim, basic cut (summer cut/ semi-bald/ bald)",
 		prices: { S: 650, M: 750, L: 1000, XL: 1200, XXL: 1500 },
 	},
 	"special-cut": {
-		description: "Give your pup a special cut.",
+		label: "Special Cut",
+		description: "Flat-rate service — pricing does not vary by pet size.",
 		prices: { S: 150, M: 150, L: 150, XL: 150, XXL: 150 },
 	},
+};
+
+// pricing/label for cat services
+catServiceData = {
+	"kitty-grooming": { label: "Kitty Grooming", price: 700 },
+	"kitty-special-cut": { label: "Kitty Special Cut", price: 200 },
 };
 
 // STEP 5-6
@@ -73,6 +85,12 @@ inpMobileNumber = document.getElementById("mobile");
 inpNotes = document.getElementById("optional-notes");
 
 btnConfirmBooking = document.getElementById("confirm-booking"); // actually a span
+
+// summary modal elements
+summaryModalOverlay = document.getElementById("summary-modal-overlay");
+btnSummaryModalClose = document.getElementById("summary-modal-close");
+btnSummaryCancel = document.getElementById("summary-cancel-btn");
+btnSummaryConfirm = document.getElementById("summary-confirm-btn");
 
 // Below is for dog and cat field selection, the rest of the steps are hidden until a pet type is selected
 // steps 3 & 4 swap between the dog layout and the cat layout
@@ -93,6 +111,26 @@ allCheckboxInputs = document.querySelectorAll("input[type='checkbox']");
 addonSeverityGroups = {
 	dematting: document.getElementById("dematting-severity"),
 	deshedding: document.getElementById("deshedding-severity"),
+};
+
+// display labels + pricing for the summary modal
+addOnLabels = {
+	dematting: "Dematting",
+	deshedding: "Deshedding",
+};
+addOnPricing = {
+	light: 200,
+	medium: 400,
+	heavy: 600,
+};
+aLaCartePricing = {
+	"face-trim": { label: "Face Trim", price: 150 },
+	"poodle-feet": { label: "Poodle Feet", price: 150 },
+	"nail-trim": { label: "Nail Trim", price: 100 },
+	"ear-clean": { label: "Ear Clean", price: 100 },
+	"teeth-brushing": { label: "Teeth Brushing", price: 100 },
+	"anal-sac-draining": { label: "Anal Sac Draining", price: 150 },
+	cologne: { label: "Cologne", price: 50 },
 };
 
 // accepts a collection of radio buttons and returns the value of the selected one
@@ -329,6 +367,7 @@ const buildBookingObj = function() {
 const submitForm = async function() {
 	isValid = verifyForm();
 	if (!isValid) {
+		closeSummaryModal();
 		return;
 	}
 
@@ -347,6 +386,7 @@ const submitForm = async function() {
 
 	if (success) {
 		alert("Form successfully submitted.");
+		closeSummaryModal();
 		clearForm();
 		goBackHome();
 	} else {
@@ -354,7 +394,112 @@ const submitForm = async function() {
 	}
 }
 
-btnConfirmBooking.addEventListener("click", submitForm);
+const openSummaryModal = function() {
+	summaryModalOverlay.classList.add("visible");
+}
+
+const closeSummaryModal = function() {
+	summaryModalOverlay.classList.remove("visible");
+}
+
+// fills in the summary modal from the current form state and totals up the price
+const renderBookingSummary = function() {
+	petSelection = getRadioButtonsValue(radsPetSelection);
+	isDogSelected = petSelection === "dog";
+
+	document.getElementById("summary-customer-name").textContent = `${inpFirstName.value} ${inpLastName.value}`;
+	document.getElementById("summary-customer-email").textContent = inpEmail.value;
+	document.getElementById("summary-customer-mobile").textContent = inpMobileNumber.value;
+
+	document.getElementById("summary-pet-type").textContent = isDogSelected ? "Dog" : "Cat";
+	document.getElementById("summary-pet-name").textContent = isDogSelected ? inpPetName.value : inpPetNameCat.value;
+
+	weightVal = isDogSelected ? inpPetWeight.value : inpPetWeightCat.value;
+	document.getElementById("summary-pet-weight").textContent = `${weightVal} kg`;
+
+	breedRow = document.getElementById("summary-pet-breed-row");
+	sizeRow = document.getElementById("summary-pet-size-row");
+
+	tier = null;
+	if (isDogSelected) {
+		breedRow.style.display = "";
+		document.getElementById("summary-pet-breed").textContent = inpPetBreed.value;
+
+		tier = getPetSizeFromWeight(inpPetWeight.value);
+		sizeRow.style.display = "";
+		document.getElementById("summary-pet-size").textContent = tier ? `${tier.label} (${tier.letter})` : "Not yet determined";
+	} else {
+		breedRow.style.display = "none";
+		sizeRow.style.display = "none";
+	}
+
+	document.getElementById("summary-appointment").textContent =
+		(selectedDate && selectedTime) ? `${formatDateLabel(selectedDate)} at ${formatTimeLabel(selectedTime)}` : "Not selected";
+
+	servicesListEl = document.getElementById("summary-services-list");
+	servicesListEl.innerHTML = "";
+	totalAmount = 0;
+
+	// appends one line to the services list, and folds its price into the running total
+	const addSummaryLine = function(label, amount) {
+		row = document.createElement("div");
+		row.className = "summary-row";
+
+		nameSpan = document.createElement("span");
+		nameSpan.textContent = label;
+
+		priceSpan = document.createElement("span");
+		priceSpan.textContent = (amount === null) ? "TBD" : `₱${amount.toLocaleString()}`;
+
+		row.appendChild(nameSpan);
+		row.appendChild(priceSpan);
+		servicesListEl.appendChild(row);
+
+		if (amount !== null) {
+			totalAmount += amount;
+		}
+	}
+
+	if (isDogSelected) {
+		selectedServiceValue = getRadioButtonsValue(radsSelectedService);
+		serviceInfo = dogServiceData[selectedServiceValue];
+		servicePrice = (serviceInfo && tier) ? serviceInfo.prices[tier.letter] : null;
+		addSummaryLine(serviceInfo ? serviceInfo.label : selectedServiceValue, servicePrice);
+	} else {
+		selectedServiceValueCat = getRadioButtonsValue(radsSelectedServiceCat);
+		catInfo = catServiceData[selectedServiceValueCat];
+		addSummaryLine(catInfo ? catInfo.label : selectedServiceValueCat, catInfo ? catInfo.price : null);
+	}
+
+	addOnValues = getAddOnServicesValue();
+	for (const addOn of addOnValues) {
+		label = addOnLabels[addOn.name] || addOn.name;
+		severityLabel = addOn.severity ? addOn.severity.charAt(0).toUpperCase() + addOn.severity.slice(1) : "";
+		price = addOnPricing[addOn.severity];
+		addSummaryLine(`${label} (${severityLabel})`, price === undefined ? null : price);
+	}
+
+	aLaCarteValues = getCheckboxesValue(chksALaCarte);
+	for (const name of aLaCarteValues) {
+		info = aLaCartePricing[name];
+		addSummaryLine(info ? info.label : name, info ? info.price : null);
+	}
+
+	document.getElementById("summary-total-amount").textContent = `₱${totalAmount.toLocaleString()}`;
+}
+
+btnConfirmBooking.addEventListener("click", function() {
+	isValid = verifyForm();
+	if (!isValid) {
+		return;
+	}
+	renderBookingSummary();
+	openSummaryModal();
+});
+
+btnSummaryModalClose.addEventListener("click", closeSummaryModal);
+btnSummaryCancel.addEventListener("click", closeSummaryModal);
+btnSummaryConfirm.addEventListener("click", submitForm);
 
 
 // STEP 1 CALENDAR / TIME SLOT PICKER
