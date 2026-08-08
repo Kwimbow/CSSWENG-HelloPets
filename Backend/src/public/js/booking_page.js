@@ -7,6 +7,18 @@ inpPetName = document.getElementById("pet-name");
 inpPetWeight = document.getElementById("pet-weight");
 inpPetBreed = document.getElementById("pet-breed");
 
+// weight (kg) cutoffs used to estimate pet size, which in turn affects pricing
+petSizeTiers = [
+	{ minWeight: 0, maxWeight: 7, letter: "S", label: "Small" },
+	{ minWeight: 7, maxWeight: 15, letter: "M", label: "Medium" },
+	{ minWeight: 15, maxWeight: 25, letter: "L", label: "Large" },
+	{ minWeight: 25, maxWeight: 35, letter: "XL", label: "Extra Large" },
+	{ minWeight: 35, maxWeight: Infinity, letter: "XXL", label: "Extra Extra Large" },
+];
+
+petSizeBanner = document.getElementById("pet-size-banner");
+petSizeValue = document.getElementById("pet-size-value");
+
 // STEPm 3 PET INFO (cats)
 inpPetNameCat = document.getElementById("pet-name-cat");
 inpPetWeightCat = document.getElementById("pet-weight-cat");
@@ -14,6 +26,38 @@ inpPetWeightCat = document.getElementById("pet-weight-cat");
 // STEP 4 SELECTED SERVICE (Dog layout 5 options, cat 2)
 radsSelectedService = document.getElementsByName("pet-service");
 radsSelectedServiceCat = document.getElementsByName("pet-service-cat");
+serviceDescriptionText = document.getElementById("service-description-text");
+priceCellEls = {
+	S: document.getElementById("price-s"),
+	M: document.getElementById("price-m"),
+	L: document.getElementById("price-l"),
+	XL: document.getElementById("price-xl"),
+	XXL: document.getElementById("price-xxl"),
+};
+
+// pricing/description for dog services
+dogServiceData = {
+	"essential-bath": {
+		description: "Classic shampoo & conditioner, blow-dry",
+		prices: { S: 250, M: 350, L: 450, XL: 600, XXL: 800 },
+	},
+	"premium-bath": {
+		description: "Show-grade shampoo & conditioner, blow-dry",
+		prices: { S: 350, M: 450, L: 550, XL: 700, XXL: 900 },
+	},
+	"classic-grooming": {
+		description: "Essential bath, nail cut, ear clean, sanitary trim, basic cut (summer cut/ semi-bald/ bald)",
+		prices: { S: 550, M: 650, L: 800, XL: 1000, XXL: 1300 },
+	},
+	"luxe-grooming": {
+		description: "Premium bath, nail cut, ear clean, sanitary trim, basic cut (summer cut/ semi-bald/ bald)",
+		prices: { S: 650, M: 750, L: 1000, XL: 1200, XXL: 1500 },
+	},
+	"special-cut": {
+		description: "Give your pup a special cut.",
+		prices: { S: 150, M: 150, L: 150, XL: 150, XXL: 150 },
+	},
+};
 
 // STEP 5-6
 // checkboxes for add-ons (dematting, deshedding)
@@ -51,6 +95,62 @@ addonSeverityGroups = {
 	deshedding: document.getElementById("deshedding-severity"),
 };
 
+// accepts a collection of radio buttons and returns the value of the selected one
+const getRadioButtonsValue = function(radButtons) {
+	for (const btn of radButtons) {
+		if (btn.checked) {
+			return btn.value;
+		}
+	}
+	return null;
+}
+
+// returns the size tier for a given weight input, or null if th value is empty 
+const getPetSizeFromWeight = function(weightStr) {
+	weightNum = parseFloat(weightStr);
+	if (isNaN(weightNum) || weightNum <= 0) {
+		return null;
+	}
+	for (const tier of petSizeTiers) {
+		if (weightNum >= tier.minWeight && weightNum < tier.maxWeight) {
+			return tier;
+		}
+	}
+	return petSizeTiers[petSizeTiers.length - 1];
+}
+
+// updates the "Estimated pet size" banner based on the dog weight field
+// stays hidden until a valid weight is entered
+const updatePetSizeBanner = function() {
+	tier = getPetSizeFromWeight(inpPetWeight.value);
+	if (!tier) {
+		petSizeBanner.style.display = "none";
+		return;
+	}
+	petSizeValue.textContent = `${tier.label} (${tier.letter})`;
+	petSizeBanner.style.display = "";
+}
+
+inpPetWeight.addEventListener("input", updatePetSizeBanner);
+updatePetSizeBanner();
+
+// swaps the description + pricing grid to match whichever dog service radio is selected
+const updateDogServiceDetails = function() {
+	selectedService = getRadioButtonsValue(radsSelectedService);
+	data = dogServiceData[selectedService];
+
+	serviceDescriptionText.textContent = data.description;
+	for (const [size, el] of Object.entries(priceCellEls)) {
+		el.textContent = `₱${data.prices[size].toLocaleString()}`;
+	}
+}
+
+for (const rad of radsSelectedService) {
+	rad.addEventListener("change", updateDogServiceDetails);
+}
+
+updateDogServiceDetails();
+
 // hides severity checker if service not picked
 const updateAddonSeverityVisibility = function() {
 	for (const [addonId, groupEl] of Object.entries(addonSeverityGroups)) {
@@ -65,16 +165,6 @@ for (const addonId of Object.keys(addonSeverityGroups)) {
 
 // run once on load in case the browser restored a previous checked state
 updateAddonSeverityVisibility();
-
-// accepts a collection of radio buttons and returns the value of the selected one
-const getRadioButtonsValue = function(radButtons) {
-	for (const btn of radButtons) {
-		if (btn.checked) {
-			return btn.value;
-		}
-	}
-	return null;
-}
 
 // accepts a collection of checkboxes and returns an array containing the ones checked
 const getCheckboxesValue = function(chkButtons) {
@@ -197,6 +287,8 @@ const clearForm = function() {
 	// checking the default option for radio buttons
 	checkRadioButton(radsPetSelection, "dog")
 	checkRadioButton(radsSelectedService, "essential-bath");
+	updateDogServiceDetails();
+	updatePetSizeBanner();
 	resetCalendarSelection();
 }
 

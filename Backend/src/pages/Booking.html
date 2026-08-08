@@ -133,8 +133,8 @@
 						<input type="text" id="pet-breed" class="styled-input" required>
 					</div>
 
-					<div class="size-notice-banner">
-						<div class="banner-title">Estimated pet size: </div>
+					<div class="size-notice-banner" id="pet-size-banner" style="display:none;">
+						<div class="banner-title">Estimated pet size: <span id="pet-size-value"></span></div>
 						<div class="banner-subtext">This affects pricing. Pet size is still subject to assessment during appointment.</div>
 					</div>
 				</div>
@@ -202,30 +202,30 @@
 
 					<!-- right service descriptions -->
 					<div class="service-details-box">
-						<div class="service-description">
-							[Insert js service description]
+						<div class="service-description" id="service-description-text">
+							Classic shampoo & conditioner, blow-dry
 						</div>
 						
 						<div class="pricing-grid">
 							<div class="price-tier">
 								<span class="size-letter">S</span>
-								<span class="price-amount">₱[Price]</span>
+								<span class="price-amount" id="price-s">₱250</span>
 							</div>
 							<div class="price-tier">
 								<span class="size-letter">M</span>
-								<span class="price-amount">₱[Price]</span>
+								<span class="price-amount" id="price-m">₱350</span>
 							</div>
 							<div class="price-tier">
 								<span class="size-letter">L</span>
-								<span class="price-amount">₱[Price]</span>
+								<span class="price-amount" id="price-l">₱450</span>
 							</div>
 							<div class="price-tier">
 								<span class="size-letter">XL</span>
-								<span class="price-amount">₱[Price]</span>
+								<span class="price-amount" id="price-xl">₱600</span>
 							</div>
 							<div class="price-tier">
 								<span class="size-letter">XXL</span>
-								<span class="price-amount">₱[Price]</span>
+								<span class="price-amount" id="price-xxl">₱800</span>
 							</div>
 						</div>
 					</div>
