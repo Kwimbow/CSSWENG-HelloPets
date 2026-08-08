@@ -11,7 +11,6 @@ adminUsername = process.env.ADMIN_USERNAME || "admin";
 adminPassword = process.env.ADMIN_PASSWORD || "123456";
 
 const connectDB = require("./backend_js/db");
-connectDB();
 
 const {
   ensureSlotsExistForDate,
@@ -21,6 +20,17 @@ const Slot = require("./schemas/Slot");
 const Booking = require("./schemas/Booking");
 
 const app = express();
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ error: "Database connection failed" });
+  }
+});
+
+
 app.use(express.static(path.join(__dirname, "public")));
 
 // middleware for parsing requests
