@@ -23,6 +23,8 @@ const Booking = require("./schemas/Booking");
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 app.use(async (req, res, next) => {
   try {
     await connectDB();
