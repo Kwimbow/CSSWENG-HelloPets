@@ -68,11 +68,30 @@ const getCheckboxesValue = function(chkButtons) {
 // verifies form elements (like required inputs, as well as email formatting)
 // returns true if form inputs are valid
 const verifyForm = function() {
-	if (!selectedDate || !selectedTime) {
-		appointmentError.style.display = "";
+	const boardingRange = window.boardingDateRange || { startDate: null, startTime: null, endDate: null, endTime: null };
+	const startDate = boardingRange.startDate;
+	const startTime = boardingRange.startTime;
+	const endDate = boardingRange.endDate;
+	const endTime = boardingRange.endTime;
+
+	const startDateTime = startDate && startTime ? new Date(`${startDate}T${startTime}:00`) : null;
+	const endDateTime = endDate && endTime ? new Date(`${endDate}T${endTime}:00`) : null;
+	const minStayMs = 24 * 60 * 60 * 1000;
+
+	if (!startDate || !startTime || !endDate || !endTime) {
+		document.getElementById("start-appointment-error").style.display = "";
+		document.getElementById("end-appointment-error").style.display = "";
 		return false;
 	}
-	appointmentError.style.display = "none";
+
+	if (!startDateTime || !endDateTime || endDateTime <= startDateTime || (endDateTime - startDateTime) < minStayMs) {
+		document.getElementById("end-appointment-error").textContent = "End date must be at least 24 hours after the start date and time.";
+		document.getElementById("end-appointment-error").style.display = "";
+		return false;
+	}
+
+	document.getElementById("start-appointment-error").style.display = "none";
+	document.getElementById("end-appointment-error").style.display = "none";
 
 	for (const btn of allInputs) {
 		// informs the user of the first invalid form input
@@ -153,7 +172,11 @@ const clearForm = function() {
 	// checking the default option for radio buttons
 	checkRadioButton(radsPetSelection, "dog")
 	checkRadioButton(radsSelectedService, "essential-bath");
-	resetCalendarSelection();
+	if (window.boardingDateRange && typeof window.boardingDateRange.reset === "function") {
+		window.boardingDateRange.reset();
+	} else {
+		resetCalendarSelection();
+	}
 }
 
 function goBackHome(){
@@ -167,12 +190,10 @@ const buildBookingObj = function() {
     isDogSelected = petSelection === "dog";
 
     return {
-		// currently, end date/time is a duplicate of start date/time because there's
-		// only one calendar - when a second calendar is added, this should be changed
-        startDate: selectedDate,
-        startTime: selectedTime,
-		endDate: selectedDate,
-        endTime: selectedTime,
+        startDate: window.boardingDateRange.startDate,
+        startTime: window.boardingDateRange.startTime,
+		endDate: window.boardingDateRange.endDate,
+        endTime: window.boardingDateRange.endTime,
         petSelection: petSelection,
         petName: isDogSelected ? inpPetName.value : inpPetNameCat.value,
         petWeight: isDogSelected ? inpPetWeight.value : inpPetWeightCat.value,
@@ -220,188 +241,15 @@ const submitForm = async function() {
 btnConfirmBooking.addEventListener("click", submitForm);
 
 
-// STEP 1 CALENDAR / TIME SLOT PICKER
-const manuallyUnavailableDates = new Set();
-const manuallyUnavailableSlots = {};
-
-const timeSlots = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
-
-const calMonthLabel = document.getElementById("cal-month-label");
-const calPrevBtn = document.getElementById("cal-prev");
-const calNextBtn = document.getElementById("cal-next");
-const calDaysGrid = document.getElementById("cal-days-grid");
-const timeSlotsGrid = document.getElementById("time-slots-grid");
-const selectedAppointmentDisplay = document.getElementById("selected-appointment-display");
-const appointmentError = document.getElementById("appointment-error");
-
-const today = new Date();
-today.setHours(0, 0, 0, 0);
-
-let calViewYear = today.getFullYear();
-let calViewMonth = today.getMonth(); // 0-indexed
-let selectedDate = null; // "YYYY-MM-DD"
-let selectedTime = null; // "HH:MM"
-
-// formats a Date object as a local "YYYY-MM-DD" string (avoids UTC shift issues)
-const formatDateStr = function(dateObj) {
-	year = dateObj.getFullYear();
-	month = String(dateObj.getMonth() + 1).padStart(2, "0");
-	day = String(dateObj.getDate()).padStart(2, "0");
-	return `${year}-${month}-${day}`;
-}
-
-// formats "HH:MM" (24hr) into a human readable 12hr label, e.g. "14:00" -> "2:00 PM"
-const formatTimeLabel = function(timeStr) {
-	const [hourStr, minuteStr] = timeStr.split(":");
-	hour = parseInt(hourStr, 10);
-	period = hour >= 12 ? "PM" : "AM";
-	hour12 = hour % 12 === 0 ? 12 : hour % 12;
-	return `${hour12}:${minuteStr} ${period}`;
-}
-
-// formats "YYYY-MM-DD" into a human readable label, e.g. "July 20, 2026"
-const formatDateLabel = function(dateStr) {
-	const [year, month, day] = dateStr.split("-").map(Number);
-	dateObj = new Date(year, month - 1, day);
-	return dateObj.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-}
-
-const updateSelectedAppointmentDisplay = function() {
-	if (selectedDate && selectedTime) {
-		selectedAppointmentDisplay.textContent = `Selected: ${formatDateLabel(selectedDate)} at ${formatTimeLabel(selectedTime)}`;
-	} else if (selectedDate) {
-		selectedAppointmentDisplay.textContent = `Selected: ${formatDateLabel(selectedDate)}`;
-	} else {
-		selectedAppointmentDisplay.textContent = "";
-	}
-}
-
-// renders the 10am-5pm time slot buttons for whatever date is currently selected
-// now fetches the time slots from the backend API
-async function renderTimeSlots() {
-	timeSlotsGrid.innerHTML = "";
-
-	if (!selectedDate) {
-		hint = document.createElement("div");
-		hint.textContent = "Pick a date first";
-		hint.style.cssText = "font-size:0.85rem;color:#9a9a9a;";
-		timeSlotsGrid.appendChild(hint);
-		return;
-	}
-
-    const res = await fetch(`/api/slots/${selectedDate}`);
-    const data = await res.json();
-    slotData = data.slots;
-
-	for (const slot of timeSlots) {
-
-        const matching = slotData.find((s) => s.time === slot);
-		const isUnavailable = matching && matching.status !== "open";
-
-		btn = document.createElement("button");
-		btn.type = "button";
-		btn.textContent = formatTimeLabel(slot);
-
-		if (isUnavailable) {
-			btn.className = "time-slot-btn";
-			btn.disabled = true;
-		} else {
-			btn.className = "time-slot-btn" + (selectedTime === slot ? " selected" : "");
-			btn.addEventListener("click", function() {
-				selectedTime = slot;
-				renderTimeSlots();
-				updateSelectedAppointmentDisplay();
-			});
-		}
-
-		timeSlotsGrid.appendChild(btn);
-	}
-}
-
-// renders the day grid for calViewYear/calViewMonth
-const renderCalendar = function() {
-	firstOfMonth = new Date(calViewYear, calViewMonth, 1);
-	calMonthLabel.textContent = firstOfMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-
-	// grid starts on Monday, so figure out how many blank cells precede day 1
-	// (JS getDay(): Sun=0..Sat=6, shift so Mon=0..Sun=6)
-	leadingBlanks = (firstOfMonth.getDay() + 6) % 7;
-	daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
-
-	calDaysGrid.innerHTML = "";
-
-	for (let i = 0; i < leadingBlanks; i++) {
-		blank = document.createElement("div");
-		blank.className = "cal-day-cell";
-		calDaysGrid.appendChild(blank);
-	}
-
-	for (let day = 1; day <= daysInMonth; day++) {
-		let dateObj = new Date(calViewYear, calViewMonth, day);
-		let dateStr = formatDateStr(dateObj);
-		let isMonday = dateObj.getDay() === 1;
-		let isPast = dateObj < today;
-		let isManuallyBlocked = manuallyUnavailableDates.has(dateStr);
-
-		let cell = document.createElement("div");
-		cell.className = "cal-day-cell";
-
-		let dayEl;
-		if (isMonday || isPast || isManuallyBlocked) {
-			dayEl = document.createElement("span");
-			dayEl.className = "cal-day-disabled";
-			dayEl.textContent = day;
-		} else {
-			dayEl = document.createElement("button");
-			dayEl.type = "button";
-			dayEl.className = "cal-day" + (selectedDate === dateStr ? " selected" : "");
-			dayEl.textContent = day;
-			dayEl.addEventListener("click", function() {
-				selectedDate = dateStr;
-				selectedTime = null;
-				renderCalendar();
-				renderTimeSlots();
-				updateSelectedAppointmentDisplay();
-			});
-		}
-
-		cell.appendChild(dayEl);
-		calDaysGrid.appendChild(cell);
-	}
-
-	// don't allow navigating to months before the current one
-	calPrevBtn.disabled = (calViewYear === today.getFullYear() && calViewMonth === today.getMonth());
-}
-
-calPrevBtn.addEventListener("click", function() {
-	calViewMonth -= 1;
-	if (calViewMonth < 0) {
-		calViewMonth = 11;
-		calViewYear -= 1;
-	}
-	renderCalendar();
-});
-
-calNextBtn.addEventListener("click", function() {
-	calViewMonth += 1;
-	if (calViewMonth > 11) {
-		calViewMonth = 0;
-		calViewYear += 1;
-	}
-	renderCalendar();
-});
-
-renderCalendar();
-renderTimeSlots();
-
-// resets the calendar/time selection back to nothing and jumps back to the current month
+// This file handles form submission only. The boarding date-range UI and validation
+// are managed in /js/boarding_date_range.js so the start and end selections remain separate.
 const resetCalendarSelection = function() {
-	selectedDate = null;
-	selectedTime = null;
-	calViewYear = today.getFullYear();
-	calViewMonth = today.getMonth();
-	appointmentError.style.display = "none";
-	renderCalendar();
-	renderTimeSlots();
-	updateSelectedAppointmentDisplay();
-}
+	if (window.resetBoardingDateRange && typeof window.resetBoardingDateRange === "function") {
+		window.resetBoardingDateRange();
+	}
+
+	const startError = document.getElementById("start-appointment-error");
+	const endError = document.getElementById("end-appointment-error");
+	if (startError) startError.style.display = "none";
+	if (endError) endError.style.display = "none";
+};

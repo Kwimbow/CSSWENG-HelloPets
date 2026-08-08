@@ -227,6 +227,16 @@ const manuallyUnavailableSlots = {};
 
 const timeSlots = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
 
+const getCurrentTimeStr = function() {
+	return new Date().toTimeString().slice(0, 5);
+};
+
+const getTodayDateStr = function() {
+	const d = new Date();
+	d.setHours(0, 0, 0, 0);
+	return formatDateStr(d);
+};
+
 const calMonthLabel = document.getElementById("cal-month-label");
 const calPrevBtn = document.getElementById("cal-prev");
 const calNextBtn = document.getElementById("cal-next");
@@ -290,20 +300,25 @@ async function renderTimeSlots() {
 		return;
 	}
 
+	if (selectedDate === getTodayDateStr() && selectedTime && selectedTime <= getCurrentTimeStr()) {
+		selectedTime = null;
+	}
+
     const res = await fetch(`/api/slots/${selectedDate}`);
     const data = await res.json();
     slotData = data.slots;
 
 	for (const slot of timeSlots) {
-
         const matching = slotData.find((s) => s.time === slot);
 		const isUnavailable = matching && matching.status !== "open";
+		const isPastTime = selectedDate === getTodayDateStr() && slot <= getCurrentTimeStr();
+		const isDisabled = isUnavailable || isPastTime;
 
 		btn = document.createElement("button");
 		btn.type = "button";
 		btn.textContent = formatTimeLabel(slot);
 
-		if (isUnavailable) {
+		if (isDisabled) {
 			btn.className = "time-slot-btn";
 			btn.disabled = true;
 		} else {
@@ -317,6 +332,15 @@ async function renderTimeSlots() {
 
 		timeSlotsGrid.appendChild(btn);
 	}
+
+	const activeSlot = timeSlotsGrid.querySelector(".time-slot-btn.selected");
+	if (activeSlot) {
+		requestAnimationFrame(() => {
+			activeSlot.scrollIntoView({ block: "nearest", behavior: "auto" });
+		});
+	}
+
+	updateSelectedAppointmentDisplay();
 }
 
 // renders the day grid for calViewYear/calViewMonth
@@ -342,13 +366,15 @@ const renderCalendar = function() {
 		let dateStr = formatDateStr(dateObj);
 		let isMonday = dateObj.getDay() === 1;
 		let isPast = dateObj < today;
+		const todayDateStr = getTodayDateStr();
+		const allSlotsPassedToday = dateStr === todayDateStr && getCurrentTimeStr() >= timeSlots[timeSlots.length - 1];
 		let isManuallyBlocked = manuallyUnavailableDates.has(dateStr);
 
 		let cell = document.createElement("div");
 		cell.className = "cal-day-cell";
 
 		let dayEl;
-		if (isMonday || isPast || isManuallyBlocked) {
+		if (isMonday || isPast || isManuallyBlocked || allSlotsPassedToday) {
 			dayEl = document.createElement("span");
 			dayEl.className = "cal-day-disabled";
 			dayEl.textContent = day;

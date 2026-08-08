@@ -1,8 +1,6 @@
-/* Booking.css
-   Styles specific to the booking page (Booking.html). */
+/* Boarding.css
+   Styles specific to the boarding page (Boarding.html). */
 
-/* Steps 3-7 stay hidden until a pet type is chosen. display:contents lets
-   the wrapper's children act as direct grid items of #session-background. */
 #post-pet-type {
 	display: none;
 }
@@ -10,33 +8,6 @@
 #post-pet-type.visible {
 	display: contents;
 }
-
-/* Cat-specific service list (no pricing grid/description panel) */
-.cat-service-list {
-	display: flex;
-	flex-direction: column;
-	gap: 1.25rem;
-	padding: 2.5rem;
-}
-
-.cat-service-option {
-	align-items: flex-start;
-}
-
-.cat-service-text {
-	display: flex;
-	flex-direction: column;
-	gap: 0.35rem;
-}
-
-.cat-service-desc {
-	font-size: 0.85rem;
-	font-weight: 300;
-	color: #6b6b6b;
-	line-height: 1.3;
-}
-
-/* Booking APPT */
 
 #session-background{
 	background-color: #D9D9D9;
@@ -48,7 +19,6 @@
 	grid-template-columns: repeat(2, 1fr);
 	gap: 2rem;
 	align-content: start;
-
 }
 
 #session-header{
@@ -87,13 +57,13 @@
 	color: white;
 }
 
-#booking-summary {
+#boarding-summary {
 	font-weight: bold;
 	font-size: 1.2rem;
 	color: #1a1a1a;
 }
 
-#confirm-booking {
+#confirm-boarding {
 	background-color: #EE3A78;
 	color: white;
 	padding: 0.8rem 2rem;
@@ -103,17 +73,16 @@
 	transition: background-color 0.2s ease;
 }
 
-#confirm-booking:hover {
+#confirm-boarding:hover {
 	background-color: #d62d64;
 }
 
-/* Actual booking portion */
-/* for 1, 2, 5, 6 */
 .half-width{
 	grid-column: span 1;
+	width: 100%;
+	min-width: 0;
 }
 
-/* for 3 and 4 */
 .full-width{
 	grid-column: span 2;
 }
@@ -122,11 +91,14 @@
 	grid-column: span 2;
 }
 
-/* Sectioning */
 .step-card{
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
+}
+
+.step-card.full-width {
+	margin-top: 2rem;
 }
 
 .step-title{
@@ -150,7 +122,6 @@
 	font-size: 0.95rem;
 }
 
-/* Sectioning content */
 .card-content{
 	background-color: #FFFFFF;
 	border-radius: 25px;
@@ -173,7 +144,6 @@
 	gap: 0.5rem;
 }
 
-/* Label of text input*/
 .form-group label {
 	font-family: sans-serif;
 	font-size: 1rem;
@@ -197,7 +167,6 @@
 
 .styled-input:focus {
 	box-shadow: 0 0 5px 1px #EE3A78;
-
 }
 
 .size-notice-banner{
@@ -221,14 +190,13 @@
 	letter-spacing: 0.5px;
 	margin-bottom: 0.2rem;
 }
+
 .banner-subtext{
 	font-size: 0.95rem;
 	line-height: 1.25;
 	font-weight: 400;
 }
 
-
-/* CALENDAR */
 .calendar-widget {
 	padding: 1.75rem;
 	display: grid;
@@ -254,7 +222,8 @@
 	justify-content: space-between;
 }
 
-#cal-month-label {
+#start-cal-month-label,
+#end-cal-month-label {
 	font-weight: bold;
 	font-size: 1.05rem;
 	color: #1a1a1a;
@@ -293,7 +262,8 @@
 	font-weight: 600;
 }
 
-.calendar-days-grid {
+#start-cal-days-grid,
+#end-cal-days-grid {
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
 	gap: 0.3rem;
@@ -363,11 +333,6 @@
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
-	height: 260px;
-	max-height: 260px;
-	overflow-y: auto;
-	padding-right: 0.25rem;
-	box-sizing: border-box;
 }
 
 .time-slot-btn {
@@ -410,21 +375,33 @@
 	min-height: 1.2rem;
 }
 
+.pet-type-card,
+.dog-only,
+.cat-only {
+	height: 300px;
+}
 
-/* Dog or cat selection */
-.pet-type-card {
-    height: 300px;
+.pet-type-card .card-content,
+.dog-only .card-content,
+.cat-only .card-content {
+	height: 100%;
+	box-sizing: border-box;
 }
 
 .dog-cat-list{
 	display: flex;
+	align-items: center;
+	justify-content: center;
 	gap: 1rem;
 	width: 100%;
+	height: 100%;
 	box-sizing: border-box;
+	padding: 0;
 }
 
 .dog-cat-list .custom-radio{
 	flex: 1;
+	max-width: 100%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -439,54 +416,25 @@
 	background-color: transparent;
 	padding: 6px 30px;
 	font-weight: bold;
-	font-size: 2.2rem;
+	font-size: clamp(1.5rem, 2vw, 2.2rem);
 	border-radius: 4px;
 	text-align: center;
-	width: 20vw;
-
+	width: 100%;
+	max-width: 160px;
 }
 
 .pet-icon{
 	width: 100%;
-	max-width: 200px;
+	max-width: 180px;
 	height: auto;
 	object-fit: contain;
 	transition: filter 0.2s ease;
 }
 
 .dog-cat-list .custom-radio:has(input[type="radio"]:checked){
-	width: 90%;
+	width: 100%;
 	height: auto;
 	background-color: #ffcc00;
-}
-
-/* All Services */
-.service-selection-container{
-	display: grid;
-	grid-template-columns: 1fr 1.8fr;
-	gap: 2rem;
-	padding: 2.5rem;
-	align-items: center;
-}
-
-.addons-container, .alac-container{
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	gap: 1.5rem;
-	padding: 2.5rem;
-}
-
-.services-list, .addon-list {
-	display: flex;
-	flex-direction: column;
-	gap: 1.25rem;
-}
-
-.alac-list {
-	display: flex;
-	flex-direction: column;
-	gap: 0.7rem;
 }
 
 .custom-radio{
@@ -509,138 +457,52 @@
 	width: 0;
 }
 
-.custom-checkbox{
-	display: flex;
-	align-items: center;
-	gap: 1.2rem;
-	cursor: pointer;
-	font-family: sans-serif;
-	font-size: 1rem;
-	font-weight: 300;
-	color: #1a1a1a;
-	user-select: none;
-	width: 100%;
-}
-
-.custom-checkbox input{
-	position: absolute;
-	opacity: 0;
-	cursor: pointer;
-	height: 0;
-	width: 0;
-}
-
-.radio-circle{
-	height: 20px;
-	width: 20px;
-	background-color: #A0A0A0;
-	border-radius: 50%;
-	transition: border 0.2s ease;
-}
-
-.custom-radio input:checked ~ .radio-circle {
-	background-color: #EE3A78;
-	border: 2px solid #ffffff;
-	outline: 2px solid #EE3A78;
-}
-
-.checkbox-box{
-	height: 20px;
-	width: 20px;
-	background-color: #A0A0A0;
-	border-radius: 4px;
-	flex-shrink: 0;
-	transition: border 0.2s ease;
-}
-
-.custom-checkbox input:checked ~ .checkbox-box {
-	background-color: #EE3A78;
-	border: 2px solid #ffffff;
-	outline: 2px solid #EE3A78;
-}
-
-.service-details-box {
-	background-color: #EE3A78;
-	border-radius: 20px;
-	padding: 1.5rem;
-	color: white;
-	font-family: sans-serif;
-	display: flex;
-	flex-direction: column;
-	gap: 1.25rem;
-}
-
-.service-description{
-	font-size: 1.15rem;
-	font-weight: 400;
-	padding-left: 0.5rem;
-}
-
-.pricing-grid{
-	background-color: #DCDCDC;
-	border-radius: 4px;
-	display: grid;
-	grid-template-columns: repeat(5, 1fr);
-	padding: 1rem 0;
-	text-align: center;
-	color: #000000;
-}
-
-.pricing-grid-addons{
-	background-color: #DCDCDC;
-	border-radius: 4px;
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	padding: 1rem 0;
-	text-align: center;
-	color: #000000;
-}
-
-.price-tier{
-	display: flex;
-	flex-direction: column;
-	gap: 0.4rem;
-}
-
-.size-letter{
-	font-weight: 800;
-	font-size: 1.1rem;
-}
-
-.price-amount{
-	font-weight: 700;
-	font-size: 1.05rem;
-}
-
-.service-text-wrapper {
-	display: flex;
-	align-items: baseline;
-	flex-grow: 1;
-	gap: 0.5rem;
-}
-
-.service-name{
-	flex-shrink: 0;
-}
-
-.price-leader-line{
-	flex-grow: 1;
-	border-bottom: 2px dashed #1a1a1a;
-	position: relative;
-	top: -4px;
-}
-
-.ala-price{
-	flex-shrink: 0;
-}
-
-.required{
-	color: #e60000;
-}
-
-.imp-message{
+.imp-message {
 	color: #ff0000;
 	font-size: 1rem;
 	font-family: sans-serif;
 	font-weight: 300;
+}
+
+.required {
+	color: #EE3A78;
+}
+
+#start-appointment-error,
+#end-appointment-error {
+	display: none;
+	margin-top: 0.5rem;
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #EE3A78;
+}
+
+@media (max-width: 980px) {
+	#session-background {
+		grid-template-columns: 1fr;
+		padding: 1.5rem;
+	}
+
+	#session-header,
+	#session-footer,
+	.full-width,
+	.half-width {
+		grid-column: span 1;
+	}
+
+	.calendar-widget {
+		grid-template-columns: 1fr;
+	}
+
+	.time-slot-section {
+		border-left: none;
+		border-top: 1px solid #e0e0e0;
+		padding-left: 0;
+		padding-top: 1rem;
+	}
+
+	.info-form-grid,
+	.service-selection-container {
+		grid-template-columns: 1fr;
+	}
 }
