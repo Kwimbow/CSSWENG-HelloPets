@@ -119,6 +119,14 @@ app.get("/api/slots/:date", async (req, res) => {
   res.json({ success: true, slots });
 });
 
+// optimizing API call for mongodb connections, fetching monthly slots in 1 request
+app.get("/api/slots/month/:yearMonth", async (req, res) => {
+  const { yearMonth } = req.params;
+  const slots = await Slot.find({ date: { $regex: `^${yearMonth}` } });
+  res.json({ success: true, slots });
+});
+
+
 // admin endpoint, gets the slots + booking info
 app.get("/api/admin/slots/:date", adminAuthenticated, async (req, res) => {
   const { date } = req.params;
@@ -126,6 +134,14 @@ app.get("/api/admin/slots/:date", adminAuthenticated, async (req, res) => {
   const slots = await Slot.find({ date }).populate("booking");
   res.json({ success: true, slots });
 });
+
+// optimizing API call for mongodb connections, fetching monthly slots in 1 request
+app.get("/api/admin/slots/month/:yearMonth", adminAuthenticated, async (req, res) => {
+  const { yearMonth } = req.params;
+  const slots = await Slot.find({ date: { $regex: `^${yearMonth}` } }).populate("booking");
+  res.json({ success: true, slots });
+});
+
 
 // admin endpoint, gets the info for a specific slot
 app.get("/api/admin/slotinfo", adminAuthenticated, async (req, res) => {

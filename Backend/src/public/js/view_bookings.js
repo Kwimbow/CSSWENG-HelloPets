@@ -60,28 +60,16 @@ function parseSlotIntoBookings(slot) {
 // fetches all booked/blocked slots for every day in the given month
 async function fetchMonthBookings(year, month) {
   try {
-    bookings = {}; 
+    bookings = {};
 
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const formattedMonth = String(month + 1).padStart(2, "0");
+    const yearMonth = `${year}-${String(month + 1).padStart(2, "0")}`;
 
-    const dates = [];
-    for (let day = 1; day <= daysInMonth; day++) {
-      dates.push(`${year}-${formattedMonth}-${String(day).padStart(2, "0")}`);
+    const res = await fetch(`/api/admin/slots/month/${yearMonth}`);
+    const data = await res.json();
+
+    if (data.success && Array.isArray(data.slots)) {
+      data.slots.forEach(parseSlotIntoBookings);
     }
-
-    const responses = await Promise.all(
-      dates.map((date) => fetch(`/api/admin/slots/${date}`))
-    );
-    const results = await Promise.all(
-      responses.map((res) => res.json())
-    );
-
-    results.forEach((data) => {
-      if (data.success && Array.isArray(data.slots)) {
-        data.slots.forEach(parseSlotIntoBookings);
-      }
-    });
 
     renderCalendar();
     renderDayPanel();
@@ -89,8 +77,6 @@ async function fetchMonthBookings(year, month) {
     console.error("Failed to load bookings:", error);
   }
 }
-
-
 
 function dateKey(d) {
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
