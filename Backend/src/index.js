@@ -218,6 +218,16 @@ app.post("/submit-booking", async (req, res) => {
   }
 });
 
+app.get("/boarding", async (req, res) => {
+  res.sendFile(path.join(__dirname, "pages", "Boarding.html"));
+});
+
+app.post("/submit-boarding-booking", async (req, res) => {
+  console.log(req.body);
+  res.json({ success: true });
+});
+
+
 app.get("/admin", async (req, res) => {
   res.redirect("/admin/login");
 });
