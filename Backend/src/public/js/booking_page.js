@@ -60,7 +60,7 @@ dogServiceData = {
 	},
 	"special-cut": {
 		label: "Special Cut",
-		description: "Flat-rate service — pricing does not vary by pet size.",
+		description: "Get a special cut for your doggy!",
 		prices: { S: 150, M: 150, L: 150, XL: 150, XXL: 150 },
 	},
 };
