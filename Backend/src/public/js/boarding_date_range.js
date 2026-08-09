@@ -95,14 +95,17 @@
       return;
     }
 
-    let slotData = [];
+    // day-level boarding capacity (not per-hour like grooming's slots) - a
+    // single object for the whole day, or null for days with no slot at all
+    // (e.g. mondays)
+    let daySlot = null;
     try {
-      const res = await fetch(`/api/slots/${selectedDate}`);
+      const res = await fetch(`/api/boarding-slots/${selectedDate}`);
       const data = await res.json();
-      slotData = data.slots || [];
+      daySlot = data.slot;
     } catch (error) {
       const hint = document.createElement("div");
-      hint.textContent = "Unable to load time slots.";
+      hint.textContent = "Unable to load availability.";
       hint.style.cssText = "font-size:0.85rem;color:#9a9a9a;";
       grid.appendChild(hint);
       updateSummary(kind);
@@ -118,9 +121,13 @@
       selectedTime = null;
     }
 
+    // pet type isn't known yet at this step (it's picked after the calendar),
+    // so treat the day as unavailable only if it's manually blocked or has
+    // no room left for EITHER pet type - once pet type is known earlier in
+    // the flow this can check the specific type's remaining spots instead
+    const isDayUnavailable = !daySlot || daySlot.blocked || (daySlot.dogSpotsLeft <= 0 && daySlot.catSpotsLeft <= 0);
+
     for (const slot of timeSlots) {
-      const matching = slotData.find((entry) => entry.time === slot);
-      const isUnavailable = matching && matching.status !== "open";
       const isPastTime = selectedDate === getTodayDateStr() && slot <= getCurrentTimeStr();
       const isEndSameDayBeforeStart = kind === "end" && selectedDate === state.startDate && state.startTime && slot <= state.startTime;
       let isBeforeMinimumStay = false;
@@ -130,7 +137,7 @@
         isBeforeMinimumStay = minimumEndDateTime && new Date(`${selectedDate}T${slot}:00`) < minimumEndDateTime;
       }
 
-      const isDisabled = isUnavailable || isPastTime || isEndSameDayBeforeStart || isBeforeMinimumStay;
+      const isDisabled = isDayUnavailable || isPastTime || isEndSameDayBeforeStart || isBeforeMinimumStay;
 
       const btn = document.createElement("button");
       btn.type = "button";

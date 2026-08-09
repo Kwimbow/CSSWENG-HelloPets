@@ -19,6 +19,16 @@ const {
 } = require("./backend_js/ensure_slots");
 const Slot = require("./schemas/Slot");
 const Booking = require("./schemas/Booking");
+const {
+  ensureBoardingSlotExistsForDate,
+  ensureBoardingSlotsExistForRange,
+  getDateRangeInclusive,
+  hasBoardingCapacity,
+  claimBoardingDates,
+  releaseBoardingDates,
+} = require("./backend_js/ensure_boarding_slots");
+const BoardingSlot = require("./schemas/BoardingSlot");
+const BoardingBooking = require("./schemas/BoardingBooking");
 
 const app = express();
 app.use(express.static(path.join(__dirname, "public")));
@@ -94,6 +104,27 @@ app.get("/api/slots/:date", async (req, res) => {
   await ensureSlotsExistForDate(date);
   const slots = await Slot.find({ date });
   res.json({ success: true, slots });
+});
+
+// main user endpoint with no auth, gets a single boarding day's remaining capacity
+app.get("/api/boarding-slots/:date", async (req, res) => {
+  const { date } = req.params;
+  await ensureBoardingSlotExistsForDate(date);
+  const slot = await BoardingSlot.findOne({ date });
+
+  if (!slot) {
+    return res.json({ success: true, slot: null });
+  }
+
+  res.json({
+    success: true,
+    slot: {
+      date: slot.date,
+      blocked: slot.blocked,
+      dogSpotsLeft: Math.max(0, 9 - slot.dogCount),
+      catSpotsLeft: Math.max(0, 3 - slot.catCount),
+    },
+  });
 });
 
 // admin endpoint, gets the slots + booking info
@@ -223,10 +254,87 @@ app.get("/boarding", async (req, res) => {
 });
 
 app.post("/submit-boarding-booking", async (req, res) => {
-  console.log(req.body);
-  res.json({ success: true });
+  const { startDate, startTime, endDate, endTime, petSelection, ...bookingData } = req.body;
+
+  if (!startDate || !startTime || !endDate || !endTime) {
+    return res.json({ success: false, error: "Start and end date/time are required." });
+  }
+  if (petSelection !== "dog" && petSelection !== "cat") {
+    return res.json({ success: false, error: "petSelection must be 'dog' or 'cat'." });
+  }
+
+  const isAvailable = await hasBoardingCapacity(startDate, endDate, petSelection);
+  if (!isAvailable) {
+    return res.json({
+      success: false,
+      error: "One or more of the selected dates no longer have room available.",
+    });
+  }
+
+  try {
+    const booking = await BoardingBooking.create({
+      startDate,
+      startTime,
+      endDate,
+      endTime,
+      petSelection,
+      ...bookingData,
+    });
+
+    await claimBoardingDates(startDate, endDate, petSelection, booking._id);
+
+    res.json({ success: true, booking });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
 });
 
+// admin endpoint, gets a boarding day's full capacity info + every booking on that dy
+app.get("/api/admin/boarding-slots/:date", adminAuthenticated, async (req, res) => {
+  const { date } = req.params;
+  await ensureBoardingSlotExistsForDate(date);
+  const slot = await BoardingSlot.findOne({ date }).populate("bookings");
+  res.json({ success: true, slot });
+});
+
+// admin endpoint, block a boarding day
+// body: { date: "YYYY-MM-DD" }
+app.post("/api/admin/boarding-slots/block", adminAuthenticated, async (req, res) => {
+  const { date } = req.body;
+  if (!date) return res.json({ success: false, error: "date is required" });
+
+  await ensureBoardingSlotExistsForDate(date);
+
+  const result = await BoardingSlot.updateOne({ date }, { blocked: true });
+  res.json({ success: true, modified: result.modifiedCount });
+});
+
+// admin endpoint, unblock a boarding day
+// body: { date: "YYYY-MM-DD" }
+app.post("/api/admin/boarding-slots/unblock", adminAuthenticated, async (req, res) => {
+  const { date } = req.body;
+  if (!date) return res.json({ success: false, error: "date is required" });
+
+  const result = await BoardingSlot.updateOne({ date }, { blocked: false });
+  res.json({ success: true, modified: result.modifiedCount });
+});
+
+// admin endpoint, delete a specific boarding booking by ID and decrement dog/cat count
+// body: { bookingId: "..." }
+app.post("/api/admin/boarding-slots/deleteBooking", adminAuthenticated, async (req, res) => {
+  const { bookingId } = req.body;
+  if (!bookingId) return res.json({ success: false, error: "bookingId is required" });
+
+  const booking = await BoardingBooking.findById(bookingId);
+  if (!booking) {
+    return res.json({ success: false, error: "No boarding booking found with that ID." });
+  }
+
+  await releaseBoardingDates(booking.startDate, booking.endDate, booking.petSelection, booking._id);
+  await BoardingBooking.deleteOne({ _id: booking._id });
+
+  res.json({ success: true });
+});
 
 app.get("/admin", async (req, res) => {
   res.redirect("/admin/login");
