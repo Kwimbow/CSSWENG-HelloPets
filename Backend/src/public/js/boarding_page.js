@@ -11,24 +11,14 @@ inpPetBreed = document.getElementById("pet-breed");
 inpPetNameCat = document.getElementById("pet-name-cat");
 inpPetWeightCat = document.getElementById("pet-weight-cat");
 
-// STEP 4 SELECTED SERVICE (Dog layout 5 options, cat 2)
-radsSelectedService = document.getElementsByName("pet-service");
-radsSelectedServiceCat = document.getElementsByName("pet-service-cat");
-
-// STEP 5-6
-// checkboxes for add-ons (dematting, deshedding)
-chksAddOn = document.querySelectorAll(".addon-list input");
-// checkboxes for a la carte services
-chksALaCarte = document.querySelectorAll(".alac-list input");
-
-// STEP 7 CUSTOMER INFO
+// STEP 5 CUSTOMER INFO
 inpFirstName = document.getElementById("first-name");
 inpLastName = document.getElementById("last-name");
 inpEmail = document.getElementById("email");
 inpMobileNumber = document.getElementById("mobile");
 inpNotes = document.getElementById("optional-notes");
 
-btnConfirmBooking = document.getElementById("confirm-booking"); // actually a span
+btnConfirmBooking = document.getElementById("confirm-boarding"); // actually a span
 
 // Below is for dog and cat field selection, the rest of the steps are hidden until a pet type is selected
 // steps 3 & 4 swap between the dog layout and the cat layout
@@ -171,7 +161,6 @@ const clearForm = function() {
 
 	// checking the default option for radio buttons
 	checkRadioButton(radsPetSelection, "dog")
-	checkRadioButton(radsSelectedService, "essential-bath");
 	if (window.boardingDateRange && typeof window.boardingDateRange.reset === "function") {
 		window.boardingDateRange.reset();
 	} else {

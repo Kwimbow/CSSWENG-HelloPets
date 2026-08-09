@@ -255,6 +255,7 @@ app.get("/boarding", async (req, res) => {
 
 app.post("/submit-boarding-booking", async (req, res) => {
   const { startDate, startTime, endDate, endTime, petSelection, ...bookingData } = req.body;
+  console.log(req.body);
 
   if (!startDate || !startTime || !endDate || !endTime) {
     return res.json({ success: false, error: "Start and end date/time are required." });
