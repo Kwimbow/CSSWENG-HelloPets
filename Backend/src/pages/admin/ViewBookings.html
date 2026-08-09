@@ -39,7 +39,7 @@
         <div id="nav-space"></div>
 
         <!-- SALON BOOKINGS -->
-        <div id="bookings">
+        <div class="bookings">
 
             <div id="salon-bookings">
 
@@ -81,6 +81,49 @@
             </div>
         </div>
 
+
+        <div class="bookings redbg">
+            <div id="boarding-bookings">
+
+                <h1 class="booking-heading">Boarding Bookings</h1>
+
+                <div class="booking-layout">
+
+                    <!-- Calendar -->
+                    <div class="calendar-card">
+                        <div class="calendar-nav">
+                            <button class="cal-nav-btn" id="boardingPrevMonthBtn"><i class='bx bx-chevron-left'></i></button>
+                            <h3 id="boardingCalMonthLabel">May 2026</h3>
+                            <button class="cal-nav-btn" id="boardingNextMonthBtn"><i class='bx bx-chevron-right'></i></button>
+                        </div>
+                        <div class="calendar-grid-header">
+                            <span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                        </div>
+                        <div class="calendar-grid" id="boardingCalendarGrid">
+                            <!-- days injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Day detail panel -->
+                    <div class="day-detail-card">
+                        <div class="day-detail-header">
+                            <h3 id="boardingSelectedDateLabel">May 6 2026</h3>
+                        </div>
+
+                        <div class="bookings-list" id="boardingBookingsList">
+                            <!-- bookings injected by JS -->
+                        </div>
+
+                        <div class="block-time-box" id="boardingBlockDayBox">
+                            Block this day
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
         <script src="/js/view_bookings.js"></script>
+        <script src="/js/view_boarding_bookings.js"></script>
     </body>
 </html>

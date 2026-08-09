@@ -1,13 +1,15 @@
-#bookings {
+.bookings {
     display: flex;
     flex-direction: column;
     align-items: center;
     background-color: #28B9B2;
-    min-height: 100vh;
+    min-height: 80vh;
     width: 100%;
     box-sizing: border-box;
     padding: 3rem 4rem 5rem;
-
+}
+.redbg {
+    background-color: #EE3A78;
 }
 
 #salon-bookings {
@@ -446,4 +448,16 @@
 .booking-details-list {
     margin: 0.2rem 0 0.5rem;
     padding-left: 1.2rem;
+}
+
+#boarding-bookings {
+    background-color: #EE3A78;
+    width: 70%;
+    margin-top: 3rem;
+}
+
+.block-time-box.day-blocked {
+    background-color: #8a8a8a;
+    border-color: #8a8a8a;
+    color: #ffffff;
 }
