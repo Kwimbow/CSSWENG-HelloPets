@@ -1,5 +1,7 @@
 const express = require("express");
 const path = require("path");
+const { MongoStore } = require("connect-mongo");
+
 require("dotenv").config();
 // env file currently being used for the MONGODB URI so we can easily migrate to atlas
 // will also be used for the email and password to send confirmations
@@ -11,7 +13,6 @@ adminUsername = process.env.ADMIN_USERNAME || "admin";
 adminPassword = process.env.ADMIN_PASSWORD || "123456";
 
 const connectDB = require("./backend_js/db");
-connectDB();
 
 const {
   ensureSlotsExistForDate,
@@ -31,6 +32,19 @@ const BoardingSlot = require("./schemas/BoardingSlot");
 const BoardingBooking = require("./schemas/BoardingBooking");
 
 const app = express();
+
+app.set("trust proxy", 1);
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ error: "Database connection failed" });
+  }
+});
+
+
 app.use(express.static(path.join(__dirname, "public")));
 
 // middleware for parsing requests
@@ -40,9 +54,18 @@ app.use(fileUpload());
 
 app.use(
   session({
-    secret: "secret-key",
+    secret: "secret-key", // TODO (2026-08-08) migrate to env variable
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+      collectionName: "sessions",
+    }),
+    cookie: {
+      secure: true,
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24, 
+    },
   }),
 );
 
@@ -127,6 +150,14 @@ app.get("/api/boarding-slots/:date", async (req, res) => {
   });
 });
 
+// optimizing API call for mongodb connections, fetching monthly slots in 1 request
+app.get("/api/slots/month/:yearMonth", async (req, res) => {
+  const { yearMonth } = req.params;
+  const slots = await Slot.find({ date: { $regex: `^${yearMonth}` } });
+  res.json({ success: true, slots });
+});
+
+
 // admin endpoint, gets the slots + booking info
 app.get("/api/admin/slots/:date", adminAuthenticated, async (req, res) => {
   const { date } = req.params;
@@ -134,6 +165,14 @@ app.get("/api/admin/slots/:date", adminAuthenticated, async (req, res) => {
   const slots = await Slot.find({ date }).populate("booking");
   res.json({ success: true, slots });
 });
+
+// optimizing API call for mongodb connections, fetching monthly slots in 1 request
+app.get("/api/admin/slots/month/:yearMonth", adminAuthenticated, async (req, res) => {
+  const { yearMonth } = req.params;
+  const slots = await Slot.find({ date: { $regex: `^${yearMonth}` } }).populate("booking");
+  res.json({ success: true, slots });
+});
+
 
 // admin endpoint, gets the info for a specific slot
 app.get("/api/admin/slotinfo", adminAuthenticated, async (req, res) => {
@@ -361,7 +400,15 @@ app.post("/admin/login", async (req, res) => {
 
   if (username === adminUsername && password === adminPassword) {
     req.session.admin = true;
+    req.session.save((err) => {
+    if (err) {
+        console.error("Session save error:", err);
+        return res
+        .status(500)
+        .json({ success: false, error: "Session save failed" });
+    }
     res.json({ success: true });
+    });
   } else {
     res.status(422).send("Incorrect username/password");
   }
