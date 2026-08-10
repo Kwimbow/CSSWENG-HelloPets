@@ -1,5 +1,7 @@
 const express = require("express");
 const path = require("path");
+const nodemailer = require("nodemailer");
+const dotenv = require("dotenv/config");
 const { MongoStore } = require("connect-mongo");
 
 require("dotenv").config();
@@ -62,9 +64,9 @@ app.use(
       collectionName: "sessions",
     }),
     cookie: {
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24, 
+      maxAge: 1000 * 60 * 60 * 24,
     },
   }),
 );
@@ -118,7 +120,7 @@ app.get("/landing-page-edits", async (req, res) => {
 });
 
 app.get("/booking", async (req, res) => {
-  res.sendFile(path.join(__dirname, "pages", "Booking.html"));
+    res.sendFile(path.join(__dirname, "pages", "Booking.html"))
 });
 
 // main user endpoint with no auth, just gets the slots and their availability
@@ -257,9 +259,6 @@ app.post("/api/admin/slots/deleteAppointment", adminAuthenticated, async (req, r
 
 app.post("/submit-booking", async (req, res) => {
   const { appointmentDate, appointmentTime, ...bookingData } = req.body;
-  console.log("Date: " + appointmentDate);
-  console.log("Time: " + appointmentTime);
-  console.log(bookingData);
 
   const slot = await Slot.findOneAndUpdate(
     { date: appointmentDate, time: appointmentTime, status: "open" },
@@ -278,13 +277,15 @@ app.post("/submit-booking", async (req, res) => {
     const booking = await Booking.create(bookingData);
     slot.booking = booking._id;
     await slot.save();
-    res.json({ success: true, booking });
+    await sendEmail(appointmentDate, appointmentTime, bookingData);
+    res.status(200);
   } catch (err) {
     // booking creation failed after slot was claimed, reset slot to open
     slot.status = "open";
     slot.booking = null;
     await slot.save();
-    res.json({ success: false, error: err.message });
+    console.log("Error with booking: " + err);    
+    res.status(500).json({ success: false, error: "Internal server error" });
   }
 });
 
@@ -512,5 +513,79 @@ app.get("/admin/view_bookings", adminAuthenticated, async (req, res) => {
 
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`Server running at port ${PORT}`);
+    console.log(`Server running at port ${PORT}`);
 });
+
+async function sendEmail(appointmentDate, appointmentTime, bookingData) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_PASS,
+    },
+  });
+
+  const {
+    selectedService,
+    addOnServices,
+    aLaCarteServices,
+    petName,
+    customer: { firstName, lastName, email },
+  } = bookingData;
+
+  const addOnServicesHTML = (addOnServices || [])
+    .map(
+      (service) => `
+      <li style="padding: 8px 0; border-bottom: 1px solid #eaeaea; list-style-type: none; color: #333333;">
+        • ${service}
+      </li>
+    `,
+    )
+    .join("");
+
+  const aLaCarteServicesHTML = (aLaCarteServices || [])
+    .map(
+      (service) => `
+      <li style="padding: 8px 0; border-bottom: 1px solid #eaeaea; list-style-type: none; color: #333333;">
+        • ${service}
+      </li>
+    `,
+    )
+    .join("");
+
+
+  // TODO (2026-08-10) proper email styling, plus the HTML gen here is outdated since addOnServices now have both name and severity
+  // also map services to human-readable service names instead of internal naming
+  
+  const dateOptions = { year: "numeric", month: "long", day: "numeric" };
+  const date = new Date(appointmentDate).toLocaleDateString(
+    "en-US",
+    dateOptions,
+  );
+
+  const mailOptions = {
+    from: `"Hello Pets PH" <${process.env.GMAIL_USER}>`,
+    to: email,
+    subject: "Your Appointment Confirmation",
+    html: `
+      <h1>Hi ${firstName},</h1>
+      <p>Your appointment has successfully been scheduled for ${appointmentTime}, ${date}!</p>
+      <p>We look forward to taking care of ${petName}!</p> 
+      
+      <h3 style="border-bottom: 2px solid #4A90E2; padding-bottom: 8px; color: #333333;">Your Selected Services:</h3>
+      <p><strong>Main Service:</strong> ${selectedService}</p>
+      
+      <p><strong>Add-on Services</strong></p>
+      <ul style="padding-left: 0; margin-top: 10px;">
+        ${addOnServicesHTML || "<li>None</li>"}
+      </ul>
+      
+      <p><strong>Ala Carte Services</strong></p>
+      <ul style="padding-left: 0; margin-top: 10px;">
+        ${aLaCarteServicesHTML || "<li>None</li>"}
+      </ul>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
