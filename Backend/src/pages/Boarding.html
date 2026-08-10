@@ -223,6 +223,60 @@
 
 			</div> <!-- #post-pet-type -->
 
+			<!-- modal for booking summary -->
+			<div id="summary-modal-overlay" class="modal-overlay">
+				<div class="modal-box">
+					<div class="modal-header">
+						<h2>Boarding Summary</h2>
+						<span id="summary-modal-close" class="modal-close-btn">&times;</span>
+					</div>
+
+					<div class="modal-body">
+						<div class="summary-section">
+							<div class="summary-section-title">Customer Information</div>
+							<div class="summary-row"><span>Name</span><span id="summary-customer-name"></span></div>
+							<div class="summary-row"><span>Email</span><span id="summary-customer-email"></span></div>
+							<div class="summary-row"><span>Mobile</span><span id="summary-customer-mobile"></span></div>
+						</div>
+
+						<div class="summary-section">
+							<div class="summary-section-title">Pet Information</div>
+							<div class="summary-row"><span>Pet Type</span><span id="summary-pet-type"></span></div>
+							<div class="summary-row"><span>Pet Name</span><span id="summary-pet-name"></span></div>
+							<div class="summary-row"><span>Weight</span><span id="summary-pet-weight"></span></div>
+							<div class="summary-row" id="summary-pet-breed-row"><span>Breed</span><span id="summary-pet-breed"></span></div>
+							<div class="summary-row" id="summary-pet-size-row"><span>Estimated Size</span><span id="summary-pet-size"></span></div>
+						</div>
+
+						<div class="summary-section">
+							<div class="summary-section-title">Boarding Details</div>
+							<div class="summary-row"><span>Check-in</span><span id="summary-checkin"></span></div>
+							<div class="summary-row"><span>Check-out</span><span id="summary-checkout"></span></div>
+							<div class="summary-row"><span>Nights</span><span id="summary-nights"></span></div>
+						</div>
+
+						<div class="summary-section">
+							<div class="summary-section-title">Pricing</div>
+							<div id="summary-services-list" class="summary-services-list"></div>
+						</div>
+
+						<div class="summary-total-row">
+							<span>Total Estimated Amount</span>
+							<span id="summary-total-amount"></span>
+						</div>
+
+						<div class="summary-disclaimer">
+							Pet size is still subject to inspection on drop-off. The actual price to pay may vary.
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<span id="summary-cancel-btn" class="modal-btn modal-btn-secondary">Back to Form</span>
+						<span id="summary-confirm-btn" class="modal-btn modal-btn-primary">Confirm &amp; Submit</span>
+					</div>
+				</div>
+			</div>
+
 		</div>
 	</body>
 </html>

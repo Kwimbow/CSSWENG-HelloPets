@@ -34,6 +34,23 @@ allInputs = document.querySelectorAll("input");
 allTextInputs = document.querySelectorAll("input[type='text'], input[type='email']");
 allCheckboxInputs = document.querySelectorAll("input[type='checkbox']");
 
+petSizeTiers = [
+	{ minWeight: 0, maxWeight: 7, letter: "S", label: "Small" },
+	{ minWeight: 7, maxWeight: 15, letter: "M", label: "Medium" },
+	{ minWeight: 15, maxWeight: 25, letter: "L", label: "Large" },
+	{ minWeight: 25, maxWeight: 35, letter: "XL", label: "Extra Large" },
+	{ minWeight: 35, maxWeight: Infinity, letter: "XXL", label: "Extra Extra Large" },
+];
+
+// boarding rate per night
+boardingRatesPerNight = { S: 700, M: 750, L: 850, XL: 1000, XXL: 1100 };
+
+// summary modal elements
+summaryModalOverlay = document.getElementById("summary-modal-overlay");
+btnSummaryModalClose = document.getElementById("summary-modal-close");
+btnSummaryCancel = document.getElementById("summary-cancel-btn");
+btnSummaryConfirm = document.getElementById("summary-confirm-btn");
+
 // accepts a collection of radio buttons and returns the value of the selected one
 const getRadioButtonsValue = function(radButtons) {
 	for (const btn of radButtons) {
@@ -91,6 +108,27 @@ const verifyForm = function() {
 		}
 	}
 	return true;
+}
+
+// returns the size for a given weight
+const getPetSizeFromWeight = function(weightStr) {
+	weightNum = parseFloat(weightStr);
+	if (isNaN(weightNum) || weightNum <= 0) {
+		return null;
+	}
+	for (const tier of petSizeTiers) {
+		if (weightNum >= tier.minWeight && weightNum < tier.maxWeight) {
+			return tier;
+		}
+	}
+	return petSizeTiers[petSizeTiers.length - 1];
+}
+
+// calendar-day difference between two "YYYY-MM-DD" strings (not lookign at actual time diff, just days)
+const computeNights = function(startDateStr, endDateStr) {
+	startDay = new Date(`${startDateStr}T00:00:00`);
+	endDay = new Date(`${endDateStr}T00:00:00`);
+	return Math.round((endDay - startDay) / (24 * 60 * 60 * 1000));
 }
 
 // accepts a group of radio buttons and a value
@@ -202,10 +240,12 @@ const buildBookingObj = function() {
 const submitForm = async function() {
 	isValid = verifyForm();
 	if (!isValid) {
+		closeSummaryModal();
 		return;
 	}
 
 	payloadObj = buildBookingObj();
+	console.log(payloadObj);
 
 	const response = await fetch("/submit-boarding-booking", {
 		method: "POST",
@@ -220,6 +260,7 @@ const submitForm = async function() {
 
 	if (success) {
 		alert("Form successfully submitted.");
+		closeSummaryModal();
 		clearForm();
 		goBackHome();
 	} else {
@@ -227,7 +268,98 @@ const submitForm = async function() {
 	}
 }
 
-btnConfirmBooking.addEventListener("click", submitForm);
+const openSummaryModal = function() {
+	summaryModalOverlay.classList.add("visible");
+}
+
+const closeSummaryModal = function() {
+	summaryModalOverlay.classList.remove("visible");
+}
+
+// fills in the summary modal from the current form state and totals up the price
+const renderBookingSummary = function() {
+	petSelection = getRadioButtonsValue(radsPetSelection);
+	isDogSelected = petSelection === "dog";
+
+	document.getElementById("summary-customer-name").textContent = `${inpFirstName.value} ${inpLastName.value}`;
+	document.getElementById("summary-customer-email").textContent = inpEmail.value;
+	document.getElementById("summary-customer-mobile").textContent = inpMobileNumber.value;
+
+	document.getElementById("summary-pet-type").textContent = isDogSelected ? "Dog" : "Cat";
+	document.getElementById("summary-pet-name").textContent = isDogSelected ? inpPetName.value : inpPetNameCat.value;
+
+	weightVal = isDogSelected ? inpPetWeight.value : inpPetWeightCat.value;
+	document.getElementById("summary-pet-weight").textContent = `${weightVal} kg`;
+
+	breedRow = document.getElementById("summary-pet-breed-row");
+	if (isDogSelected) {
+		breedRow.style.display = "";
+		document.getElementById("summary-pet-breed").textContent = inpPetBreed.value;
+	} else {
+		breedRow.style.display = "none";
+	}
+
+	sizeRow = document.getElementById("summary-pet-size-row");
+	if (isDogSelected) {
+		sizeRow.style.display = "";
+		tier = getPetSizeFromWeight(weightVal);
+		document.getElementById("summary-pet-size").textContent = tier ? `${tier.label} (${tier.letter})` : "Not yet determined";
+	} else {
+		// cats are always charged the flat "Small" boarding rate, regardless of weight
+		sizeRow.style.display = "none";
+		tier = petSizeTiers[0];
+	}
+
+	const boardingRange = window.boardingDateRange;
+	document.getElementById("summary-checkin").textContent =
+		(boardingRange.startDate && boardingRange.startTime) ? `${boardingRange.startDate} at ${boardingRange.startTime}` : "Not selected";
+	document.getElementById("summary-checkout").textContent =
+		(boardingRange.endDate && boardingRange.endTime) ? `${boardingRange.endDate} at ${boardingRange.endTime}` : "Not selected";
+
+	nights = (boardingRange.startDate && boardingRange.endDate) ? computeNights(boardingRange.startDate, boardingRange.endDate) : 0;
+	document.getElementById("summary-nights").textContent = nights > 0 ? `${nights}` : "Not yet determined";
+
+	servicesListEl = document.getElementById("summary-services-list");
+	servicesListEl.innerHTML = "";
+	totalAmount = 0;
+
+	const addSummaryLine = function(label, amount) {
+		row = document.createElement("div");
+		row.className = "summary-row";
+
+		nameSpan = document.createElement("span");
+		nameSpan.textContent = label;
+
+		priceSpan = document.createElement("span");
+		priceSpan.textContent = (amount === null) ? "TBD" : `₱${amount.toLocaleString()}`;
+
+		row.appendChild(nameSpan);
+		row.appendChild(priceSpan);
+		servicesListEl.appendChild(row);
+
+		if (amount !== null) {
+			totalAmount += amount;
+		}
+	}
+
+	ratePerNight = tier ? boardingRatesPerNight[tier.letter] : null;
+	addSummaryLine(tier ? `Rate (${tier.letter}) x ${nights} night${nights === 1 ? "" : "s"}` : "Boarding rate", (ratePerNight && nights > 0) ? ratePerNight * nights : null);
+
+	document.getElementById("summary-total-amount").textContent = `₱${totalAmount.toLocaleString()}`;
+}
+
+btnConfirmBooking.addEventListener("click", function() {
+	isValid = verifyForm();
+	if (!isValid) {
+		return;
+	}
+	renderBookingSummary();
+	openSummaryModal();
+});
+
+btnSummaryModalClose.addEventListener("click", closeSummaryModal);
+btnSummaryCancel.addEventListener("click", closeSummaryModal);
+btnSummaryConfirm.addEventListener("click", submitForm);
 
 
 // This file handles form submission only. The boarding date-range UI and validation
