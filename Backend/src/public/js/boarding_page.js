@@ -72,6 +72,48 @@ const getCheckboxesValue = function(chkButtons) {
 	return checkedArr;
 }
 
+// renders the "Boarding Rates" visual table
+const renderBoardingRateTable = function() {
+	const container = document.getElementById("boarding-rate-table");
+	if (!container) return;
+
+	container.innerHTML = "";
+
+	const header = document.createElement("div");
+	header.className = "rate-table-row rate-table-header";
+	header.innerHTML = "<span>Size</span><span>Weight Range</span><span>Rate / Night</span>";
+	container.appendChild(header);
+
+	for (const tier of petSizeTiers) {
+		const row = document.createElement("div");
+		row.className = "rate-table-row";
+
+		const rangeLabel = tier.maxWeight === Infinity
+			? `${tier.minWeight}kg and up`
+			: `${tier.minWeight}–${tier.maxWeight}kg`;
+
+		row.innerHTML = `
+			<span>${tier.label} (${tier.letter})</span>
+			<span>${rangeLabel}</span>
+			<span>₱${boardingRatesPerNight[tier.letter].toLocaleString()}</span>
+		`;
+		container.appendChild(row);
+	}
+
+	// cats are always billed at the flat Small rate, regardless of weight (see renderBookingSummary below)
+	const catTier = petSizeTiers[0];
+	const catRow = document.createElement("div");
+	catRow.className = "rate-table-row";
+	catRow.innerHTML = `
+		<span>Cat (flat rate)</span>
+		<span>Any weight</span>
+		<span>₱${boardingRatesPerNight[catTier.letter].toLocaleString()}</span>
+	`;
+	container.appendChild(catRow);
+}
+
+renderBoardingRateTable();
+
 // verifies form elements (like required inputs, as well as email formatting)
 // returns true if form inputs are valid
 const verifyForm = function() {

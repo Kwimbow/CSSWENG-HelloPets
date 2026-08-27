@@ -56,6 +56,21 @@
 				<p>Book a Pet Boarding Stay</p>
 			</div>
 
+			<!-- BOARDING RATES -->
+			<div class="step-card full-width">
+				<div class="step-title">
+					<i class='bx bxs-coin-stack'></i> Boarding Rates
+				</div>
+				<div class="card-content">
+					<div class="rate-card-content">
+						<div id="boarding-rate-table" class="rate-table"></div>
+						<div class="rate-table-note">
+							Rate is based on your pet's size and number of nights. Cats are always billed at the flat Small rate, regardless of weight. Final size is confirmed on drop-off.
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<!-- CALENDAR -->
 			<div class="step-card half-width">
 				<div class="step-title">
@@ -138,48 +153,59 @@
 			<!-- all fields below only show after pet type is selected -->
 			<div id="post-pet-type">
 
-				<!-- PET INFORMATION - DOG-->
-				<div class="step-card half-width dog-only" style="display:none;">
-					<div class="step-title">
-						<span class="step-num">4</span> Pet Information
-					</div>
+	<!-- PET INFORMATION - DOG-->
+	<div class="step-card half-width dog-only" style="display:none;">
+		<div class="step-title">
+			<span class="step-num">3</span> Pet Information
+		</div>
 
-					<div class="card-content info-form-grid">
-						<div class="form-group">
-							<label for="pet-name">Pet Name <span class="required"> *</span></label>
-							<input type="text" id="pet-name" class="styled-input" required>
-						</div>
+		<div class="card-content info-form-grid">
+			<div class="form-group">
+				<label for="pet-name">Pet Name <span class="required"> *</span></label>
+				<input type="text" id="pet-name" class="styled-input" required>
+			</div>
 
-						<div class="form-group">
-							<label for="pet-weight">Last Recorded Weight <span class="required"> *</span></label>
-							<input type="text" id="pet-weight" class="styled-input" required>
-						</div>
+			<div class="form-group">
+				<label for="pet-weight">Last Recorded Weight <span class="required"> *</span></label>
+				<input type="text" id="pet-weight" class="styled-input" required>
+			</div>
 
-						<div class="form-group">
-							<label for="pet-breed">Dog Breed <span class="required"> *</span></label>
-							<input type="text" id="pet-breed" class="styled-input" required>
-						</div>
-					</div>
-				</div>
+			<div class="form-group">
+				<label for="pet-breed">Dog Breed <span class="required"> *</span></label>
+				<input type="text" id="pet-breed" class="styled-input" required>
+			</div>
 
-				<!-- PET INFORMATION - CAT -->
-				<div class="step-card half-width cat-only" style="display:none;">
-					<div class="step-title">
-						<span class="step-num">4</span> Pet Information
-					</div>
+			<div class="size-notice-banner" id="pet-size-banner" style="display:none;">
+				<div class="banner-title">Estimated size: <span id="pet-size-value"></span></div>
+				<div class="banner-subtext">Nightly rate: <span id="pet-size-rate"></span>. Pet size is still subject to assessment on drop-off.</div>
+			</div>
+		</div>
+	</div>
 
-					<div class="card-content info-form-grid">
-						<div class="form-group">
-							<label for="pet-name-cat">Pet Name <span class="required"> *</span></label>
-							<input type="text" id="pet-name-cat" class="styled-input" required>
-						</div>
+	<!-- PET INFORMATION - CAT -->
+	<div class="step-card half-width cat-only" style="display:none;">
+		<div class="step-title">
+			<span class="step-num">3</span> Pet Information
+		</div>
 
-						<div class="form-group">
-							<label for="pet-weight-cat">Last Recorded Weight <span class="required"> *</span></label>
-							<input type="text" id="pet-weight-cat" class="styled-input" required>
-						</div>
-					</div>
-				</div>
+		<div class="card-content info-form-grid">
+			<div class="form-group">
+				<label for="pet-name-cat">Pet Name <span class="required"> *</span></label>
+				<input type="text" id="pet-name-cat" class="styled-input" required>
+			</div>
+
+			<div class="form-group">
+				<label for="pet-weight-cat">Last Recorded Weight <span class="required"> *</span></label>
+				<input type="text" id="pet-weight-cat" class="styled-input" required>
+			</div>
+
+			<div class="size-notice-banner">
+				<div class="banner-title">Boarding rate: <span id="cat-flat-rate"></span> / night</div>
+				<div class="banner-subtext">Cats are billed at a flat rate, regardless of weight.</div>
+			</div>
+		</div>
+	</div>
+
 
 
 				<!-- CUSTOMER INFO -->

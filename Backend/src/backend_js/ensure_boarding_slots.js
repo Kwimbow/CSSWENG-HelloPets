@@ -1,7 +1,7 @@
 const BoardingSlot = require("../schemas/BoardingSlot");
 
-const MAX_DOGS_PER_DAY = 9;
-const MAX_CATS_PER_DAY = 3;
+// shared cap across dogs and cats combined - the day just has 10 spots, regardless of species
+const MAX_ANIMALS_PER_DAY = 10;
 
 // either creates the boarding slot for a date or leaves it alone if it exists already
 async function ensureBoardingSlotExistsForDate(dateStr) {
@@ -11,7 +11,7 @@ async function ensureBoardingSlotExistsForDate(dateStr) {
 	}
 	await BoardingSlot.updateOne(
 		{ date: dateStr },
-		{ $setOnInsert: { date: dateStr, dogCount: 0, catCount: 0, blocked: false } },
+		{ $setOnInsert: { date: dateStr, animalCount: 0, blocked: false } },
 		{ upsert: true },
 	);
 }
@@ -41,7 +41,7 @@ function getDateRangeInclusive(startDateStr, endDateStr) {
 	return dates;
 }
 
-// checks whether every day in [startDateStr, endDateStr] has room for one more pet of the given type, and isn't manually blocked
+// checks whether every day in [startDateStr, endDateStr] has room for one more animal, and isn't manually blocked
 async function hasBoardingCapacity(startDateStr, endDateStr, petType) {
 	await ensureBoardingSlotsExistForRange(startDateStr, endDateStr);
 	const dates = getDateRangeInclusive(startDateStr, endDateStr);
@@ -51,31 +51,26 @@ async function hasBoardingCapacity(startDateStr, endDateStr, petType) {
 		return false;
 	}
 
-	const maxForType = petType === "dog" ? MAX_DOGS_PER_DAY : MAX_CATS_PER_DAY;
-	const countField = petType === "dog" ? "dogCount" : "catCount";
-
-	return slots.every((slot) => !slot.blocked && slot[countField] < maxForType);
+	return slots.every((slot) => !slot.blocked && slot.animalCount < MAX_ANIMALS_PER_DAY);
 }
 
-// increments the pet-type count on every day in the range and links the booking to each of those slots
+// increments the combined animal count on every day in the range and links the booking to each of those slots
 async function claimBoardingDates(startDateStr, endDateStr, petType, bookingId) {
 	const dates = getDateRangeInclusive(startDateStr, endDateStr);
-	const countField = petType === "dog" ? "dogCount" : "catCount";
 
 	await BoardingSlot.updateMany(
 		{ date: { $in: dates } },
-		{ $inc: { [countField]: 1 }, $push: { bookings: bookingId } },
+		{ $inc: { animalCount: 1 }, $push: { bookings: bookingId } },
 	);
 }
 
 // reverses claimBoardingDates used when a boarding booking is deleted
 async function releaseBoardingDates(startDateStr, endDateStr, petType, bookingId) {
 	const dates = getDateRangeInclusive(startDateStr, endDateStr);
-	const countField = petType === "dog" ? "dogCount" : "catCount";
 
 	await BoardingSlot.updateMany(
 		{ date: { $in: dates } },
-		{ $inc: { [countField]: -1 }, $pull: { bookings: bookingId } },
+		{ $inc: { animalCount: -1 }, $pull: { bookings: bookingId } },
 	);
 }
 
@@ -86,6 +81,5 @@ module.exports = {
 	hasBoardingCapacity,
 	claimBoardingDates,
 	releaseBoardingDates,
-	MAX_DOGS_PER_DAY,
-	MAX_CATS_PER_DAY,
+	MAX_ANIMALS_PER_DAY,
 };

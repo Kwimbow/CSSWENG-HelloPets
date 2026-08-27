@@ -120,12 +120,7 @@
       }
       selectedTime = null;
     }
-
-    // pet type isn't known yet at this step (it's picked after the calendar),
-    // so treat the day as unavailable only if it's manually blocked or has
-    // no room left for EITHER pet type - once pet type is known earlier in
-    // the flow this can check the specific type's remaining spots instead
-    const isDayUnavailable = !daySlot || daySlot.blocked || (daySlot.dogSpotsLeft <= 0 && daySlot.catSpotsLeft <= 0);
+    const isDayUnavailable = !daySlot || daySlot.blocked || daySlot.spotsLeft <= 0;
 
     for (const slot of timeSlots) {
       const isPastTime = selectedDate === getTodayDateStr() && slot <= getCurrentTimeStr();

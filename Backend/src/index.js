@@ -30,6 +30,7 @@ const {
   hasBoardingCapacity,
   claimBoardingDates,
   releaseBoardingDates,
+  MAX_ANIMALS_PER_DAY,
 } = require("./backend_js/ensure_boarding_slots");
 const BoardingSlot = require("./schemas/BoardingSlot");
 const BoardingBooking = require("./schemas/BoardingBooking");
@@ -147,8 +148,7 @@ app.get("/api/boarding-slots/:date", async (req, res) => {
     slot: {
       date: slot.date,
       blocked: slot.blocked,
-      dogSpotsLeft: Math.max(0, 9 - slot.dogCount),
-      catSpotsLeft: Math.max(0, 3 - slot.catCount),
+      spotsLeft: Math.max(0, MAX_ANIMALS_PER_DAY - slot.animalCount),
     },
   });
 });
