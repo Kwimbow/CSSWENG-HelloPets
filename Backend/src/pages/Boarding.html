@@ -56,196 +56,152 @@
 				<p>Book a Pet Boarding Stay</p>
 			</div>
 
-			<!-- BOARDING RATES -->
+		<!-- CALENDAR -->
+		<div class="step-card half-width">
+			<div class="step-title">
+				<span class="step-num">1</span> Pick your stay dates & times <span class="imp-message">(Minimum of 24 hours stay required)</span>
+			</div>
+			<div class="card-content">
+				<div class="boarding-range-widget">
+					<div class="calendar-col">
+						<div class="calendar-header">
+							<button type="button" id="range-cal-prev" class="cal-nav-btn" aria-label="Previous month">&#10094;</button>
+							<span id="range-cal-month-label"></span>
+							<button type="button" id="range-cal-next" class="cal-nav-btn" aria-label="Next month">&#10095;</button>
+						</div>
+						<div class="calendar-weekdays">
+							<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+						</div>
+						<div id="range-cal-days-grid" class="calendar-days-grid"></div>
+					</div>
+
+					<div class="time-slot-section" id="range-time-panel">
+						<div class="time-slot-label" id="range-time-panel-label">Check-in time</div>
+						<div id="range-time-slots-grid" class="time-slots-grid"></div>
+						<div id="range-selected-summary" class="selected-appointment-display"></div>
+					</div>
+				</div>
+				<div id="start-appointment-error" class="imp-message" style="display:none;">Please select a boarding start date and time.</div>
+				<div id="end-appointment-error" class="imp-message" style="display:none;">Please select a boarding end date and time.</div>
+			</div>
+		</div>
+
+		<!-- DOG OR CAT -->
+		<div class="step-card half-width pet-type-card">
+			<div class="step-title">
+				<span class="step-num">2</span> Pet Type
+			</div>
+			<div class="card-content">
+				<div class="dog-cat-list">
+					<label class="custom-radio">
+						<input type="radio" name="pet-selection" value="dog" checked>
+						<span class="pet-label-text">DOG</span>
+						<img src="/Pics/dog.png" alt="Dog Icon" class="pet-icon">
+					</label>
+
+					<label class="custom-radio">
+						<input type="radio" name="pet-selection" value="cat">
+						<span class="pet-label-text">CAT</span>
+						<img src="/Pics/cat.png" alt="Cat Icon" class="pet-icon">
+					</label>
+				</div>
+			</div>
+		</div>
+
+		<!-- all fields below only show after pet type is selected -->
+		<div id="post-pet-type">
+
+			<!-- PET INFORMATION - DOG-->
+			<div class="step-card half-width dog-only" style="display:none;">
+				<div class="step-title">
+					<span class="step-num">3</span> Pet Information
+				</div>
+
+				<div class="card-content info-form-grid">
+					<div class="form-group">
+						<label for="pet-name">Pet Name <span class="required"> *</span></label>
+						<input type="text" id="pet-name" class="styled-input" required>
+					</div>
+
+					<div class="form-group">
+						<label for="pet-weight">Last Recorded Weight <span class="required"> *</span></label>
+						<input type="text" id="pet-weight" class="styled-input" required>
+					</div>
+
+					<div class="form-group">
+						<label for="pet-breed">Dog Breed <span class="required"> *</span></label>
+						<input type="text" id="pet-breed" class="styled-input" required>
+					</div>
+
+					<div class="size-notice-banner" id="pet-size-banner" style="display:none;">
+						<div class="banner-title">Estimated size: <span id="pet-size-value"></span></div>
+						<div class="banner-subtext">Nightly rate: <span id="pet-size-rate"></span>. Pet size is still subject to assessment on drop-off.</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- PET INFORMATION - CAT -->
+			<div class="step-card half-width cat-only" style="display:none;">
+				<div class="step-title">
+					<span class="step-num">3</span> Pet Information
+				</div>
+
+				<div class="card-content info-form-grid">
+					<div class="form-group">
+						<label for="pet-name-cat">Pet Name <span class="required"> *</span></label>
+						<input type="text" id="pet-name-cat" class="styled-input" required>
+					</div>
+
+					<div class="form-group">
+						<label for="pet-weight-cat">Last Recorded Weight <span class="required"> *</span></label>
+						<input type="text" id="pet-weight-cat" class="styled-input" required>
+					</div>
+
+					<div class="size-notice-banner">
+						<div class="banner-title">Boarding rate: <span id="cat-flat-rate"></span> / night</div>
+						<div class="banner-subtext">Cats are billed at a flat rate, regardless of weight.</div>
+					</div>
+				</div>
+			</div>
+
+
+			<!-- CUSTOMER INFO -->
 			<div class="step-card full-width">
 				<div class="step-title">
-					<i class='bx bxs-coin-stack'></i> Boarding Rates
+					<span class="step-num">4</span> Customer Information
 				</div>
-				<div class="card-content">
-					<div class="rate-card-content">
-						<div id="boarding-rate-table" class="rate-table"></div>
-						<div class="rate-table-note">
-							Rate is based on your pet's size and number of nights. Cats are always billed at the flat Small rate, regardless of weight. Final size is confirmed on drop-off.
-						</div>
+				<div class="card-content info-form-grid">
+					<div class="form-group">
+						<label for="first-name">First Name<span class="required"> *</span></label>
+						<input type="text" id="first-name" class="styled-input" required>
+					</div>
+
+					<div class="form-group">
+						<label for="last-name">Last Name<span class="required"> *</span></label>
+						<input type="text" id="last-name" class="styled-input" required>
+					</div>
+
+					<div class="form-group">
+						<label for="email">Email Address<span class="required"> *</span></label>
+						<input type="email" id="email" class="styled-input" required>
+					</div>
+
+					<div class="form-group">
+						<label for="mobile">Mobile Number<span class="required"> *</span></label>
+						<input type="text" id="mobile" class="styled-input" required>
+					</div>
+
+					<div class="form-group full-row">
+						<label for="optional-notes">Notes (Optional)</label>
+						<input type="text" id="optional-notes" class="styled-input">
 					</div>
 				</div>
 			</div>
 
-			<!-- CALENDAR -->
-			<div class="step-card half-width">
-				<div class="step-title">
-					<span class="step-num">1</span> Pick start time & date
-				</div>
-				<div class="card-content">
-					<div class="calendar-widget">
-						<div class="calendar-col">
-							<div class="calendar-header">
-								<button type="button" id="start-cal-prev" class="cal-nav-btn" aria-label="Previous month">&#10094;</button>
-								<span id="start-cal-month-label"></span>
-								<button type="button" id="start-cal-next" class="cal-nav-btn" aria-label="Next month">&#10095;</button>
-							</div>
-							<div class="calendar-weekdays">
-								<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-							</div>
-							<div id="start-cal-days-grid" class="calendar-days-grid"></div>
-						</div>
-
-						<div class="time-slot-section" id="start-time-slot-section">
-							<div class="time-slot-label">Select a time</div>
-							<div id="start-time-slots-grid" class="time-slots-grid"></div>
-							<div id="start-selected-appointment-display" class="selected-appointment-display"></div>
-						</div>
-					</div>
-					<div id="start-appointment-error" class="imp-message" style="display:none;">Please select a boarding start date and time.</div>
-				</div>
+			<!-- FOOTER -->
+			<div id="session-footer">
+				<span id="confirm-boarding">Confirm Boarding</span>
 			</div>
-
-			<div class="step-card half-width">
-				<div class="step-title">
-					<span class="step-num">2</span> Pick end time & date <span class="imp-message">(Minimum of 24 hours stay required)</span>
-				</div>
-				<div class="card-content">
-					<div class="calendar-widget">
-						<div class="calendar-col">
-							<div class="calendar-header">
-								<button type="button" id="end-cal-prev" class="cal-nav-btn" aria-label="Previous month">&#10094;</button>
-								<span id="end-cal-month-label"></span>
-								<button type="button" id="end-cal-next" class="cal-nav-btn" aria-label="Next month">&#10095;</button>
-							</div>
-							<div class="calendar-weekdays">
-								<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-							</div>
-							<div id="end-cal-days-grid" class="calendar-days-grid"></div>
-						</div>
-
-						<div class="time-slot-section" id="end-time-slot-section">
-							<div class="time-slot-label">Select a time</div>
-							<div id="end-time-slots-grid" class="time-slots-grid"></div>
-							<div id="end-selected-appointment-display" class="selected-appointment-display"></div>
-						</div>
-					</div>
-					<div id="end-appointment-error" class="imp-message" style="display:none;">Please select a boarding end date and time.</div>
-				</div>
-			</div>
-
-			<!-- DOG OR CAT -->
-			<div class="step-card half-width pet-type-card">
-				<div class="step-title">
-					<span class="step-num">3</span> Pet Type
-				</div>
-				<div class="card-content">
-					<div class="dog-cat-list">
-						<label class="custom-radio">
-							<input type="radio" name="pet-selection" value="dog" checked>
-							<span class="pet-label-text">DOG</span>
-							<img src="/Pics/dog.png" alt="Dog Icon" class="pet-icon">
-						</label>
-
-						<label class="custom-radio">
-							<input type="radio" name="pet-selection" value="cat">
-							<span class="pet-label-text">CAT</span>
-							<img src="/Pics/cat.png" alt="Cat Icon" class="pet-icon">
-						</label>
-					</div>
-				</div>
-			</div>
-
-			<!-- all fields below only show after pet type is selected -->
-			<div id="post-pet-type">
-
-	<!-- PET INFORMATION - DOG-->
-	<div class="step-card half-width dog-only" style="display:none;">
-		<div class="step-title">
-			<span class="step-num">3</span> Pet Information
-		</div>
-
-		<div class="card-content info-form-grid">
-			<div class="form-group">
-				<label for="pet-name">Pet Name <span class="required"> *</span></label>
-				<input type="text" id="pet-name" class="styled-input" required>
-			</div>
-
-			<div class="form-group">
-				<label for="pet-weight">Last Recorded Weight <span class="required"> *</span></label>
-				<input type="text" id="pet-weight" class="styled-input" required>
-			</div>
-
-			<div class="form-group">
-				<label for="pet-breed">Dog Breed <span class="required"> *</span></label>
-				<input type="text" id="pet-breed" class="styled-input" required>
-			</div>
-
-			<div class="size-notice-banner" id="pet-size-banner" style="display:none;">
-				<div class="banner-title">Estimated size: <span id="pet-size-value"></span></div>
-				<div class="banner-subtext">Nightly rate: <span id="pet-size-rate"></span>. Pet size is still subject to assessment on drop-off.</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- PET INFORMATION - CAT -->
-	<div class="step-card half-width cat-only" style="display:none;">
-		<div class="step-title">
-			<span class="step-num">3</span> Pet Information
-		</div>
-
-		<div class="card-content info-form-grid">
-			<div class="form-group">
-				<label for="pet-name-cat">Pet Name <span class="required"> *</span></label>
-				<input type="text" id="pet-name-cat" class="styled-input" required>
-			</div>
-
-			<div class="form-group">
-				<label for="pet-weight-cat">Last Recorded Weight <span class="required"> *</span></label>
-				<input type="text" id="pet-weight-cat" class="styled-input" required>
-			</div>
-
-			<div class="size-notice-banner">
-				<div class="banner-title">Boarding rate: <span id="cat-flat-rate"></span> / night</div>
-				<div class="banner-subtext">Cats are billed at a flat rate, regardless of weight.</div>
-			</div>
-		</div>
-	</div>
-
-
-
-				<!-- CUSTOMER INFO -->
-				<div class="step-card full-width">
-					<div class="step-title">
-						<span class="step-num">5</span> Customer Information
-					</div>
-					<div class="card-content info-form-grid">
-						<div class="form-group">
-							<label for="first-name">First Name<span class="required"> *</span></label>
-							<input type="text" id="first-name" class="styled-input" required>
-						</div>
-
-						<div class="form-group">
-							<label for="last-name">Last Name<span class="required"> *</span></label>
-							<input type="text" id="last-name" class="styled-input" required>
-						</div>
-
-						<div class="form-group">
-							<label for="email">Email Address<span class="required"> *</span></label>
-							<input type="email" id="email" class="styled-input" required>
-						</div>
-
-						<div class="form-group">
-							<label for="mobile">Mobile Number<span class="required"> *</span></label>
-							<input type="text" id="mobile" class="styled-input" required>
-						</div>
-
-						<div class="form-group full-row">
-							<label for="optional-notes">Notes (Optional)</label>
-							<input type="text" id="optional-notes" class="styled-input">
-						</div>
-					</div>
-				</div>
-
-				<!-- FOOTER -->
-				<div id="session-footer">
-					<span id="boarding-summary">Boarding Summary</span>
-					<span id="confirm-boarding">Confirm Boarding</span>
-				</div>
 
 			</div> <!-- #post-pet-type -->
 

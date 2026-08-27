@@ -6,10 +6,14 @@ radsPetSelection = document.getElementsByName("pet-selection"); // dog or cat
 inpPetName = document.getElementById("pet-name");
 inpPetWeight = document.getElementById("pet-weight");
 inpPetBreed = document.getElementById("pet-breed");
+petSizeBanner = document.getElementById("pet-size-banner");
+petSizeValue = document.getElementById("pet-size-value");
+petSizeRate = document.getElementById("pet-size-rate");
 
 // STEPm 3 PET INFO (cats)
 inpPetNameCat = document.getElementById("pet-name-cat");
 inpPetWeightCat = document.getElementById("pet-weight-cat");
+catFlatRateDisplay = document.getElementById("cat-flat-rate");
 
 // STEP 5 CUSTOMER INFO
 inpFirstName = document.getElementById("first-name");
@@ -72,48 +76,6 @@ const getCheckboxesValue = function(chkButtons) {
 	return checkedArr;
 }
 
-// renders the "Boarding Rates" visual table
-const renderBoardingRateTable = function() {
-	const container = document.getElementById("boarding-rate-table");
-	if (!container) return;
-
-	container.innerHTML = "";
-
-	const header = document.createElement("div");
-	header.className = "rate-table-row rate-table-header";
-	header.innerHTML = "<span>Size</span><span>Weight Range</span><span>Rate / Night</span>";
-	container.appendChild(header);
-
-	for (const tier of petSizeTiers) {
-		const row = document.createElement("div");
-		row.className = "rate-table-row";
-
-		const rangeLabel = tier.maxWeight === Infinity
-			? `${tier.minWeight}kg and up`
-			: `${tier.minWeight}–${tier.maxWeight}kg`;
-
-		row.innerHTML = `
-			<span>${tier.label} (${tier.letter})</span>
-			<span>${rangeLabel}</span>
-			<span>₱${boardingRatesPerNight[tier.letter].toLocaleString()}</span>
-		`;
-		container.appendChild(row);
-	}
-
-	// cats are always billed at the flat Small rate, regardless of weight (see renderBookingSummary below)
-	const catTier = petSizeTiers[0];
-	const catRow = document.createElement("div");
-	catRow.className = "rate-table-row";
-	catRow.innerHTML = `
-		<span>Cat (flat rate)</span>
-		<span>Any weight</span>
-		<span>₱${boardingRatesPerNight[catTier.letter].toLocaleString()}</span>
-	`;
-	container.appendChild(catRow);
-}
-
-renderBoardingRateTable();
-
 // verifies form elements (like required inputs, as well as email formatting)
 // returns true if form inputs are valid
 const verifyForm = function() {
@@ -164,6 +126,32 @@ const getPetSizeFromWeight = function(weightStr) {
 		}
 	}
 	return petSizeTiers[petSizeTiers.length - 1];
+}
+
+// updates the small "Estimated size" banner in the dog pet-info card as the
+// weight field changes, showing both the tier and its nightly rate. stays
+// hidden until a valid weight is entered
+const updatePetSizeBanner = function() {
+	if (!petSizeBanner) return;
+	tier = getPetSizeFromWeight(inpPetWeight.value);
+	if (!tier) {
+		petSizeBanner.style.display = "none";
+		return;
+	}
+	petSizeValue.textContent = `${tier.label} (${tier.letter})`;
+	petSizeRate.textContent = `₱${boardingRatesPerNight[tier.letter].toLocaleString()}/night`;
+	petSizeBanner.style.display = "";
+}
+
+if (inpPetWeight) {
+	inpPetWeight.addEventListener("input", updatePetSizeBanner);
+	updatePetSizeBanner();
+}
+
+// cats are always billed at the flat Small rate, regardless of weight - this
+// banner is static so it's just populated once on load
+if (catFlatRateDisplay) {
+	catFlatRateDisplay.textContent = `₱${boardingRatesPerNight[petSizeTiers[0].letter].toLocaleString()}`;
 }
 
 // calendar-day difference between two "YYYY-MM-DD" strings (not lookign at actual time diff, just days)
@@ -241,6 +229,7 @@ const clearForm = function() {
 
 	// checking the default option for radio buttons
 	checkRadioButton(radsPetSelection, "dog")
+	updatePetSizeBanner();
 	if (window.boardingDateRange && typeof window.boardingDateRange.reset === "function") {
 		window.boardingDateRange.reset();
 	} else {
