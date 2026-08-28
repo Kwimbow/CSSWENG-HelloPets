@@ -854,3 +854,106 @@
 .modal-btn-primary:hover {
 	background-color: #d62d64;
 }
+
+
+@media (max-width: 980px) {
+	#session-background {
+		grid-template-columns: 1fr;
+		padding: 1.5rem;
+	}
+
+	#session-header,
+	#session-footer,
+	.full-width,
+	.half-width {
+		grid-column: span 1;
+	}
+
+	.boarding-range-widget {
+		flex-direction: column;
+	}
+
+	.calendar-widget {
+		flex-direction: column;
+	}
+
+	.calendar-col {
+		flex-basis: auto;
+		width: 100%;
+	}
+
+	.time-slot-section {
+		flex-basis: auto;
+		width: 100%;
+		border-left: none;
+		border-top: 1px solid #e0e0e0;
+		padding-left: 0;
+		padding-top: 1rem;
+	}
+
+	.info-form-grid,
+	.service-selection-container {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 600px) {
+	#session-background {
+		padding: 1rem;
+		gap: 1.25rem;
+	}
+
+	#session-header {
+		height: auto;
+		padding: 1.5rem 1rem;
+	}
+
+	#session-footer {
+		height: auto;
+		padding: 1.25rem;
+	}
+
+	.step-title {
+		font-size: 1.1rem;
+	}
+
+	.info-form-grid {
+		padding: 1.5rem;
+	}
+
+	.boarding-range-widget {
+		padding: 1.25rem;
+	}
+
+	.pet-type-card,
+	.dog-only,
+	.cat-only {
+		height: auto;
+	}
+
+	.dog-cat-list {
+		gap: 0.75rem;
+	}
+
+	.modal-overlay {
+		padding: 1rem;
+	}
+
+	.modal-box {
+		max-height: 92vh;
+	}
+
+	.modal-footer {
+		flex-direction: column;
+	}
+
+	.modal-btn {
+		width: 100%;
+		text-align: center;
+		box-sizing: border-box;
+	}
+
+	.summary-row {
+		flex-wrap: wrap;
+	}
+}
