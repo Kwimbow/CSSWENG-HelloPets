@@ -571,6 +571,67 @@
 	}
 }
 
+@media (max-width: 600px) {
+	#session-background {
+		padding: 1rem;
+		gap: 1.25rem;
+	}
+
+	#session-header {
+		height: auto;
+		padding: 1.5rem 1rem;
+	}
+
+	#session-footer {
+		height: auto;
+		padding: 1.25rem;
+	}
+
+	.step-title {
+		font-size: 1.1rem;
+	}
+
+	.info-form-grid {
+		padding: 1.5rem;
+	}
+
+	.boarding-range-widget {
+		padding: 1.25rem;
+	}
+
+	.pet-type-card,
+	.dog-only,
+	.cat-only {
+		height: auto;
+	}
+
+	.dog-cat-list {
+		gap: 0.75rem;
+	}
+
+	.modal-overlay {
+		padding: 1rem;
+	}
+
+	.modal-box {
+		max-height: 92vh;
+	}
+
+	.modal-footer {
+		flex-direction: column;
+	}
+
+	.modal-btn {
+		width: 100%;
+		text-align: center;
+		box-sizing: border-box;
+	}
+
+	.summary-row {
+		flex-wrap: wrap;
+	}
+}
+
 
 /* for booking summary */
 .modal-overlay {
