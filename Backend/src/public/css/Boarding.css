@@ -100,6 +100,7 @@
 	font-weight: bold;
 	display: flex;
 	align-items: center;
+	flex-wrap: wrap;
 	gap: 0.5rem;
 	font-family: sans-serif;
 }
@@ -189,66 +190,6 @@
 	font-size: 0.95rem;
 	line-height: 1.25;
 	font-weight: 400;
-}
-
-.rate-card-content {
-	padding: 1.75rem 2rem;
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	box-sizing: border-box;
-}
-
-.rate-table {
-	display: flex;
-	flex-direction: column;
-	border-radius: 15px;
-	overflow: hidden;
-	border: 1px solid #D6F4F0;
-}
-
-.rate-table-row {
-	display: grid;
-	grid-template-columns: 1.3fr 1.4fr 1fr;
-	align-items: center;
-	padding: 0.85rem 1.25rem;
-	font-family: sans-serif;
-	font-size: 0.95rem;
-	color: #1a1a1a;
-}
-
-.rate-table-row:not(:last-child) {
-	border-bottom: 1px solid #eef7f6;
-}
-
-.rate-table-row:nth-child(even) {
-	background-color: #F5FCFB;
-}
-
-.rate-table-header {
-	background-color: #28B9B2;
-	color: white;
-	font-weight: 700;
-	text-transform: uppercase;
-	font-size: 0.8rem;
-	letter-spacing: 0.5px;
-}
-
-.rate-table-row span:last-child {
-	text-align: right;
-	font-weight: 700;
-	color: #EE3A78;
-}
-
-.rate-table-header span:last-child {
-	color: white;
-}
-
-.rate-table-note {
-	font-size: 0.85rem;
-	color: #6b6b6b;
-	line-height: 1.4;
-	font-style: italic;
 }
 
 .boarding-range-widget {
