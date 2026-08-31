@@ -128,9 +128,7 @@ const getPetSizeFromWeight = function(weightStr) {
 	return petSizeTiers[petSizeTiers.length - 1];
 }
 
-// updates the small "Estimated size" banner in the dog pet-info card as the
-// weight field changes, showing both the tier and its nightly rate. stays
-// hidden until a valid weight is entered
+// updates the small "Estimated size" banner in the dog pet-info card
 const updatePetSizeBanner = function() {
 	if (!petSizeBanner) return;
 	tier = getPetSizeFromWeight(inpPetWeight.value);
@@ -148,11 +146,36 @@ if (inpPetWeight) {
 	updatePetSizeBanner();
 }
 
-// cats are always billed at the flat Small rate, regardless of weight - this
-// banner is static so it's just populated once on load
+// cats are always billed at the flat Small rate
 if (catFlatRateDisplay) {
 	catFlatRateDisplay.textContent = `₱${boardingRatesPerNight[petSizeTiers[0].letter].toLocaleString()}`;
 }
+
+const loadPricingOverrides = async function() {
+	try {
+		const response = await fetch("/api/pricing");
+		if (!response.ok) return;
+
+		const { pricing } = await response.json();
+		if (!pricing) return;
+
+		for (const size of Object.keys(boardingRatesPerNight)) {
+			key = `boarding:${size}`;
+			if (Object.hasOwn(pricing, key)) {
+				boardingRatesPerNight[size] = pricing[key];
+			}
+		}
+
+		updatePetSizeBanner();
+		if (catFlatRateDisplay) {
+			catFlatRateDisplay.textContent = `₱${boardingRatesPerNight[petSizeTiers[0].letter].toLocaleString()}`;
+		}
+	} catch (error) {
+		console.error("Could not load current pricing, using defaults.", error);
+	}
+}
+
+loadPricingOverrides();
 
 // calendar-day difference between two "YYYY-MM-DD" strings (not lookign at actual time diff, just days)
 const computeNights = function(startDateStr, endDateStr) {

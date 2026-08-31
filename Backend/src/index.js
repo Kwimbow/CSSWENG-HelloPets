@@ -75,6 +75,7 @@ app.use(
 
 const { LandingPageMedia, landingPageMediaDefaultVals, landingPageMediaKeys } = require("./schemas/LandingPageMedia");
 const { LandingPageText, landingPageTextDefaultVals, landingPageTextKeys } = require("./schemas/LandingPageText");
+const { Pricing, pricingDefaultVals, pricingKeys } = require("./schemas/Pricing");
 
 const adminAuthenticated = (req, res, next) => {
   if (req.session.admin) {
@@ -119,6 +120,25 @@ app.get("/landing-page-edits", async (req, res) => {
     }
 
     res.json({ media, text });
+});
+
+// fetch to get current prices
+app.get("/api/pricing", async (req, res) => {
+    const allPricing = await Pricing.find().lean();
+
+    const pricing = {};
+    for (const obj of allPricing) {
+        pricing[obj.key] = obj.value;
+    }
+
+    for (const [key, value] of Object.entries(pricingDefaultVals)) {
+        // if this price has not been edited yet
+        if (!Object.hasOwn(pricing, key)) {
+            pricing[key] = value;
+        }
+    }
+
+    res.json({ success: true, pricing });
 });
 
 app.get("/booking", async (req, res) => {

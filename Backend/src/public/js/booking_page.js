@@ -143,6 +143,72 @@ const getRadioButtonsValue = function(radButtons) {
 	return null;
 }
 
+// renders the prices, mostly makes the objects where the prices are gonna be loaded on, just defaults here
+const renderStaticPriceDisplays = function() {
+	for (const [key, info] of Object.entries(catServiceData)) {
+		el = document.getElementById(`cat-price-${key}`);
+		if (el) el.textContent = `₱${info.price.toLocaleString()}`;
+	}
+
+	for (const [severity, price] of Object.entries(addOnPricing)) {
+		el = document.getElementById(`addon-price-${severity}`);
+		if (el) el.textContent = `₱${price.toLocaleString()}`;
+	}
+
+	for (const [key, info] of Object.entries(aLaCartePricing)) {
+		el = document.getElementById(`alac-price-${key}`);
+		if (el) el.textContent = `₱${info.price.toLocaleString()}`;
+	}
+}
+
+renderStaticPriceDisplays();
+
+// actual fetching of the values in the server then overwriting watever was put in the objects abve
+const loadPricingOverrides = async function() {
+	try {
+		const response = await fetch("/api/pricing");
+		if (!response.ok) return;
+
+		const { pricing } = await response.json();
+		if (!pricing) return;
+
+		for (const [serviceKey, info] of Object.entries(dogServiceData)) {
+			for (const size of Object.keys(info.prices)) {
+				key = `dog:${serviceKey}:${size}`;
+				if (Object.hasOwn(pricing, key)) {
+					info.prices[size] = pricing[key];
+				}
+			}
+		}
+
+		for (const [serviceKey, info] of Object.entries(catServiceData)) {
+			key = `cat:${serviceKey}`;
+			if (Object.hasOwn(pricing, key)) {
+				info.price = pricing[key];
+			}
+		}
+
+		for (const severity of Object.keys(addOnPricing)) {
+			key = `addon:${severity}`;
+			if (Object.hasOwn(pricing, key)) {
+				addOnPricing[severity] = pricing[key];
+			}
+		}
+
+		for (const [itemKey, info] of Object.entries(aLaCartePricing)) {
+			key = `alac:${itemKey}`;
+			if (Object.hasOwn(pricing, key)) {
+				info.price = pricing[key];
+			}
+		}
+
+		updateDogServiceDetails();
+		renderStaticPriceDisplays();
+	} catch (error) {
+		console.error("Error: ", error);
+	}
+}
+
 // returns the size tier for a given weight input, or null if th value is empty 
 const getPetSizeFromWeight = function(weightStr) {
 	weightNum = parseFloat(weightStr);
@@ -188,6 +254,7 @@ for (const rad of radsSelectedService) {
 }
 
 updateDogServiceDetails();
+loadPricingOverrides();
 
 // hides severity checker if service not picked
 const updateAddonSeverityVisibility = function() {
