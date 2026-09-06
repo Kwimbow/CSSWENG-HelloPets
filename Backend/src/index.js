@@ -507,6 +507,35 @@ app.post("/admin/manage_page", adminAuthenticated, async (req, res) => {
     res.json({ success: true });
 });
 
+app.get("/admin/pricing", adminAuthenticated, async (req, res) => {
+  res.sendFile(path.join(__dirname, "pages", "admin", "Pricing.html"));
+});
+
+app.post("/admin/pricing", adminAuthenticated, async (req, res) => {
+    // sent as one field per price, named after its key
+    // (e.g. body["dog:essential-bath:S"] = "250")
+    const pricingUpdates = {};
+    for (const key of pricingKeys) {
+        if (Object.hasOwn(req.body || {}, key)) {
+            const numericValue = Number(req.body[key]);
+            if (Number.isFinite(numericValue) && numericValue >= 0) {
+                pricingUpdates[key] = numericValue;
+            }
+        }
+    }
+
+    const options = { upsert: true };
+    for (const [key, value] of Object.entries(pricingUpdates)) {
+        await Pricing.findOneAndUpdate(
+            { key },
+            { value },
+            options
+        );
+    }
+
+    res.json({ success: true });
+});
+
 app.get("/admin/view_bookings", adminAuthenticated, async (req, res) => {
   res.sendFile(path.join(__dirname, "pages", "admin", "ViewBookings.html"));
 });

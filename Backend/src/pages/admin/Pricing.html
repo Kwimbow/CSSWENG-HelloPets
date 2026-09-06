@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hello Pets PH | Pricing</title>
+        <link rel="icon" type="image/jpg" href="/Logos/Icon.png">
+        <link rel="stylesheet" type="text/css" href="/css/Landing_Admin.css">
+        <link rel="stylesheet" type="text/css" href="/css/Edit_Prices.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <link href="https://fonts.googleapis.com/css2?family=Inder&family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+
+        <!-- fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Stack+Sans+Headline:wght@200..700&display=swap" rel="stylesheet">
+
+        <!-- script -->
+         <script src="/js/admin_pricing_page.js" defer></script>
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <div class="nav-bar">
+                    <div class="logo">
+                        <a href="/admin/view_bookings">
+                            <img src="/Logos/Logo.png" alt="Hello Pets Logo" id="nav-icon">
+                        </a>
+                    </div>
+                    <nav>
+                        <ul class="nav-links">
+                            <li><a href="/admin/view_bookings" class="nav-btns">ALL BOOKINGS</a></li>
+                            <li><a href="/admin/manage_page" class="nav-btns">MANAGE PAGE</a></li>
+                            <li><a href="/admin/pricing" class="nav-btns">EDIT PRICES</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </header>
+        <div class="scalloped-edge"></div>
+
+        <div id="nav-space">
+            
+        </div>
+
+        <!-- pricing -->
+        <div id="pricing-editor">
+            <h2>Pricing</h2>
+
+            <div class="pricing-group">
+                <h3>Dog Grooming</h3>
+                <div class="pricing-table dog-pricing-table">
+                    <div class="pricing-table-row pricing-table-header">
+                        <span>Service</span>
+                        <span>Small</span>
+                        <span>Medium</span>
+                        <span>Large</span>
+                        <span>X-Large</span>
+                        <span>XX-Large</span>
+                    </div>
+                    <div class="pricing-table-row">
+                        <span>Essential Bath</span>
+                        <input type="number" min="0" step="1" id="price-dog-essential-bath-S">
+                        <input type="number" min="0" step="1" id="price-dog-essential-bath-M">
+                        <input type="number" min="0" step="1" id="price-dog-essential-bath-L">
+                        <input type="number" min="0" step="1" id="price-dog-essential-bath-XL">
+                        <input type="number" min="0" step="1" id="price-dog-essential-bath-XXL">
+                    </div>
+                    <div class="pricing-table-row">
+                        <span>Premium Bath</span>
+                        <input type="number" min="0" step="1" id="price-dog-premium-bath-S">
+                        <input type="number" min="0" step="1" id="price-dog-premium-bath-M">
+                        <input type="number" min="0" step="1" id="price-dog-premium-bath-L">
+                        <input type="number" min="0" step="1" id="price-dog-premium-bath-XL">
+                        <input type="number" min="0" step="1" id="price-dog-premium-bath-XXL">
+                    </div>
+                    <div class="pricing-table-row">
+                        <span>Classic Grooming</span>
+                        <input type="number" min="0" step="1" id="price-dog-classic-grooming-S">
+                        <input type="number" min="0" step="1" id="price-dog-classic-grooming-M">
+                        <input type="number" min="0" step="1" id="price-dog-classic-grooming-L">
+                        <input type="number" min="0" step="1" id="price-dog-classic-grooming-XL">
+                        <input type="number" min="0" step="1" id="price-dog-classic-grooming-XXL">
+                    </div>
+                    <div class="pricing-table-row">
+                        <span>Luxe Grooming</span>
+                        <input type="number" min="0" step="1" id="price-dog-luxe-grooming-S">
+                        <input type="number" min="0" step="1" id="price-dog-luxe-grooming-M">
+                        <input type="number" min="0" step="1" id="price-dog-luxe-grooming-L">
+                        <input type="number" min="0" step="1" id="price-dog-luxe-grooming-XL">
+                        <input type="number" min="0" step="1" id="price-dog-luxe-grooming-XXL">
+                    </div>
+                    <div class="pricing-table-row">
+                        <span>Special Cut</span>
+                        <input type="number" min="0" step="1" id="price-dog-special-cut-S">
+                        <input type="number" min="0" step="1" id="price-dog-special-cut-M">
+                        <input type="number" min="0" step="1" id="price-dog-special-cut-L">
+                        <input type="number" min="0" step="1" id="price-dog-special-cut-XL">
+                        <input type="number" min="0" step="1" id="price-dog-special-cut-XXL">
+                    </div>
+                </div>
+            </div>
+
+            <div class="pricing-group">
+                <h3>Cat Grooming</h3>
+                <div class="pricing-row-list">
+                    <label>Kitty Grooming <input type="number" min="0" step="1" id="price-cat-kitty-grooming"></label>
+                    <label>Kitty Special Cut <input type="number" min="0" step="1" id="price-cat-kitty-special-cut"></label>
+                </div>
+            </div>
+
+            <div class="pricing-group">
+                <h3>Add-on Services (Dematting / Deshedding)</h3>
+                <div class="pricing-row-list">
+                    <label>Light <input type="number" min="0" step="1" id="price-addon-light"></label>
+                    <label>Medium <input type="number" min="0" step="1" id="price-addon-medium"></label>
+                    <label>Heavy <input type="number" min="0" step="1" id="price-addon-heavy"></label>
+                </div>
+            </div>
+
+            <div class="pricing-group">
+                <h3>A La Carte Services</h3>
+                <div class="pricing-row-list">
+                    <label>Face Trim <input type="number" min="0" step="1" id="price-alac-face-trim"></label>
+                    <label>Poodle Feet <input type="number" min="0" step="1" id="price-alac-poodle-feet"></label>
+                    <label>Nail Trim <input type="number" min="0" step="1" id="price-alac-nail-trim"></label>
+                    <label>Ear Clean <input type="number" min="0" step="1" id="price-alac-ear-clean"></label>
+                    <label>Teeth Brushing <input type="number" min="0" step="1" id="price-alac-teeth-brushing"></label>
+                    <label>Anal Sac Draining <input type="number" min="0" step="1" id="price-alac-anal-sac-draining"></label>
+                    <label>Cologne <input type="number" min="0" step="1" id="price-alac-cologne"></label>
+                </div>
+            </div>
+
+            <div class="pricing-group">
+                <h3>Boarding (per night)</h3>
+                <div class="pricing-row-list">
+                    <label>Small <input type="number" min="0" step="1" id="price-boarding-S"></label>
+                    <label>Medium <input type="number" min="0" step="1" id="price-boarding-M"></label>
+                    <label>Large <input type="number" min="0" step="1" id="price-boarding-L"></label>
+                    <label>X-Large <input type="number" min="0" step="1" id="price-boarding-XL"></label>
+                    <label>XX-Large <input type="number" min="0" step="1" id="price-boarding-XXL"></label>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div id="session-footer">
+            <span id="save-changes">Save Changes</span>
+        </div>
+    </body>
+</html>
