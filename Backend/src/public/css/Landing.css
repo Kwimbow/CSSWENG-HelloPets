@@ -171,6 +171,8 @@
     }
 */
 .store-front-video{
+    width: 52%;
+    background-color: blue;
     padding-top: 5vh;
     padding-left: 3vh;
 }
@@ -186,17 +188,27 @@
     justify-content: center;
 }
 
+.loc-media {
+    background-color: pink;
+    width: 97%;
+    height: 45%;
+
+    display: flex;
+    align-items: center;
+}
+
 #pano-video{
     box-shadow: 0px 0px 44px 9px rgba(255, 255, 255, 0.4);
 
     width: 100%;
-    max-width: 55vh;
     height: auto;
     aspect-ratio: 16/9;
 }
 
 .location-add {
     margin-top: 4vh;
+    background-color: yellow;
+    width: 97%;
 }
 
 .location-spacing {
@@ -204,8 +216,7 @@
 }
 
 .g-maps{
-    width: 100%;
-    max-width: 30.9375vh;
+    width: 55%;
     height: auto;
     aspect-ratio: 1/1;
 
