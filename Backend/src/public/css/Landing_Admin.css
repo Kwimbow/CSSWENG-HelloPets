@@ -376,6 +376,8 @@ header:after{
 */
 .store-front-video{
     padding-top: 5vh;
+    background-color: blue;
+    width: 52%;
     padding-left: 3vh;
 }
 
@@ -392,7 +394,6 @@ header:after{
 
 #pano-video{
     box-shadow: 0px 0px 44px 9px rgba(255, 255, 255, 0.4);
-    
     width: 100%;
     max-width: 55vh;
     height: auto;
@@ -401,10 +402,14 @@ header:after{
 
 .location-add {
     margin-top: 4vh;
+    background-color: yellow;
+    width: 97%;
 }
 
 .location-spacing {
     display: inline-flex;
+    background-color: green;
+    width: 98%;
 }
 
 .g-maps{
@@ -422,6 +427,8 @@ header:after{
     margin-top: 2rem;
     transition: transform .2s ease;
     color: #FBCA41;
+    background-color: red;
+    width: 100%;
     display: flex
 }
 
@@ -439,7 +446,9 @@ header:after{
     margin-top: 3vh;
     transition: transform .2s ease;
     color: #FBCA41;
-    display: flex
+    display: flex;
+    width: 100%;
+    background-color: pink;
 }
 
 #phone p{
@@ -450,6 +459,36 @@ header:after{
     margin-left: 1rem;
     margin-top: 0.5rem;
     text-decoration: none !important;
+}
+
+.contact-textarea {
+    font-family: "Stack Sans Headline", sans-serif;
+    font-weight: 400;
+    color: #1a1a1a;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 15px;
+    margin-left: 1rem;
+    margin-top: 0.5rem;
+    padding: 0.6rem 0.9rem;
+    resize: none;
+    box-sizing: border-box;
+
+    width: 100%;
+}
+
+.contact-textarea::placeholder {
+    color: #999999;
+}
+
+#map textarea.contact-address {
+    font-size: 1.5rem;
+    height: 5rem;
+}
+
+#phone textarea.contact-phone {
+    font-size: 1.5rem;
+    height: 5rem;
 }
 
 

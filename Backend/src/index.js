@@ -426,7 +426,9 @@ app.post("/admin/manage_page", adminAuthenticated, async (req, res) => {
         fpDescription,
         videoText1,
         videoText2,
-        videoText3 
+        videoText3,
+        contactAddress,
+        contactPhone
     } = req.body || {};
 
     // file inputs
@@ -444,7 +446,9 @@ app.post("/admin/manage_page", adminAuthenticated, async (req, res) => {
         "featured-pet-description": fpDescription,
         "video-text-1": videoText1,
         "video-text-2": videoText2,
-        "video-text-3": videoText3
+        "video-text-3": videoText3,
+        "contact-address": contactAddress,
+        "contact-phone": contactPhone
     };
     for (const [key, value] of Object.entries(textInputsObj)) {
         await LandingPageText.findOneAndUpdate(

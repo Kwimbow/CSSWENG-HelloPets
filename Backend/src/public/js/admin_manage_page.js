@@ -7,6 +7,8 @@ const videoImgInput3 = document.getElementById("video-img-input-3");
 const videoText1 = document.getElementById("video-text-1");
 const videoText2 = document.getElementById("video-text-2");
 const videoText3 = document.getElementById("video-text-3");
+const contactAddress = document.getElementById("contact-address");
+const contactPhone = document.getElementById("contact-phone");
 const saveChangesButton = document.getElementById("save-changes");
 
 // braces are for preventing name collision between variables (due to block scope)
@@ -110,6 +112,8 @@ const saveChangesButton = document.getElementById("save-changes");
         formData.append("videoText1", videoText1.value);
         formData.append("videoText2", videoText2.value);
         formData.append("videoText3", videoText3.value);
+        formData.append("contactAddress", contactAddress.value);
+        formData.append("contactPhone", contactPhone.value);
 
         let success = false;
 
