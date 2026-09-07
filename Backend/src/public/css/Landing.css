@@ -172,7 +172,6 @@
 */
 .store-front-video{
     width: 52%;
-    background-color: blue;
     padding-top: 5vh;
     padding-left: 3vh;
 }
@@ -189,7 +188,6 @@
 }
 
 .loc-media {
-    background-color: pink;
     width: 97%;
     height: 45%;
 
@@ -207,7 +205,6 @@
 
 .location-add {
     margin-top: 4vh;
-    background-color: yellow;
     width: 97%;
 }
 
