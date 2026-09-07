@@ -4,12 +4,19 @@ const nodemailer = require("nodemailer");
 const dotenv = require("dotenv/config");
 const crypto = require("crypto");
 const { MongoStore } = require("connect-mongo");
+const fs = require("fs");
 
 require("dotenv").config();
 // env file currently being used for the MONGODB URI so we can easily migrate to atlas
 // will also be used for the email and password to send confirmations
 const session = require("express-session");
 const fileUpload = require("express-fileupload");
+
+// makes uploads directoyy for admin
+const uploadsDir = path.join(__dirname, "public", "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // can make this more secure later
 adminUsername = process.env.ADMIN_USERNAME || "admin";
@@ -466,13 +473,24 @@ app.post("/admin/manage_page", adminAuthenticated, async (req, res) => {
         "video-img-3": videoImgInput3
     };
 
+    const moveFile = (file, destFsPath) => new Promise((resolve, reject) => {
+        file.mv(destFsPath, (error) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve();
+            }
+        });
+    });
+
+    const fileErrors = [];
+
     for (const [key, file] of Object.entries(fileInputsObj)) {
         if (!file) { // if this file has not been uploaded
             continue;
         }
 
-        let fileType, filePath;
-        let fileExtension;
+        let fileType, fileExtension;
         let isValid = true;
         
         try {
@@ -483,23 +501,27 @@ app.post("/admin/manage_page", adminAuthenticated, async (req, res) => {
                 isValid = false;
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
+            fileErrors.push(`${key}: could not read the uploaded file`);
             continue;
         }
 
         if (!isValid) {
-            console.log("Error: Invalid file type. Please upload an image.");
+            console.error("Error: Invalid file type. Please upload an image or video.");
+            fileErrors.push(`${key}: invalid file type - please upload an image or video`);
             continue;
         }
 
         const newFileName = crypto.randomUUID() + "." + fileExtension;
-        filePath = path.join("/uploads", newFileName);
+        const filePath = "/uploads/" + newFileName;
 
-        file.mv(path.join(__dirname, "public", filePath), (error) => {
-            if (error) {
-                console.log(error);
-            }
-        });
+        try {
+            await moveFile(file, path.join(uploadsDir, newFileName));
+        } catch (error) {
+            console.error(error);
+            fileErrors.push(`${key}: failed to save the uploaded file`);
+            continue;
+        }
 
         await LandingPageMedia.findOneAndUpdate(
             { key },
@@ -508,7 +530,7 @@ app.post("/admin/manage_page", adminAuthenticated, async (req, res) => {
         );
     }
 
-    res.json({ success: true });
+    res.json({ success: fileErrors.length === 0, errors: fileErrors });
 });
 
 app.get("/admin/pricing", adminAuthenticated, async (req, res) => {

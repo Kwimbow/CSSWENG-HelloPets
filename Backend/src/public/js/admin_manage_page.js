@@ -116,6 +116,7 @@ const saveChangesButton = document.getElementById("save-changes");
         formData.append("contactPhone", contactPhone.value);
 
         let success = false;
+        let errorMessages = [];
 
         const response = await fetch("/admin/manage_page", {
             method: "POST",
@@ -126,11 +127,15 @@ const saveChangesButton = document.getElementById("save-changes");
             const message = await response.json();
             if (message.success) {
                 success = true;
+            } else if (Array.isArray(message.errors)) {
+                errorMessages = message.errors;
             }
         }
 
         if (success) {
             alert("Your changes have been saved successfully.");
+        } else if (errorMessages.length > 0) {
+            alert("Some changes could not be saved:\n" + errorMessages.join("\n"));
         } else {
             alert("Something went wrong.");
         }
