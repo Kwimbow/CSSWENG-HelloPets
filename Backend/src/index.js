@@ -18,10 +18,6 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// can make this more secure later
-adminUsername = process.env.ADMIN_USERNAME || "admin";
-adminPassword = process.env.ADMIN_PASSWORD || "123456";
-
 const connectDB = require("./backend_js/db");
 
 const {
@@ -83,6 +79,9 @@ app.use(
 const { LandingPageMedia, landingPageMediaDefaultVals, landingPageMediaKeys } = require("./schemas/LandingPageMedia");
 const { LandingPageText, landingPageTextDefaultVals, landingPageTextKeys } = require("./schemas/LandingPageText");
 const { Pricing, pricingDefaultVals, pricingKeys } = require("./schemas/Pricing");
+const { AdminCredentials } = require("./schemas/AdminCredentials");
+const { hashPassword, verifyPassword } = require("./backend_js/password_hashing");
+const { ensureAdminCredentialsExist } = require("./backend_js/ensure_admin_credentials");
 
 const adminAuthenticated = (req, res, next) => {
   if (req.session.admin) {
@@ -402,11 +401,12 @@ app.post("/admin/login", async (req, res) => {
     return;
   }
 
-  console.log(req.body);
+  const { password } = req.body;
 
-  const { username, password } = req.body;
+  await ensureAdminCredentialsExist();
+  const credentials = await AdminCredentials.findOne({ singleton: "admin" });
 
-  if (username === adminUsername && password === adminPassword) {
+  if (credentials && verifyPassword(password, credentials.passwordHash)) {
     req.session.admin = true;
     req.session.save((err) => {
     if (err) {
@@ -418,8 +418,32 @@ app.post("/admin/login", async (req, res) => {
     res.json({ success: true });
     });
   } else {
-    res.status(422).send("Incorrect username/password");
+    res.status(422).send("Incorrect password");
   }
+});
+
+app.post("/admin/change-password", adminAuthenticated, async (req, res) => {
+  const { currentPassword, newPassword } = req.body || {};
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ success: false, error: "Current and new password are both required." });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ success: false, error: "New password must be at least 6 characters." });
+  }
+
+  await ensureAdminCredentialsExist();
+  const credentials = await AdminCredentials.findOne({ singleton: "admin" });
+
+  if (!credentials || !verifyPassword(currentPassword, credentials.passwordHash)) {
+    return res.status(401).json({ success: false, error: "Current password is incorrect." });
+  }
+
+  credentials.passwordHash = hashPassword(newPassword);
+  await credentials.save();
+
+  res.json({ success: true });
 });
 
 app.get("/admin/manage_page", adminAuthenticated, async (req, res) => {
