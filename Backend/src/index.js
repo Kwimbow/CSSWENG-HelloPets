@@ -422,6 +422,10 @@ app.post("/admin/login", async (req, res) => {
   }
 });
 
+app.get("/admin/password", adminAuthenticated, async (req, res) => {
+  res.sendFile(path.join(__dirname, "pages", "admin", "Password.html"));
+});
+
 app.post("/admin/change-password", adminAuthenticated, async (req, res) => {
   const { currentPassword, newPassword } = req.body || {};
 

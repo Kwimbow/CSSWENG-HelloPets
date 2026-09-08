@@ -14,12 +14,11 @@ body {
 }
 
 #pricing-editor > h2 {
-    text-align: center;
-    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-size: clamp(2rem, 4vw, 4rem);
     font-family: "Stack Sans Headline", sans-serif;
     font-weight: 700;
-    margin-bottom: 1.5rem;
     color: #ffffff;
+    margin-bottom: 1rem;
 }
 
 .pricing-group {
