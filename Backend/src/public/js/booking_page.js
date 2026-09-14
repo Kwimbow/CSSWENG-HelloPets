@@ -452,7 +452,7 @@ const submitForm = async function() {
 	const success = responseObj.success;
 
 	if (success) {
-		alert("Form successfully submitted.");
+		alert("Your booking request has been submitted! You'll receive an email once it's confirmed.");
 		closeSummaryModal();
 		clearForm();
 		goBackHome();

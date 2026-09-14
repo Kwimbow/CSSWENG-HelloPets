@@ -26,6 +26,13 @@ const bookingSchema = new Schema(
       mobileNumber: { type: String, required: true },
     },
     optionalNotes: { type: String, default: "" },
+    status: {
+      type: String,
+      enum: ["pending", "confirmed", "denied"],
+      default: "pending",
+      required: true
+    },
+    responseToken: { type: String, required: true },
   },
   { timestamps: true },
 );

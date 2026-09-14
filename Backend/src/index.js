@@ -266,35 +266,279 @@ app.post("/api/admin/slots/deleteAppointment", adminAuthenticated, async (req, r
 });
 
 
-app.post("/submit-booking", async (req, res) => {
-  const { appointmentDate, appointmentTime, ...bookingData } = req.body;
+async function getMailTransporter() {
+  await ensureMailerCredentialsSeeded();
+  const credentials = await MailerCredentials.findOne({ singleton: "mailer" });
 
-  const slot = await Slot.findOneAndUpdate(
-    { date: appointmentDate, time: appointmentTime, status: "open" },
-    { status: "booked" },
-    { new: true },
-  );
+  if (!credentials) {
+    throw new Error("Mailer is not configured yet. Set it up from the admin Account page.");
+  }
 
-  if (!slot) {
-    return res.json({
-      success: false,
-      error: "That time slot is no longer available.",
-    });
+  const gmailUser = credentials.gmailUser;
+  const gmailPass = decryptSecret(credentials.encryptedPass);
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: gmailUser,
+      pass: gmailPass,
+    },
+  });
+
+  return { transporter, gmailUser };
+}
+
+async function sendMail({ to, subject, html }) {
+  const { transporter, gmailUser } = await getMailTransporter();
+  await transporter.sendMail({
+    from: `"Hello Pets PH" <${gmailUser}>`,
+    to,
+    subject,
+    html,
+  });
+}
+
+// human-readable labels for the internal slugs used by add-on/a-la-carte
+// checkboxes, kept in sync with the equivalent objects in booking_page.js
+const addOnLabels = {
+  dematting: "Dematting",
+  deshedding: "Deshedding",
+};
+
+const aLaCarteLabels = {
+  "face-trim": "Face Trim",
+  "poodle-feet": "Poodle Feet",
+  "nail-trim": "Nail Trim",
+  "ear-clean": "Ear Clean",
+  "teeth-brushing": "Teeth Brushing",
+  "anal-sac-draining": "Anal Sac Draining",
+  cologne: "Cologne",
+};
+
+const capitalize = (str) => (str ? str.charAt(0).toUpperCase() + str.slice(1) : "");
+
+function formatGroomingServicesHTML(booking) {
+  const addOnServicesHTML = (booking.addOnServices || [])
+    .map(
+      (service) => `
+      <li style="padding: 8px 0; border-bottom: 1px solid #eaeaea; list-style-type: none; color: #333333;">
+        • ${addOnLabels[service.name] || service.name}${service.severity ? ` (${capitalize(service.severity)})` : ""}
+      </li>
+    `,
+    )
+    .join("");
+
+  const aLaCarteServicesHTML = (booking.aLaCarteServices || [])
+    .map(
+      (service) => `
+      <li style="padding: 8px 0; border-bottom: 1px solid #eaeaea; list-style-type: none; color: #333333;">
+        • ${aLaCarteLabels[service] || service}
+      </li>
+    `,
+    )
+    .join("");
+
+  return { addOnServicesHTML, aLaCarteServicesHTML };
+}
+
+function formatDateLong(dateStr) {
+  return new Date(dateStr).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+
+// sent to the shop's own inbox the moment a customer submits a request -
+// contains one-click Accept/Deny links, secured by the booking's random
+// responseToken so no login is required to act on them from the email
+async function sendOwnerNotificationEmail(booking, type, baseUrl) {
+  const { gmailUser } = await getMailTransporter();
+  const acceptUrl = `${baseUrl}/admin/bookings/respond?type=${type}&id=${booking._id}&token=${booking.responseToken}&action=accept`;
+  const denyUrl = `${baseUrl}/admin/bookings/respond?type=${type}&id=${booking._id}&token=${booking.responseToken}&action=deny`;
+
+  const { firstName, lastName, email, mobileNumber } = booking.customer;
+
+  let detailsHtml;
+  if (type === "grooming") {
+    detailsHtml = `
+      <p><strong>Date/Time:</strong> ${formatDateLong(booking.appointmentDate)} at ${booking.appointmentTime}</p>
+      <p><strong>Pet:</strong> ${booking.petName}</p>
+      <p><strong>Service:</strong> ${booking.selectedService}</p>
+    `;
+  } else {
+    detailsHtml = `
+      <p><strong>Check-in:</strong> ${formatDateLong(booking.startDate)} at ${booking.startTime}</p>
+      <p><strong>Check-out:</strong> ${formatDateLong(booking.endDate)} at ${booking.endTime}</p>
+      <p><strong>Pet:</strong> ${booking.petName} (${booking.petSelection})</p>
+    `;
+  }
+
+  const html = `
+    <h1>New ${type === "grooming" ? "Grooming" : "Boarding"} Request</h1>
+    <p><strong>Customer:</strong> ${firstName} ${lastName}</p>
+    <p><strong>Email:</strong> ${email}</p>
+    <p><strong>Mobile:</strong> ${mobileNumber}</p>
+    ${detailsHtml}
+    <div style="margin-top: 24px;">
+      <a href="${acceptUrl}" style="background-color:#28B9B2;color:white;padding:12px 24px;border-radius:30px;text-decoration:none;font-weight:bold;margin-right:12px;">Accept</a>
+      <a href="${denyUrl}" style="background-color:#EE3A78;color:white;padding:12px 24px;border-radius:30px;text-decoration:none;font-weight:bold;">Deny</a>
+    </div>
+  `;
+
+  await sendMail({
+    to: gmailUser,
+    subject: `New ${type === "grooming" ? "Grooming" : "Boarding"} Request - Action Needed`,
+    html,
+  });
+}
+
+async function sendGroomingConfirmationEmail(booking) {
+  const { addOnServicesHTML, aLaCarteServicesHTML } = formatGroomingServicesHTML(booking);
+  const dateLabel = formatDateLong(booking.appointmentDate);
+
+  const html = `
+    <h1>Hi ${booking.customer.firstName},</h1>
+    <p>Your appointment has successfully been scheduled for ${booking.appointmentTime}, ${dateLabel}!</p>
+    <p>We look forward to taking care of ${booking.petName}!</p>
+
+    <h3 style="border-bottom: 2px solid #4A90E2; padding-bottom: 8px; color: #333333;">Your Selected Services:</h3>
+    <p><strong>Main Service:</strong> ${booking.selectedService}</p>
+
+    <p><strong>Add-on Services</strong></p>
+    <ul style="padding-left: 0; margin-top: 10px;">
+      ${addOnServicesHTML || "<li>None</li>"}
+    </ul>
+
+    <p><strong>Ala Carte Services</strong></p>
+    <ul style="padding-left: 0; margin-top: 10px;">
+      ${aLaCarteServicesHTML || "<li>None</li>"}
+    </ul>
+  `;
+
+  await sendMail({
+    to: booking.customer.email,
+    subject: "Your Appointment Confirmation",
+    html,
+  });
+}
+
+async function sendBoardingConfirmationEmail(booking) {
+  const checkinLabel = formatDateLong(booking.startDate);
+  const checkoutLabel = formatDateLong(booking.endDate);
+
+  const html = `
+    <h1>Hi ${booking.customer.firstName},</h1>
+    <p>Your boarding stay has been confirmed!</p>
+    <p><strong>Check-in:</strong> ${checkinLabel} at ${booking.startTime}</p>
+    <p><strong>Check-out:</strong> ${checkoutLabel} at ${booking.endTime}</p>
+    <p>We look forward to taking care of ${booking.petName}!</p>
+  `;
+
+  await sendMail({
+    to: booking.customer.email,
+    subject: "Your Boarding Confirmation",
+    html,
+  });
+}
+
+async function sendGroomingDenialEmail(booking, baseUrl) {
+  const html = `
+    <h1>Hi ${booking.customer.firstName},</h1>
+    <p>We're sorry, but we're unable to accommodate your requested appointment at this time.</p>
+    <p>Please feel free to book another date/time that works for you.</p>
+    <p><a href="${baseUrl}/booking" style="background-color:#28B9B2;color:white;padding:12px 24px;border-radius:30px;text-decoration:none;font-weight:bold;">Book Again</a></p>
+  `;
+
+  await sendMail({
+    to: booking.customer.email,
+    subject: "Your Appointment Request",
+    html,
+  });
+}
+
+async function sendBoardingDenialEmail(booking, baseUrl) {
+  const html = `
+    <h1>Hi ${booking.customer.firstName},</h1>
+    <p>We're sorry, but we're unable to accommodate your requested boarding stay at this time.</p>
+    <p>Please feel free to book another date range that works for you.</p>
+    <p><a href="${baseUrl}/boarding" style="background-color:#28B9B2;color:white;padding:12px 24px;border-radius:30px;text-decoration:none;font-weight:bold;">Book Again</a></p>
+  `;
+
+  await sendMail({
+    to: booking.customer.email,
+    subject: "Your Boarding Request",
+    html,
+  });
+}
+
+function renderResponsePage(title, message) {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head><title>${title}</title><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: sans-serif; background-color: #f5f5f5; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
+        <div style="background:white; padding: 2.5rem; border-radius: 20px; max-width: 420px; text-align:center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+          <h1 style="color:#28B9B2;">${title}</h1>
+          <p style="color:#333;">${message}</p>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+// this is what the owner's browser hits when they click Accept/Deny in the
+// email - deliberately NOT behind adminAuthenticated, since the whole point
+// is a one-click action straight from the inbox. The responseToken is what
+// authorizes the action instead of a login session.
+app.get("/admin/bookings/respond", async (req, res) => {
+  const { type, id, token, action } = req.query;
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
+
+  if (!["grooming", "boarding"].includes(type) || !["accept", "deny"].includes(action) || !id || !token) {
+    return res.status(400).send(renderResponsePage("Invalid Link", "This link is missing information or malformed."));
+  }
+
+  const Model = type === "grooming" ? Booking : BoardingBooking;
+  const booking = await Model.findById(id);
+
+  if (!booking) {
+    return res.status(404).send(renderResponsePage("Not Found", "This booking could not be found. It may have already been deleted."));
+  }
+
+  if (booking.responseToken !== token) {
+    return res.status(403).send(renderResponsePage("Invalid Link", "This link is not valid."));
+  }
+
+  if (booking.status !== "pending") {
+    return res.send(renderResponsePage("Already Handled", `This booking has already been ${booking.status}. No further action was taken.`));
   }
 
   try {
-    const booking = await Booking.create(bookingData);
-    slot.booking = booking._id;
-    await slot.save();
-    await sendEmail(appointmentDate, appointmentTime, bookingData);
-    res.status(200);
+    if (action === "accept") {
+      booking.status = "confirmed";
+      await booking.save();
+
+      if (type === "grooming") {
+        await sendGroomingConfirmationEmail(booking);
+      } else {
+        await sendBoardingConfirmationEmail(booking);
+      }
+
+      return res.send(renderResponsePage("Booking Confirmed", "The customer has been notified that their booking is confirmed."));
+    } else {
+      booking.status = "denied";
+      await booking.save();
+
+      if (type === "grooming") {
+        await Slot.updateOne({ booking: booking._id }, { status: "open", booking: null });
+        await sendGroomingDenialEmail(booking, baseUrl);
+      } else {
+        await releaseBoardingDates(booking.startDate, booking.endDate, booking.petSelection, booking._id);
+        await sendBoardingDenialEmail(booking, baseUrl);
+      }
+
+      return res.send(renderResponsePage("Booking Denied", "The customer has been notified and the slot has been released."));
+    }
   } catch (err) {
-    // booking creation failed after slot was claimed, reset slot to open
-    slot.status = "open";
-    slot.booking = null;
-    await slot.save();
-    console.log("Error with booking: " + err);    
-    res.status(500).json({ success: false, error: "Internal server error" });
+    console.error("Error responding to booking:", err);
+    return res.status(500).send(renderResponsePage("Error", "Something went wrong processing this request. Please check the admin dashboard."));
   }
 });
 
@@ -304,7 +548,7 @@ app.get("/boarding", async (req, res) => {
 
 app.post("/submit-boarding-booking", async (req, res) => {
   const { startDate, startTime, endDate, endTime, petSelection, ...bookingData } = req.body;
-  console.log(req.body);
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
 
   if (!startDate || !startTime || !endDate || !endTime) {
     return res.json({ success: false, error: "Start and end date/time are required." });
@@ -322,16 +566,25 @@ app.post("/submit-boarding-booking", async (req, res) => {
   }
 
   try {
+    const responseToken = crypto.randomBytes(24).toString("hex");
     const booking = await BoardingBooking.create({
       startDate,
       startTime,
       endDate,
       endTime,
       petSelection,
+      status: "pending",
+      responseToken,
       ...bookingData,
     });
 
     await claimBoardingDates(startDate, endDate, petSelection, booking._id);
+
+    try {
+      await sendOwnerNotificationEmail(booking, "boarding", baseUrl);
+    } catch (emailErr) {
+      console.error("Failed to send owner notification email:", emailErr);
+    }
 
     res.json({ success: true, booking });
   } catch (err) {
@@ -623,7 +876,7 @@ app.listen(PORT, () => {
     console.log(`Server running at port ${PORT}`);
 });
 
-async function sendEmail(appointmentDate, appointmentTime, bookingData) {
+async function getMailTransporter() {
   await ensureMailerCredentialsSeeded();
   const credentials = await MailerCredentials.findOne({ singleton: "mailer" });
 
@@ -642,67 +895,233 @@ async function sendEmail(appointmentDate, appointmentTime, bookingData) {
     },
   });
 
-  const {
-    selectedService,
-    addOnServices,
-    aLaCarteServices,
-    petName,
-    customer: { firstName, lastName, email },
-  } = bookingData;
-
-  const addOnServicesHTML = (addOnServices || [])
-    .map(
-      (service) => `
-      <li style="padding: 8px 0; border-bottom: 1px solid #eaeaea; list-style-type: none; color: #333333;">
-        • ${service}
-      </li>
-    `,
-    )
-    .join("");
-
-  const aLaCarteServicesHTML = (aLaCarteServices || [])
-    .map(
-      (service) => `
-      <li style="padding: 8px 0; border-bottom: 1px solid #eaeaea; list-style-type: none; color: #333333;">
-        • ${service}
-      </li>
-    `,
-    )
-    .join("");
-
-
-  // TODO (2026-08-10) proper email styling, plus the HTML gen here is outdated since addOnServices now have both name and severity
-  // also map services to human-readable service names instead of internal naming
-  
-  const dateOptions = { year: "numeric", month: "long", day: "numeric" };
-  const date = new Date(appointmentDate).toLocaleDateString(
-    "en-US",
-    dateOptions,
-  );
-
-  const mailOptions = {
-    from: `"Hello Pets PH" <${gmailUser}>`,
-    to: email,
-    subject: "Your Appointment Confirmation",
-    html: `
-      <h1>Hi ${firstName},</h1>
-      <p>Your appointment has successfully been scheduled for ${appointmentTime}, ${date}!</p>
-      <p>We look forward to taking care of ${petName}!</p> 
-      
-      <h3 style="border-bottom: 2px solid #4A90E2; padding-bottom: 8px; color: #333333;">Your Selected Services:</h3>
-      <p><strong>Main Service:</strong> ${selectedService}</p>
-      
-      <p><strong>Add-on Services</strong></p>
-      <ul style="padding-left: 0; margin-top: 10px;">
-        ${addOnServicesHTML || "<li>None</li>"}
-      </ul>
-      
-      <p><strong>Ala Carte Services</strong></p>
-      <ul style="padding-left: 0; margin-top: 10px;">
-        ${aLaCarteServicesHTML || "<li>None</li>"}
-      </ul>
-    `,
-  };
-
-  await transporter.sendMail(mailOptions);
+  return { transporter, gmailUser };
 }
+
+async function sendMail({ to, subject, html }) {
+  const { transporter, gmailUser } = await getMailTransporter();
+  await transporter.sendMail({
+    from: `"Hello Pets PH" <${gmailUser}>`,
+    to,
+    subject,
+    html,
+  });
+}
+
+function formatGroomingServicesHTML(booking) {
+  const addOnServicesHTML = (booking.addOnServices || [])
+    .map(
+      (service) => `
+      <li style="padding: 8px 0; border-bottom: 1px solid #eaeaea; list-style-type: none; color: #333333;">
+        • ${addOnLabels[service.name] || service.name}${service.severity ? ` (${capitalize(service.severity)})` : ""}
+      </li>
+    `,
+    )
+    .join("");
+
+  const aLaCarteServicesHTML = (booking.aLaCarteServices || [])
+    .map(
+      (service) => `
+      <li style="padding: 8px 0; border-bottom: 1px solid #eaeaea; list-style-type: none; color: #333333;">
+        • ${aLaCarteLabels[service] || service}
+      </li>
+    `,
+    )
+    .join("");
+
+  return { addOnServicesHTML, aLaCarteServicesHTML };
+}
+
+function formatDateLong(dateStr) {
+  return new Date(dateStr).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+
+async function sendOwnerNotificationEmail(booking, type, baseUrl) {
+  const { gmailUser } = await getMailTransporter();
+  const acceptUrl = `${baseUrl}/admin/bookings/respond?type=${type}&id=${booking._id}&token=${booking.responseToken}&action=accept`;
+  const denyUrl = `${baseUrl}/admin/bookings/respond?type=${type}&id=${booking._id}&token=${booking.responseToken}&action=deny`;
+
+  const { firstName, lastName, email, mobileNumber } = booking.customer;
+
+  let detailsHtml;
+  if (type === "grooming") {
+    detailsHtml = `
+      <p><strong>Date/Time:</strong> ${formatDateLong(booking.appointmentDate)} at ${booking.appointmentTime}</p>
+      <p><strong>Pet:</strong> ${booking.petName}</p>
+      <p><strong>Service:</strong> ${booking.selectedService}</p>
+    `;
+  } else {
+    detailsHtml = `
+      <p><strong>Check-in:</strong> ${formatDateLong(booking.startDate)} at ${booking.startTime}</p>
+      <p><strong>Check-out:</strong> ${formatDateLong(booking.endDate)} at ${booking.endTime}</p>
+      <p><strong>Pet:</strong> ${booking.petName} (${booking.petSelection})</p>
+    `;
+  }
+
+  const html = `
+    <h1>New ${type === "grooming" ? "Grooming" : "Boarding"} Request</h1>
+    <p><strong>Customer:</strong> ${firstName} ${lastName}</p>
+    <p><strong>Email:</strong> ${email}</p>
+    <p><strong>Mobile:</strong> ${mobileNumber}</p>
+    ${detailsHtml}
+    <div style="margin-top: 24px;">
+      <a href="${acceptUrl}" style="background-color:#28B9B2;color:white;padding:12px 24px;border-radius:30px;text-decoration:none;font-weight:bold;margin-right:12px;">Accept</a>
+      <a href="${denyUrl}" style="background-color:#EE3A78;color:white;padding:12px 24px;border-radius:30px;text-decoration:none;font-weight:bold;">Deny</a>
+    </div>
+  `;
+
+  await sendMail({
+    to: gmailUser,
+    subject: `New ${type === "grooming" ? "Grooming" : "Boarding"} Request - Action Needed`,
+    html,
+  });
+}
+
+async function sendGroomingConfirmationEmail(booking) {
+  const { addOnServicesHTML, aLaCarteServicesHTML } = formatGroomingServicesHTML(booking);
+  const dateLabel = formatDateLong(booking.appointmentDate);
+
+  const html = `
+    <h1>Hi ${booking.customer.firstName},</h1>
+    <p>Your appointment has successfully been scheduled for ${booking.appointmentTime}, ${dateLabel}!</p>
+    <p>We look forward to taking care of ${booking.petName}!</p>
+
+    <h3 style="border-bottom: 2px solid #4A90E2; padding-bottom: 8px; color: #333333;">Your Selected Services:</h3>
+    <p><strong>Main Service:</strong> ${booking.selectedService}</p>
+
+    <p><strong>Add-on Services</strong></p>
+    <ul style="padding-left: 0; margin-top: 10px;">
+      ${addOnServicesHTML || "<li>None</li>"}
+    </ul>
+
+    <p><strong>Ala Carte Services</strong></p>
+    <ul style="padding-left: 0; margin-top: 10px;">
+      ${aLaCarteServicesHTML || "<li>None</li>"}
+    </ul>
+  `;
+
+  await sendMail({
+    to: booking.customer.email,
+    subject: "Your Appointment Confirmation",
+    html,
+  });
+}
+
+async function sendBoardingConfirmationEmail(booking) {
+  const checkinLabel = formatDateLong(booking.startDate);
+  const checkoutLabel = formatDateLong(booking.endDate);
+
+  const html = `
+    <h1>Hi ${booking.customer.firstName},</h1>
+    <p>Your boarding stay has been confirmed!</p>
+    <p><strong>Check-in:</strong> ${checkinLabel} at ${booking.startTime}</p>
+    <p><strong>Check-out:</strong> ${checkoutLabel} at ${booking.endTime}</p>
+    <p>We look forward to taking care of ${booking.petName}!</p>
+  `;
+
+  await sendMail({
+    to: booking.customer.email,
+    subject: "Your Boarding Confirmation",
+    html,
+  });
+}
+
+async function sendGroomingDenialEmail(booking, baseUrl) {
+  const html = `
+    <h1>Hi ${booking.customer.firstName},</h1>
+    <p>We're sorry, but we're unable to accommodate your requested appointment at this time.</p>
+    <p>Please feel free to book another date/time that works for you.</p>
+    <p><a href="${baseUrl}/booking" style="background-color:#28B9B2;color:white;padding:12px 24px;border-radius:30px;text-decoration:none;font-weight:bold;">Book Again</a></p>
+  `;
+
+  await sendMail({
+    to: booking.customer.email,
+    subject: "Your Appointment Request",
+    html,
+  });
+}
+
+async function sendBoardingDenialEmail(booking, baseUrl) {
+  const html = `
+    <h1>Hi ${booking.customer.firstName},</h1>
+    <p>We're sorry, but we're unable to accommodate your requested boarding stay at this time.</p>
+    <p>Please feel free to book another date range that works for you.</p>
+    <p><a href="${baseUrl}/boarding" style="background-color:#28B9B2;color:white;padding:12px 24px;border-radius:30px;text-decoration:none;font-weight:bold;">Book Again</a></p>
+  `;
+
+  await sendMail({
+    to: booking.customer.email,
+    subject: "Your Boarding Request",
+    html,
+  });
+}
+
+function renderResponsePage(title, message) {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head><title>${title}</title><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: sans-serif; background-color: #f5f5f5; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
+        <div style="background:white; padding: 2.5rem; border-radius: 20px; max-width: 420px; text-align:center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+          <h1 style="color:#28B9B2;">${title}</h1>
+          <p style="color:#333;">${message}</p>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+app.get("/admin/bookings/respond", async (req, res) => {
+  const { type, id, token, action } = req.query;
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
+
+  if (!["grooming", "boarding"].includes(type) || !["accept", "deny"].includes(action) || !id || !token) {
+    return res.status(400).send(renderResponsePage("Invalid Link", "This link is missing information or malformed."));
+  }
+
+  const Model = type === "grooming" ? Booking : BoardingBooking;
+  const booking = await Model.findById(id);
+
+  if (!booking) {
+    return res.status(404).send(renderResponsePage("Not Found", "This booking could not be found. It may have already been deleted."));
+  }
+
+  if (booking.responseToken !== token) {
+    return res.status(403).send(renderResponsePage("Invalid Link", "This link is not valid."));
+  }
+
+  if (booking.status !== "pending") {
+    return res.send(renderResponsePage("Already Handled", `This booking has already been ${booking.status}. No further action was taken.`));
+  }
+
+  try {
+    if (action === "accept") {
+      booking.status = "confirmed";
+      await booking.save();
+
+      if (type === "grooming") {
+        await sendGroomingConfirmationEmail(booking);
+      } else {
+        await sendBoardingConfirmationEmail(booking);
+      }
+
+      return res.send(renderResponsePage("Booking Confirmed", "The customer has been notified that their booking is confirmed."));
+    } else {
+      booking.status = "denied";
+      await booking.save();
+
+      if (type === "grooming") {
+        await Slot.updateOne({ booking: booking._id }, { status: "open", booking: null });
+        await sendGroomingDenialEmail(booking, baseUrl);
+      } else {
+        await releaseBoardingDates(booking.startDate, booking.endDate, booking.petSelection, booking._id);
+        await sendBoardingDenialEmail(booking, baseUrl);
+      }
+
+      return res.send(renderResponsePage("Booking Denied", "The customer has been notified and the slot has been released."));
+    }
+  } catch (err) {
+    console.error("Error responding to booking:", err);
+    return res.status(500).send(renderResponsePage("Error", "Something went wrong processing this request. Please check the admin dashboard."));
+  }
+});
