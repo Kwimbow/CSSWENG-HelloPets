@@ -4,10 +4,32 @@ const confirmNewPasswordInput = document.getElementById("confirm-new-password");
 const changePasswordBtn = document.getElementById("change-password-btn");
 const messageEl = document.getElementById("password-change-message");
 
+const openModalBtn = document.getElementById("open-password-modal-btn");
+const modalOverlay = document.getElementById("password-modal-overlay");
+const modalCloseBtn = document.getElementById("password-modal-close");
+const modalCancelBtn = document.getElementById("password-modal-cancel-btn");
+
 const showMessage = (text, isError) => {
     messageEl.textContent = text;
     messageEl.classList.toggle("error", isError);
     messageEl.classList.toggle("success", !isError);
+};
+
+const clearForm = () => {
+    currentPasswordInput.value = "";
+    newPasswordInput.value = "";
+    confirmNewPasswordInput.value = "";
+    messageEl.textContent = "";
+    messageEl.classList.remove("error", "success");
+};
+
+const openModal = () => {
+    clearForm();
+    modalOverlay.classList.add("visible");
+};
+
+const closeModal = () => {
+    modalOverlay.classList.remove("visible");
 };
 
 const submitPasswordChange = async () => {
@@ -48,4 +70,7 @@ const submitPasswordChange = async () => {
     }
 };
 
+openModalBtn.addEventListener("click", openModal);
+modalCloseBtn.addEventListener("click", closeModal);
+modalCancelBtn.addEventListener("click", closeModal);
 changePasswordBtn.addEventListener("click", submitPasswordChange);
