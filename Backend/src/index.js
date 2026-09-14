@@ -82,6 +82,9 @@ const { Pricing, pricingDefaultVals, pricingKeys } = require("./schemas/Pricing"
 const { AdminCredentials } = require("./schemas/AdminCredentials");
 const { hashPassword, verifyPassword } = require("./backend_js/password_hashing");
 const { ensureAdminCredentialsExist } = require("./backend_js/ensure_admin_credentials");
+const { MailerCredentials } = require("./schemas/MailerCredentials");
+const { encryptSecret, decryptSecret } = require("./backend_js/secret_encryption");
+const { ensureMailerCredentialsSeeded } = require("./backend_js/ensure_mailer_credentials");
 
 const adminAuthenticated = (req, res, next) => {
   if (req.session.admin) {
@@ -450,6 +453,27 @@ app.post("/admin/change-password", adminAuthenticated, async (req, res) => {
   res.json({ success: true });
 });
 
+app.get("/admin/mailer-credentials", adminAuthenticated, async (req, res) => {
+    const credentials = await MailerCredentials.findOne({ singleton: "mailer" });
+    res.json({ success: true, gmailUser: credentials ? credentials.gmailUser : null });
+});
+
+app.post("/admin/mailer-credentials", adminAuthenticated, async (req, res) => {
+    const { gmailUser, gmailAppPassword } = req.body || {};
+
+    if (!gmailUser || !gmailAppPassword) {
+        return res.status(400).json({ success: false, error: "Both the Gmail address and app password are required." });
+    }
+
+    await MailerCredentials.findOneAndUpdate(
+        { singleton: "mailer" },
+        { singleton: "mailer", gmailUser, encryptedPass: encryptSecret(gmailAppPassword) },
+        { upsert: true }
+    );
+
+    res.json({ success: true });
+});
+
 app.get("/admin/manage_page", adminAuthenticated, async (req, res) => {
   res.sendFile(path.join(__dirname, "pages", "admin", "ManagePage.html"));
 });
@@ -600,11 +624,21 @@ app.listen(PORT, () => {
 });
 
 async function sendEmail(appointmentDate, appointmentTime, bookingData) {
+  await ensureMailerCredentialsSeeded();
+  const credentials = await MailerCredentials.findOne({ singleton: "mailer" });
+
+  if (!credentials) {
+    throw new Error("Mailer is not configured yet. Set it up from the admin Account page.");
+  }
+
+  const gmailUser = credentials.gmailUser;
+  const gmailPass = decryptSecret(credentials.encryptedPass);
+
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_PASS,
+      user: gmailUser,
+      pass: gmailPass,
     },
   });
 
@@ -647,7 +681,7 @@ async function sendEmail(appointmentDate, appointmentTime, bookingData) {
   );
 
   const mailOptions = {
-    from: `"Hello Pets PH" <${process.env.GMAIL_USER}>`,
+    from: `"Hello Pets PH" <${gmailUser}>`,
     to: email,
     subject: "Your Appointment Confirmation",
     html: `
