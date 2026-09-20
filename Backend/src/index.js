@@ -265,6 +265,33 @@ app.post("/api/admin/slots/deleteAppointment", adminAuthenticated, async (req, r
   res.json({ success: true, modified: opened.modifiedCount }); 
 });
 
+app.post("/api/admin/bookings/grooming/respond", adminAuthenticated, async (req, res) => {
+  const { bookingId, action } = req.body;
+  if (!bookingId || !["accept", "deny"].includes(action)) {
+    return res.json({ success: false, error: "bookingId and a valid action are required" });
+  }
+
+  const booking = await Booking.findById(bookingId);
+  if (!booking) {
+    return res.json({ success: false, error: "Booking not found" });
+  }
+
+  if (booking.status !== "pending") {
+    return res.json({ success: false, error: `This booking has already been ${booking.status}.` });
+  }
+
+  booking.status = action === "accept" ? "confirmed" : "denied";
+  await booking.save();
+
+  if (action === "deny") {
+    await Slot.updateOne({ booking: booking._id }, { status: "open", booking: null });
+  }
+
+  // TODO once the mailer is set up: notify the customer here (confirmation or denial email)
+
+  res.json({ success: true, status: booking.status });
+});
+
 app.post("/submit-booking", async (req, res) => {
   const { appointmentDate, appointmentTime, ...bookingData } = req.body;
   const baseUrl = `${req.protocol}://${req.get("host")}`;
@@ -669,8 +696,6 @@ app.post("/api/admin/boarding-slots/unblock", adminAuthenticated, async (req, re
   res.json({ success: true, modified: result.modifiedCount });
 });
 
-// admin endpoint, delete a specific boarding booking by ID and decrement dog/cat count
-// body: { bookingId: "..." }
 app.post("/api/admin/boarding-slots/deleteBooking", adminAuthenticated, async (req, res) => {
   const { bookingId } = req.body;
   if (!bookingId) return res.json({ success: false, error: "bookingId is required" });
@@ -696,6 +721,33 @@ app.get("/admin/login", async (req, res) => {
   } else {
     res.sendFile(path.join(__dirname, "pages", "admin", "Login.html"));
   }
+});
+
+app.post("/api/admin/bookings/boarding/respond", adminAuthenticated, async (req, res) => {
+  const { bookingId, action } = req.body;
+  if (!bookingId || !["accept", "deny"].includes(action)) {
+    return res.json({ success: false, error: "bookingId and a valid action are required" });
+  }
+
+  const booking = await BoardingBooking.findById(bookingId);
+  if (!booking) {
+    return res.json({ success: false, error: "Booking not found" });
+  }
+
+  if (booking.status !== "pending") {
+    return res.json({ success: false, error: `This booking has already been ${booking.status}.` });
+  }
+
+  booking.status = action === "accept" ? "confirmed" : "denied";
+  await booking.save();
+
+  if (action === "deny") {
+    await releaseBoardingDates(booking.startDate, booking.endDate, booking.petSelection, booking._id);
+  }
+
+  // TODO once the mailer is set up: notify the customer here (confirmation or denial email)
+
+  res.json({ success: true, status: booking.status });
 });
 
 app.post("/admin/login", async (req, res) => {

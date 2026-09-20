@@ -31,6 +31,8 @@ function parseSlotIntoBookings(slot) {
     const b = slot.booking;
     bookings[slot.date].push({
       _id: slot._id,
+      bookingId: b._id,
+      status: b.status || "confirmed",
       start: slot.time,
       end: endString,
       name: `${b.customer.firstName} ${b.customer.lastName}`,
@@ -182,6 +184,13 @@ async function renderDayPanel() {
         ? `${formatTime(b.start)} - ${formatTime(b.end)} - Blocked`
         : `${formatTime(b.start)} - ${formatTime(b.end)} || ${b.name}`;
 
+      if (!isBlocked) {
+        const badge = document.createElement('span');
+        badge.className = `status-badge status-${b.status}`;
+        badge.textContent = b.status.charAt(0).toUpperCase() + b.status.slice(1);
+        timeName.appendChild(badge);
+      }
+
       info.appendChild(timeName);
 
       if (!isBlocked) {
@@ -252,13 +261,65 @@ async function renderDayPanel() {
         renderDayPanel();
       });
 
+      const actions = document.createElement('div');
+      actions.className = 'booking-actions';
+
+      if (!isBlocked && b.status === 'pending') {
+        const actionRow = document.createElement('div');
+        actionRow.className = 'status-action-row';
+
+        const acceptBtn = document.createElement('button');
+        acceptBtn.className = 'status-action-btn accept-btn';
+        acceptBtn.innerHTML = "<i class='bx bx-check'></i>";
+        acceptBtn.title = 'Accept';
+        acceptBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          respondToBooking(b.bookingId, 'accept');
+        });
+
+        const denyBtn = document.createElement('button');
+        denyBtn.className = 'status-action-btn deny-btn';
+        denyBtn.innerHTML = "<i class='bx bx-x'></i>";
+        denyBtn.title = 'Deny';
+        denyBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          respondToBooking(b.bookingId, 'deny');
+        });
+
+        actionRow.appendChild(acceptBtn);
+        actionRow.appendChild(denyBtn);
+        actions.appendChild(actionRow);
+      }
+
+      actions.appendChild(delBtn);
+
       entry.appendChild(info);
-      entry.appendChild(delBtn);
+      entry.appendChild(actions);
       bookingsList.appendChild(entry);
     });
   }
 
   closeBlockBox();
+}
+
+async function respondToBooking(bookingId, action) {
+  try {
+    const result = await fetch('/api/admin/bookings/grooming/respond', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId, action }),
+    }).then(res => res.json());
+
+    if (!result.success) {
+      alert(result.error || 'Something went wrong.');
+      return;
+    }
+
+    fetchMonthBookings(currentYear, currentMonth);
+  } catch (error) {
+    console.error('Failed to respond to booking:', error);
+    alert('Something went wrong.');
+  }
 }
 
 function formatTime(t) {

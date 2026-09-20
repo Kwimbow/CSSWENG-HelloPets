@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const crypto = require("crypto");
 const { Schema } = mongoose;
 
 const bookingSchema = new Schema(
@@ -30,9 +31,13 @@ const bookingSchema = new Schema(
       type: String,
       enum: ["pending", "confirmed", "denied"],
       default: "pending",
-      required: true
+      required: true,
     },
-    responseToken: { type: String, required: true },
+    responseToken: {
+      type: String,
+      required: true,
+      default: () => crypto.randomBytes(24).toString("hex"),
+    },
   },
   { timestamps: true },
 );

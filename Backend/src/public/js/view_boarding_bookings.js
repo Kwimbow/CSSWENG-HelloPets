@@ -36,6 +36,7 @@
       slot.bookings.forEach((b) => {
         bookings[date].push({
           _id: b._id,
+          status: b.status || "confirmed",
           name: `${b.customer.firstName} ${b.customer.lastName}`,
           pet: `${b.petName}, ${b.petSelection}, ${b.petBreed || ""}`,
           email: b.customer.email,
@@ -191,6 +192,13 @@
           ? `Blocked`
           : `${b.name}`;
 
+        if (!isBlocked) {
+          const badge = document.createElement('span');
+          badge.className = `status-badge status-${b.status}`;
+          badge.textContent = b.status.charAt(0).toUpperCase() + b.status.slice(1);
+          timeName.appendChild(badge);
+        }
+
         info.appendChild(timeName);
 
         if (!isBlocked) {
@@ -250,13 +258,67 @@
           }
         });
 
+        const actions = document.createElement('div');
+        actions.className = 'booking-actions';
+
+        if (!isBlocked && b.status === 'pending') {
+          const actionRow = document.createElement('div');
+          actionRow.className = 'status-action-row';
+
+          const acceptBtn = document.createElement('button');
+          acceptBtn.className = 'status-action-btn accept-btn';
+          acceptBtn.innerHTML = "<i class='bx bx-check'></i>";
+          acceptBtn.title = 'Accept';
+          acceptBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            respondToBooking(b._id, 'accept');
+          });
+
+          const denyBtn = document.createElement('button');
+          denyBtn.className = 'status-action-btn deny-btn';
+          denyBtn.innerHTML = "<i class='bx bx-x'></i>";
+          denyBtn.title = 'Deny';
+          denyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            respondToBooking(b._id, 'deny');
+          });
+
+          actionRow.appendChild(acceptBtn);
+          actionRow.appendChild(denyBtn);
+          actions.appendChild(actionRow);
+        }
+
+        actions.appendChild(delBtn);
+
         entry.appendChild(info);
-        entry.appendChild(delBtn);
+        entry.appendChild(actions);
         bookingsList.appendChild(entry);
       });
     }
 
     closeBlockBox();
+  }
+
+    // accepts or denies a pending boarding booking from the dashboard, then refreshes
+  async function respondToBooking(bookingId, action) {
+    try {
+      const result = await fetch('/api/admin/bookings/boarding/respond', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId, action }),
+      }).then(res => res.json());
+
+      if (!result.success) {
+        alert(result.error || 'Something went wrong.');
+        return;
+      }
+
+      // a boarding booking spans multiple days, so refetch the whole month
+      fetchMonthBookings(currentYear, currentMonth);
+    } catch (error) {
+      console.error('Failed to respond to boarding booking:', error);
+      alert('Something went wrong.');
+    }
   }
 
   function formatTime(t) {
