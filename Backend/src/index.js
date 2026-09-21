@@ -267,6 +267,8 @@ app.post("/api/admin/slots/deleteAppointment", adminAuthenticated, async (req, r
 
 app.post("/api/admin/bookings/grooming/respond", adminAuthenticated, async (req, res) => {
   const { bookingId, action } = req.body;
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
+
   if (!bookingId || !["accept", "deny"].includes(action)) {
     return res.json({ success: false, error: "bookingId and a valid action are required" });
   }
@@ -280,16 +282,20 @@ app.post("/api/admin/bookings/grooming/respond", adminAuthenticated, async (req,
     return res.json({ success: false, error: `This booking has already been ${booking.status}.` });
   }
 
-  booking.status = action === "accept" ? "confirmed" : "denied";
-  await booking.save();
-
-  if (action === "deny") {
-    await Slot.updateOne({ booking: booking._id }, { status: "open", booking: null });
+  try {
+    await resolveGroomingBooking(booking, action, baseUrl);
+    res.json({ success: true, status: booking.status });
+  } catch (err) {
+    // the status change happens before the email send inside
+    // resolveGroomingBooking, so a failure here just means the notification
+    // didn't go out - the accept/deny itself still went through
+    console.error("Error notifying customer about grooming booking:", err);
+    res.json({
+      success: true,
+      status: booking.status,
+      warning: "The booking status was updated, but the notification email could not be sent.",
+    });
   }
-
-  // TODO once the mailer is set up: notify the customer here (confirmation or denial email)
-
-  res.json({ success: true, status: booking.status });
 });
 
 app.post("/submit-booking", async (req, res) => {
@@ -310,14 +316,7 @@ app.post("/submit-booking", async (req, res) => {
   }
 
   try {
-    const responseToken = crypto.randomBytes(24).toString("hex");
-    const booking = await Booking.create({
-      ...bookingData,
-      appointmentDate,
-      appointmentTime,
-      status: "pending",
-      responseToken,
-    });
+    const booking = await Booking.create({ ...bookingData, appointmentDate, appointmentTime });
     slot.booking = booking._id;
     await slot.save();
 
@@ -542,6 +541,30 @@ async function sendBoardingDenialEmail(booking, baseUrl) {
   });
 }
 
+async function resolveGroomingBooking(booking, action, baseUrl) {
+  booking.status = action === "accept" ? "confirmed" : "denied";
+  await booking.save();
+
+  if (action === "deny") {
+    await Slot.updateOne({ booking: booking._id }, { status: "open", booking: null });
+    await sendGroomingDenialEmail(booking, baseUrl);
+  } else {
+    await sendGroomingConfirmationEmail(booking);
+  }
+}
+
+async function resolveBoardingBooking(booking, action, baseUrl) {
+  booking.status = action === "accept" ? "confirmed" : "denied";
+  await booking.save();
+
+  if (action === "deny") {
+    await releaseBoardingDates(booking.startDate, booking.endDate, booking.petSelection, booking._id);
+    await sendBoardingDenialEmail(booking, baseUrl);
+  } else {
+    await sendBoardingConfirmationEmail(booking);
+  }
+}
+
 function renderResponsePage(title, message) {
   return `
     <!DOCTYPE html>
@@ -557,10 +580,7 @@ function renderResponsePage(title, message) {
   `;
 }
 
-// this is what the owner's browser hits when they click Accept/Deny in the
-// email - deliberately NOT behind adminAuthenticated, since the whole point
-// is a one-click action straight from the inbox. The responseToken is what
-// authorizes the action instead of a login session.
+// this is what the owner's browser hits when they click Accept/Deny 
 app.get("/admin/bookings/respond", async (req, res) => {
   const { type, id, token, action } = req.query;
   const baseUrl = `${req.protocol}://${req.get("host")}`;
@@ -585,31 +605,17 @@ app.get("/admin/bookings/respond", async (req, res) => {
   }
 
   try {
-    if (action === "accept") {
-      booking.status = "confirmed";
-      await booking.save();
-
-      if (type === "grooming") {
-        await sendGroomingConfirmationEmail(booking);
-      } else {
-        await sendBoardingConfirmationEmail(booking);
-      }
-
-      return res.send(renderResponsePage("Booking Confirmed", "The customer has been notified that their booking is confirmed."));
+    if (type === "grooming") {
+      await resolveGroomingBooking(booking, action, baseUrl);
     } else {
-      booking.status = "denied";
-      await booking.save();
-
-      if (type === "grooming") {
-        await Slot.updateOne({ booking: booking._id }, { status: "open", booking: null });
-        await sendGroomingDenialEmail(booking, baseUrl);
-      } else {
-        await releaseBoardingDates(booking.startDate, booking.endDate, booking.petSelection, booking._id);
-        await sendBoardingDenialEmail(booking, baseUrl);
-      }
-
-      return res.send(renderResponsePage("Booking Denied", "The customer has been notified and the slot has been released."));
+      await resolveBoardingBooking(booking, action, baseUrl);
     }
+
+    return res.send(
+      action === "accept"
+        ? renderResponsePage("Booking Confirmed", "The customer has been notified that their booking is confirmed.")
+        : renderResponsePage("Booking Denied", "The customer has been notified and the slot has been released.")
+    );
   } catch (err) {
     console.error("Error responding to booking:", err);
     return res.status(500).send(renderResponsePage("Error", "Something went wrong processing this request. Please check the admin dashboard."));
@@ -640,15 +646,12 @@ app.post("/submit-boarding-booking", async (req, res) => {
   }
 
   try {
-    const responseToken = crypto.randomBytes(24).toString("hex");
     const booking = await BoardingBooking.create({
       startDate,
       startTime,
       endDate,
       endTime,
       petSelection,
-      status: "pending",
-      responseToken,
       ...bookingData,
     });
 
@@ -725,6 +728,8 @@ app.get("/admin/login", async (req, res) => {
 
 app.post("/api/admin/bookings/boarding/respond", adminAuthenticated, async (req, res) => {
   const { bookingId, action } = req.body;
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
+
   if (!bookingId || !["accept", "deny"].includes(action)) {
     return res.json({ success: false, error: "bookingId and a valid action are required" });
   }
@@ -738,16 +743,19 @@ app.post("/api/admin/bookings/boarding/respond", adminAuthenticated, async (req,
     return res.json({ success: false, error: `This booking has already been ${booking.status}.` });
   }
 
-  booking.status = action === "accept" ? "confirmed" : "denied";
-  await booking.save();
-
-  if (action === "deny") {
-    await releaseBoardingDates(booking.startDate, booking.endDate, booking.petSelection, booking._id);
+  try {
+    await resolveBoardingBooking(booking, action, baseUrl);
+    res.json({ success: true, status: booking.status });
+  } catch (err) {
+    // same as the grooming route: the status change already happened before
+    // the email send inside resolveBoardingBooking
+    console.error("Error notifying customer about boarding booking:", err);
+    res.json({
+      success: true,
+      status: booking.status,
+      warning: "The booking status was updated, but the notification email could not be sent.",
+    });
   }
-
-  // TODO once the mailer is set up: notify the customer here (confirmation or denial email)
-
-  res.json({ success: true, status: booking.status });
 });
 
 app.post("/admin/login", async (req, res) => {

@@ -299,7 +299,6 @@
     closeBlockBox();
   }
 
-    // accepts or denies a pending boarding booking from the dashboard, then refreshes
   async function respondToBooking(bookingId, action) {
     try {
       const result = await fetch('/api/admin/bookings/boarding/respond', {
@@ -311,6 +310,10 @@
       if (!result.success) {
         alert(result.error || 'Something went wrong.');
         return;
+      }
+
+      if (result.warning) {
+        alert(result.warning);
       }
 
       // a boarding booking spans multiple days, so refetch the whole month

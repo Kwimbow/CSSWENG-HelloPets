@@ -80,6 +80,13 @@ async function fetchMonthBookings(year, month) {
   }
 }
 
+function formatTime(timeStr) {
+  const [h, m] = timeStr.split(":").map(Number);
+  const period = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${String(m).padStart(2, "0")} ${period}`;
+}
+
 function dateKey(d) {
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
@@ -315,18 +322,15 @@ async function respondToBooking(bookingId, action) {
       return;
     }
 
+    if (result.warning) {
+      alert(result.warning);
+    }
+
     fetchMonthBookings(currentYear, currentMonth);
   } catch (error) {
     console.error('Failed to respond to booking:', error);
     alert('Something went wrong.');
   }
-}
-
-function formatTime(t) {
-    const [h, m] = t.split(':').map(Number);
-    const period = h >= 12 ? 'PM' : 'AM';
-    const hour12 = ((h + 11) % 12) + 1;
-    return `${hour12}:${String(m).padStart(2,'0')} ${period}`;
 }
 
 

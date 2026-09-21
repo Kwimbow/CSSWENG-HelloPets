@@ -4,6 +4,8 @@ const { Schema } = mongoose;
 
 const bookingSchema = new Schema(
   {
+    appointmentDate: { type: String, required: true },
+    appointmentTime: { type: String, required: true },
     petSelection: { type: String, enum: ["dog", "cat"], required: true },
     petName: { type: String, required: true, trim: true },
     petWeight: { type: String, required: true },
